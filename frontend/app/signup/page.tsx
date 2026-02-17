@@ -18,7 +18,7 @@ export default function SignupPage() {
     const form = e.target;
 
     const data = {
-      name: form.fname.value,
+      full_name: form.fname.value,
       email: form.femail.value,
       password: form.fpass.value,
       phone: form.fphone.value,
@@ -36,7 +36,14 @@ export default function SignupPage() {
 
       if (!res.ok) {
         setError(true);
-        setMsg(result.detail || "Signup failed");
+        const message =
+          typeof result?.detail?.[0]?.msg === "string"
+            ? result.detail[0].msg
+            : typeof result?.message === "string"
+              ? result.message
+              : "Signup failed";
+
+        setMsg(message);
       } else {
         setError(false);
         setMsg("Account created successfully 🎉");
@@ -61,22 +68,25 @@ export default function SignupPage() {
       </div>
 
       <div className="flex items-center justify-center">
-        <div className="w-full max-w-lg p-8 rounded-2xl 
+        <div
+          className="w-full max-w-lg p-8 rounded-2xl 
                         bg-white/10 backdrop-blur-xl 
-                        border border-white/10 shadow-2xl">
-
+                        border border-white/10 shadow-2xl"
+        >
           <h2 className="text-2xl font-semibold mb-1 text-white">
             Create account
           </h2>
 
           {msg && (
-            <div className={`mb-4 p-3 rounded-lg text-sm 
-              ${error ? "bg-red-500/20 text-red-300" : "bg-green-500/20 text-green-300"}`}>
+            <div
+              className={`mb-4 p-3 rounded-lg text-sm 
+              ${error ? "bg-red-500/20 text-red-300" : "bg-green-500/20 text-green-300"}`}
+            >
               {msg}
             </div>
           )}
 
-          <form 
+          <form
             onSubmit={handleSignup}
             className="space-y-4"
             autoComplete="off"
@@ -87,10 +97,33 @@ export default function SignupPage() {
             <input type="text" style={{ display: "none" }} />
             <input type="password" style={{ display: "none" }} />
 
-            <input name="fname" autoComplete="new-name" placeholder="Full name" className="input" />
-            <input name="femail" autoComplete="new-email" type="email" placeholder="Email" className="input" />
-            <input name="fpass" autoComplete="new-password" type="password" placeholder="Password" className="input" />
-            <input name="fphone" autoComplete="new-tel" type="tel" placeholder="Phone number" className="input" />
+            <input
+              name="fname"
+              autoComplete="new-name"
+              placeholder="Full name"
+              className="input"
+            />
+            <input
+              name="femail"
+              autoComplete="new-email"
+              type="email"
+              placeholder="Email"
+              className="input"
+            />
+            <input
+              name="fpass"
+              autoComplete="new-password"
+              type="password"
+              placeholder="Password"
+              className="input"
+            />
+            <input
+              name="fphone"
+              autoComplete="new-tel"
+              type="tel"
+              placeholder="Phone number"
+              className="input"
+            />
 
             <select name="frole" className="input">
               <option value="">Select role</option>
@@ -124,7 +157,7 @@ export default function SignupPage() {
               )}
             </div>
 
-            <button 
+            <button
               disabled={loading}
               className="w-full bg-indigo-600 text-white py-3 rounded-lg 
                          hover:bg-indigo-700 transition 

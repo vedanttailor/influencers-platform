@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware # type: ignore
 app = FastAPI()
 Base.metadata.create_all(engine)
 
-app.include_router(router)
+app.include_router(router, prefix="/auth")
 
 app.add_middleware(
     CORSMiddleware,
@@ -23,13 +23,5 @@ app.add_middleware(
 @app.get("/")
 def health():
     return {"status": "ok"}
-
-@app.get("/admin")
-def admin(user=Depends(require_role("admin"))):
-    return {"msg": "Welcome Admin"}
-
-@app.get("/manager")
-def manager(user=Depends(require_role("manager"))):
-    return {"msg": "Welcome Manager"}
 
 

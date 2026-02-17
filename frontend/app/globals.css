@@ -47,3 +47,21 @@ select:-webkit-autofill {
   caret-color: white;
   transition: background-color 9999s ease-in-out 0s;
 }
+
+
+.input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: black;
+  color: white;
+  border-radius: 6px;
+  font-weight: 600;
+}

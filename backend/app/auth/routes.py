@@ -1,3 +1,4 @@
+from app.auth.service import forgot_password, reset_password
 from fastapi import APIRouter, Depends, HTTPException # type: ignore
 from sqlalchemy.orm import Session # type: ignore
 from app.auth.schemas import SignupSchema, LoginSchema 
@@ -63,3 +64,17 @@ def delete_user(id: str, db: Session = Depends(get_db)):
     user = db.query(User).get(id)
     user.is_deleted = datetime.utcnow()
     db.commit()
+
+
+@router.post("/forgot-password")
+def forgot(data: dict, db: Session = Depends(get_db)):
+    return forgot_password(data["email"], db)
+
+@router.post("/reset-password")
+def reset(data: dict, db: Session = Depends(get_db)):
+    return reset_password(
+        data["email"],
+        data["code"],
+        data["new_password"],
+        db
+    )
