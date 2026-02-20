@@ -1,4 +1,5 @@
 from app.auth.service import forgot_password, reset_password
+from backend.app.auth.dependencies import get_current_user
 from fastapi import APIRouter, Depends, HTTPException # type: ignore
 from sqlalchemy.orm import Session # type: ignore
 from app.auth.schemas import SignupSchema, LoginSchema 
@@ -78,3 +79,16 @@ def reset(data: dict, db: Session = Depends(get_db)):
         data["new_password"],
         db
     )
+    
+    
+@router.get("/me")
+def get_current_user_data(
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return {
+        "id": user.id,
+        "full_name": user.full_name,
+        "email": user.email,
+        "role": user.role
+    }

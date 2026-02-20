@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { redirectByRole } from "@/app/utils/redirectByRole";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,7 +17,6 @@ export default function LoginPage() {
     setLoading(true);
 
     const form = e.target;
-
     const data = {
       email: form.femail.value,
       password: form.fpass.value,
@@ -37,13 +37,14 @@ export default function LoginPage() {
           result?.detail?.[0]?.msg || result?.message || "Login failed";
         setMsg(message);
       } else {
+        localStorage.setItem("token", result.token);
+        localStorage.setItem("role", result.role);
+
         setError(false);
         setMsg("Login successful ✅");
-        localStorage.setItem("token", result.access_token);
 
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 800);
+        redirectByRole(result.role, router);
+
       }
     } catch {
       setError(true);
@@ -131,3 +132,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+

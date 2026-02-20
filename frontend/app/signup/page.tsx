@@ -3,12 +3,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState } from "react";
+import { redirectByRole } from "@/app/utils/redirectByRole";
+import { useRouter } from "next/navigation";
+
 
 export default function SignupPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSignup = async (e: any) => {
     e.preventDefault();
@@ -16,6 +20,7 @@ export default function SignupPage() {
     setLoading(true);
 
     const form = e.target;
+    
 
     const data = {
       full_name: form.fname.value,
@@ -45,10 +50,13 @@ export default function SignupPage() {
 
         setMsg(message);
       } else {
+        localStorage.setItem("token", result.token);
+        localStorage.setItem("role", result.role);
         setError(false);
         setMsg("Account created successfully 🎉");
         form.reset();
         setImagePreview(null);
+        redirectByRole(result.role, router);
       }
     } catch {
       setError(true);
