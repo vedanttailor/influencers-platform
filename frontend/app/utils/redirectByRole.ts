@@ -1,23 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const redirectByRole = (role: string, router: any) => {
-  switch (role) {
+  const normalizedRole = role?.toLowerCase().trim();
+
+  switch (normalizedRole) {
+    
     case "admin":
-      router.push("/Admin/admin/dashboard");
+      router.replace("/admin/dashboard");
       break;
 
     case "manager":
-      router.push("/manager/dashboard");
+      router.replace("/manager/dashboard");
       break;
 
     case "client":
-      router.push("/client/dashboard");
+      router.replace("/client/campaigns");
       break;
 
     case "influencer":
-      router.push("/Influencer");
+      router.replace("/influencer/dashboard");
       break;
 
     default:
-      router.push("/login");
+      router.replace("/login");
   }
 };

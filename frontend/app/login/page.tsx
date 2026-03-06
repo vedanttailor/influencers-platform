@@ -43,8 +43,9 @@ export default function LoginPage() {
         setError(false);
         setMsg("Login successful ✅");
 
-        redirectByRole(result.role, router);
-
+        setTimeout(() => {
+          redirectByRole(result.role, router);
+        }, 100);
       }
     } catch {
       setError(true);
@@ -132,5 +133,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-

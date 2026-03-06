@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from "react";
 import { FiBell, FiHelpCircle } from "react-icons/fi";
-import { getAdmin } from "@/app/Admin/store/adminStore";
+import { getAdmin } from "@/app/admin/store/adminStore";
 
 export default function Topbar() {
   const [admin, setAdmin] = useState<any>(null);

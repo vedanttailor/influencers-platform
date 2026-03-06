@@ -1,5 +1,5 @@
 from app.auth.service import forgot_password, reset_password
-from backend.app.auth.dependencies import get_current_user
+from app.auth.dependencies import get_current_user
 from fastapi import APIRouter, Depends, HTTPException # type: ignore
 from sqlalchemy.orm import Session # type: ignore
 from app.auth.schemas import SignupSchema, LoginSchema 
@@ -31,7 +31,7 @@ def signup(data: SignupSchema, db: Session = Depends(get_db)):
     )
     db.add(user)
     db.commit()
-    db.refresh(user)
+    db.refresh(user)    
 
     token = create_token(user.id, user.role)
 
@@ -82,13 +82,15 @@ def reset(data: dict, db: Session = Depends(get_db)):
     
     
 @router.get("/me")
-def get_current_user_data(
-    user=Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
+def get_me(current_user = Depends(get_current_user), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == current_user["sub"]).first()
+
+    if not user:
+        raise HTTPException(404, "User not found")
+
     return {
         "id": user.id,
         "full_name": user.full_name,
         "email": user.email,
-        "role": user.role
+        "role": user.role,
     }

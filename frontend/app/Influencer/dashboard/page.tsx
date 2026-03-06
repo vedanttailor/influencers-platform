@@ -41,7 +41,7 @@ function DashboardContent() {
   const applied = campaigns.filter((c: any) => c.status === "applied");
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">
           Welcome, {fullName}
