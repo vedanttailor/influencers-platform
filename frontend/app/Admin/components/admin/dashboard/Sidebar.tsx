@@ -11,11 +11,11 @@ import {
 } from "react-icons/fi";
 
 const menu = [
-  { name: "Dashboard", path: "/admin/dashboard", icon: FiHome },
-  { name: "Clients", path: "/admin/client", icon: FiUsers },
-  { name: "Influencers", path: "/admin/influencers", icon: FiActivity },
-  { name: "Manager", path: "/admin/manager", icon: FiBriefcase },
-  { name: "Profile", path: "/admin/profile", icon: FiUser },
+  { name: "Dashboard", path: "/Admin/dashboard", icon: FiHome },
+  { name: "Clients", path: "/Admin/client", icon: FiUsers },
+  { name: "Influencers", path: "/Admin/influencers", icon: FiActivity },
+  { name: "Manager", path: "/Admin/manager", icon: FiBriefcase },
+  { name: "Profile", path: "/Admin/profile", icon: FiUser },
 ];
 
 export default function Sidebar() {
