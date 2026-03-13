@@ -5,7 +5,7 @@ export const redirectByRole = (role: string, router: any) => {
   switch (normalizedRole) {
     
     case "admin":
-      router.replace("/admin/dashboard");
+      router.replace("/Admin/dashboard");
       break;
 
     case "manager":

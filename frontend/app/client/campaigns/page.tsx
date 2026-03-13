@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
-import Topbar from "../components/Topbar";
+
 import EngagementPieChart from "../components/EngagementChart";
 import CampaignCard from "../components/CampaignTable";
 
@@ -98,8 +98,6 @@ export default function ClientCampaignsPage() {
       </div>
 
       <aside className="w-64 shrink-0"></aside>
-
-      <Topbar />
 
       <div className="flex gap-3 mb-6">
         {["all", "active", "completed", "pending"].map((status) => (
