@@ -5,7 +5,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAdmin, saveAdmin } from "../../store/adminStore";
+import { getAdmin, saveAdmin } from "../store/adminStore";
 
 export default function AdminProfile() {
   const [admin, setAdmin] = useState<any>(null);
