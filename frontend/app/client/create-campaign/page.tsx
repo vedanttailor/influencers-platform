@@ -12,7 +12,7 @@ export default function CreateCampaignForm() {
 
       <form className="space-y-8">
 
-        
+        {/*Basic Campaign Information*/}
         <section className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-lg font-medium mb-4">Basic Campaign Information</h2>
 
@@ -101,7 +101,7 @@ export default function CreateCampaignForm() {
           />
         </section>
 
-        
+        {/*Campaign Timeline*/}
         <section className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-lg font-medium mb-4">Campaign Timeline</h2>
 
@@ -109,11 +109,17 @@ export default function CreateCampaignForm() {
             <input type="date" className="input" />
             <input type="date" className="input" />
 
-            
+            {/* <select className="input">
+              <option value="">Timezone</option>
+              <option>IST (India)</option>
+              <option>UTC</option>
+              <option>EST</option>
+              <option>PST</option>
+            </select> */}
           </div>
         </section>
 
-        
+        {/*Budget & Payment Details*/}
         <section className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-lg font-medium mb-4">Budget & Payment Details</h2>
 
@@ -143,7 +149,7 @@ export default function CreateCampaignForm() {
           </div>
         </section>
 
-        
+        {/*Actions*/}
         <div className="flex justify-end gap-4">
           <button
             type="button"
@@ -162,7 +168,7 @@ export default function CreateCampaignForm() {
 
       </form>
 
-      
+      {/* Tailwind Input Utility */}
       <style jsx>{`
         .input {
           width: 100%;

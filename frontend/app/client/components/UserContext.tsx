@@ -29,7 +29,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   return (
     <UserContext.Provider value={{ user, updateUser }}>
       {children}
-       </UserContext.Provider>
+    </UserContext.Provider>
   );
 }
 

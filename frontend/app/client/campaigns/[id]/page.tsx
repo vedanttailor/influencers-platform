@@ -27,7 +27,10 @@ interface CampaignDetails {
   influencers: Influencer[];
 }
 
-
+/**
+ * MOCK DATA (no database)
+ * ID must match campaigns/page.tsx IDs
+ */
 const mockCampaignDetails: CampaignDetails[] = [
   {
     id: 1,
@@ -91,15 +94,15 @@ export default function CampaignDetailsPage() {
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
-      
+      {/* Back */}
       <Link
-        href="/campaigns"
+        href="/client/campaigns"
         className="text-sm text-gray-600 inline-block"
       >
-         Back to Campaigns
+        ← Back to Campaigns
       </Link>
 
-      
+      {/* Campaign Info */}
       <div className="bg-white p-6 rounded-xl border">
         <h1 className="text-2xl font-semibold mb-4">
           {campaign.name}
@@ -114,7 +117,7 @@ export default function CampaignDetailsPage() {
         </div>
       </div>
 
-      
+      {/* Influencer Performance */}
       <div className="bg-white p-6 rounded-xl border">
         <h2 className="text-xl font-semibold mb-4">
           Influencer Performance
