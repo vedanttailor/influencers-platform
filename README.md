@@ -162,11 +162,3 @@ npm run dev
 * AI-based influencer recommendations
 * Campaign performance insights
 * Mobile application
-
----
-
-## 📜 License
-
-This project is developed for educational and portfolio purposes.
-
-
