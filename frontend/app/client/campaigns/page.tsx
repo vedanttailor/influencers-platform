@@ -90,7 +90,7 @@ export default function ClientCampaignsPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">My Campaigns</h1>
         <Link
-          href="/create-campaign"
+          href="/client/create-campaign"
           className="px-4 py-2 bg-black text-white rounded-lg"
         >
           + Create Campaign

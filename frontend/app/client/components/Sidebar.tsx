@@ -16,7 +16,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="space-y-2 px-4">
-        <SidebarItem href="/" icon={<LayoutDashboard />} label="Dashboard" />
+        <SidebarItem href="/client/dashboard" icon={<LayoutDashboard />} label="Dashboard" />
         <SidebarItem href="/client/campaigns" icon={<Megaphone />} label="Campaigns" />
         <SidebarItem href="/client/create-campaign" icon={<PlusCircle />} label="Create Campaign" />
         <SidebarItem href="/client/influencer-response" icon={<Reply />} label="Influencer Response" />
@@ -32,8 +32,7 @@ function SidebarItem({ href, icon, label }: any) {
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 p-3 rounded hover:bg-blue-50 text-black"
-    >
+      className="flex items-center gap-3 p-3 rounded hover:bg-blue-50 text-black">
       {icon}
       <span>{label}</span>
     </Link>

@@ -9,22 +9,22 @@
 body {
   min-height: 100vh;
   font-family: var(--font-sans);
-  background: linear-gradient(135deg, #0f172a, #020617);
-  color: #f8fafc;
+  background: linear-gradient(135deg, lighypurple);
+  color: #000000;
 }
 
 .input {
   width: 100%;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
-  background: rgba(255,255,255,0.15);
-  color: white;
+  background: rgb(255, 255, 255);
+  color: rgba(19, 14, 14, 0.993);
   outline: none;
 }
 
 select.input option {
-  background-color: #020617;
-  color: #f8fafc;
+  background-color: #fdfdfd;
+  color: #010911;
 }
 
 
@@ -43,7 +43,7 @@ input:-webkit-autofill:focus,
 textarea:-webkit-autofill,
 select:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px rgba(255,255,255,0.15) inset !important;
-  -webkit-text-fill-color: white !important;
+  -webkit-text-fill-color: rgb(0, 0, 0) !important;
   caret-color: white;
   transition: background-color 9999s ease-in-out 0s;
 }
@@ -65,3 +65,4 @@ select:-webkit-autofill {
   border-radius: 6px;
   font-weight: 600;
 }
+

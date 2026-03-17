@@ -1,3 +1,5 @@
+'use client';
+
 import StatCard from "../components/StatCard";
 import EngagementChart from "../components/EngagementChart";
 import CampaignTable from "../components/CampaignTable";
