@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const menu = [
-  { name: "Dashboard", path: "/dashboard" },
-  { name: "Clients", path: "/clients" },
-  { name: "Influencers", path: "/influencers" },
-  { name: "Campaigns", path: "/campaigns" },
+  { name: "Dashboard", path: "/manager/dashboard" },
+  { name: "Clients", path: "/manager/clients" },
+  { name: "Influencers", path: "/manager/influencers" },
+  { name: "Campaigns", path: "/manager/campaigns" },
 ];
 
 export default function Sidebar() {

@@ -6,10 +6,9 @@ import { Bell } from "lucide-react";
 
 export default function Topbar() {
   return (
-    <header className="flex items-center justify-between px-8 py-4 border-b border-slate-800 bg-slate-950">
+    <header className="flex items-center justify-between px-8 py-4 ">
 
       <h1 className="text-lg font-semibold">
-        Dashboard
       </h1>
 
       <div className="flex items-center gap-6">

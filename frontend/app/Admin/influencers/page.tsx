@@ -4,6 +4,7 @@
 import Link from "next/link";
 import RiskTable from "./components/RiskTable";
 import InfluencerTable from "./components/InfluencerTable";
+import InfluencerDetailPage from "./[id]/page";
 
 import {
   BarChart,
@@ -97,6 +98,7 @@ export default function InfluencersPage() {
       <div className="grid grid-cols-2 gap-6">
         <RiskTable />
         <InfluencerTable />
+        <InfluencerDetailPage />
       </div>
 
 
