@@ -3,6 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 
+
+import EngagementPieChart from "../components/EngagementChart";
+import CampaignCard from "../components/CampaignTable";
+
 type CampaignStatus = "active" | "completed" | "pending";
 
 interface Campaign {
@@ -97,7 +101,8 @@ export default function ClientCampaignsPage() {
         </Link>
       </div>
 
-      {/* Filters */}
+      <aside className="w-64 shrink-0"></aside>
+
       <div className="flex gap-3 mb-6">
         {["all", "active", "completed", "pending"].map((status) => (
           <button
