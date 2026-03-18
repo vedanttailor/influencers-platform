@@ -49,7 +49,7 @@ export default function InfluencerResponsesPage() {
   const [selected, setSelected] =
     useState<ResponseType | null>(null);
 
-  
+  /* APPROVE */
   const approveInfluencer = (id: number) => {
     setResponses((prev) =>
       prev.map((res) =>
@@ -60,7 +60,7 @@ export default function InfluencerResponsesPage() {
     );
   };
 
-  
+  /* REJECT */
   const rejectInfluencer = (id: number) => {
     const confirmReject = confirm(
       "Are you sure you want to reject this influencer?"
@@ -82,7 +82,7 @@ export default function InfluencerResponsesPage() {
         Influencer Responses
       </h1>
 
-      
+      {/* TABLE */}
       <div className="bg-white rounded-lg shadow overflow-x-auto">
         <table className="w-full text-left">
           <thead className="bg-gray-100">
@@ -104,7 +104,7 @@ export default function InfluencerResponsesPage() {
                   {res.influencer}
                 </td>
 
-                
+                {/* Platforms */}
                 <td className="p-4">
                   <div className="flex gap-2 flex-wrap">
                     {res.platforms.map((p) => (
@@ -124,7 +124,7 @@ export default function InfluencerResponsesPage() {
                   {res.price}
                 </td>
 
-                
+                {/* STATUS */}
                 <td className="p-4">
                   <span
                     className={`px-3 py-1 rounded-full text-sm ${
@@ -141,7 +141,7 @@ export default function InfluencerResponsesPage() {
                   </span>
                 </td>
 
-                
+                {/* ACTIONS */}
                 <td className="p-4">
                   <div className="flex flex-col gap-2 w-[120px]">
                     <button
@@ -182,7 +182,7 @@ export default function InfluencerResponsesPage() {
         </table>
       </div>
 
-      
+      {/* VIEW MODAL */}
       {selected && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-full max-w-md space-y-3">
