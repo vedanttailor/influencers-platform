@@ -1,5 +1,9 @@
+"use client";
+import { useState } from "react";
+
 export default function CampaignsPage() {
-  const campaigns = [
+
+  const [campaigns, setCampaigns] = useState([
     {
       id: 1,
       name: "Summer Sale",
@@ -14,7 +18,29 @@ export default function CampaignsPage() {
       influencer: "Emma Watson",
       status: "Completed",
     },
-  ];
+  ]);
+
+  const [campaignName, setCampaignName] = useState("");
+  const [client, setClient] = useState("");
+  const [influencer, setInfluencer] = useState("");
+
+  const handleAssignCampaign = () => {
+    if (!campaignName || !client || !influencer) return;
+
+    const newCampaign = {
+      id: campaigns.length + 1,
+      name: campaignName,
+      client: client,
+      influencer: influencer,
+      status: "Active",
+    };
+
+    setCampaigns([...campaigns, newCampaign]);
+
+    setCampaignName("");
+    setClient("");
+    setInfluencer("");
+  };
 
   return (
     <div>
@@ -22,7 +48,7 @@ export default function CampaignsPage() {
         Campaign Management
       </h2>
 
-      
+      {/* ASSIGN CAMPAIGN FORM */}
       <div className="bg-white p-6 rounded-xl shadow mb-8 max-w-2xl">
 
         <h3 className="text-lg font-semibold mb-4">
@@ -36,6 +62,8 @@ export default function CampaignsPage() {
               Campaign Name
             </label>
             <input
+              value={campaignName}
+              onChange={(e) => setCampaignName(e.target.value)}
               placeholder="Enter Campaign Name"
               className="w-full border p-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
@@ -45,8 +73,12 @@ export default function CampaignsPage() {
             <label className="text-sm text-gray-600">
               Select Client
             </label>
-            <select className="w-full border p-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400">
-              <option>Select Client</option>
+            <select
+              value={client}
+              onChange={(e) => setClient(e.target.value)}
+              className="w-full border p-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <option value="">Select Client</option>
               <option>Nike</option>
               <option>Adidas</option>
             </select>
@@ -56,21 +88,28 @@ export default function CampaignsPage() {
             <label className="text-sm text-gray-600">
               Select Influencer
             </label>
-            <select className="w-full border p-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400">
-              <option>Select Influencer</option>
+            <select
+              value={influencer}
+              onChange={(e) => setInfluencer(e.target.value)}
+              className="w-full border p-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <option value="">Select Influencer</option>
               <option>John Doe</option>
               <option>Emma Watson</option>
             </select>
           </div>
 
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded transition">
+          <button
+            onClick={handleAssignCampaign}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded transition"
+          >
             Assign Campaign
           </button>
 
         </div>
       </div>
 
-      
+      {/* CAMPAIGN LIST */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
 
         <h3 className="text-lg font-semibold p-4 border-b">

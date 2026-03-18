@@ -29,7 +29,7 @@ export default function AdminProfile() {
     setAdmin(data);
     setName(data.name);
     setEmail(data.email);
-    setPhoto(data.image || "/avatar.png");
+    setPhoto(data.image || "/avatar.  png");
   }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

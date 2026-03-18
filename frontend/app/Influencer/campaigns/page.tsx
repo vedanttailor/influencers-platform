@@ -19,7 +19,7 @@ export default function CampaignsPage() {
             <p>Budget: ₹{c.budget}</p>
 
             <Link
-              href={`/influencer/campaigns/${c.id}`}
+              href={`/Influencer/campaigns/${c.id}`}
               className="inline-block mt-4 bg-black text-white px-4 py-2 rounded"
             >
               View Details

@@ -7,6 +7,7 @@ export default function InfluencersPage() {
     {
       id: 1,
       name: "John Doe",
+      image: "/influencers/john.png",
       platform: "Instagram",
       followers: "120K",
       status: "Pending",
@@ -14,6 +15,7 @@ export default function InfluencersPage() {
     {
       id: 2,
       name: "Emma Watson",
+      image: "/influencers/emma.png",
       platform: "YouTube",
       followers: "300K",
       status: "Approved",
@@ -45,6 +47,7 @@ export default function InfluencersPage() {
 
           <thead className="bg-gray-100 text-gray-600">
             <tr>
+              <th className="text-left p-4">Image</th>
               <th className="text-left p-4">Influencer</th>
               <th className="text-left p-4">Platform</th>
               <th className="text-left p-4">Followers</th>
@@ -56,6 +59,14 @@ export default function InfluencersPage() {
           <tbody>
             {influencers.map((inf) => (
               <tr key={inf.id} className="border-b hover:bg-gray-50 transition">
+
+                <td className="p-4">
+                  <img
+                    src={inf.image}
+                    alt={inf.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                </td>
 
                 <td className="p-4 font-medium">{inf.name}</td>
 
@@ -86,7 +97,6 @@ export default function InfluencersPage() {
 
                 <td className="p-4 text-center space-x-2">
 
-                  
                   {inf.status === "Pending" && (
                     <>
                       <button
@@ -105,7 +115,6 @@ export default function InfluencersPage() {
                     </>
                   )}
 
-                 
                   {inf.status === "Approved" && (
                     <button
                       onClick={() => handleReject(inf.id)}
@@ -115,7 +124,6 @@ export default function InfluencersPage() {
                     </button>
                   )}
 
-                  
                   {inf.status === "Rejected" && (
                     <button
                       onClick={() => handleApprove(inf.id)}

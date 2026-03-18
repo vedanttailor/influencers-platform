@@ -10,25 +10,25 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   return (
-    <UserProvider>
-      <div className="flex h-screen bg-slate-950 text-white">
+   <UserProvider>
+          <div className="flex h-screen overflow-hidden">
 
-        
-        <Sidebar />
+            <div className="w-64 shrink-0">
+              <Sidebar />
+            </div>
 
-        
-        <div className="flex flex-col flex-1">
+            <div className="flex flex-col flex-1">
 
-         
-          <Topbar />
+              <div className="shrink-0" style={{ backgroundColor: "white" }}>
+                <Topbar />
+              </div>
 
-          
-          <main className="flex-1 p-8 overflow-y-auto">
-            {children}
-          </main>
+              <main className="flex-1 overflow-y-auto p-6">
+                {children}
+              </main>
 
-        </div>
-      </div>
-    </UserProvider>
+            </div>
+          </div>
+        </UserProvider>
   );
 }

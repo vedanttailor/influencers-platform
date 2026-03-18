@@ -1,6 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-/* eslint-disable jsx-a11y/alt-text */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -27,7 +24,7 @@ export default function ProfileDropdown() {
   return (
     <div className="relative">
 
-     
+      {/* PROFILE BUTTON */}
       <div
         onClick={() => setShow(!show)}
         className="flex items-center gap-2 cursor-pointer"
@@ -39,7 +36,7 @@ export default function ProfileDropdown() {
         <span className="font-semibold">{name}</span>
       </div>
 
-      
+      {/* DROPDOWN */}
       {show && (
         <div className="absolute right-0 mt-3 w-64 bg-white shadow-lg rounded-xl p-4 z-50">
 
@@ -47,7 +44,7 @@ export default function ProfileDropdown() {
             Profile Settings
           </h3>
 
-          
+          {/* Update Name */}
           <div className="mb-3">
             <label className="text-sm text-gray-600">
               Name
@@ -59,7 +56,7 @@ export default function ProfileDropdown() {
             />
           </div>
 
-          
+          {/* Upload Photo */}
           <div className="mb-4">
             <label className="text-sm text-gray-600 flex items-center gap-1">
               <Upload size={16} /> Upload Photo
@@ -71,7 +68,7 @@ export default function ProfileDropdown() {
             />
           </div>
 
-        
+          {/* Logout */}
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm"
