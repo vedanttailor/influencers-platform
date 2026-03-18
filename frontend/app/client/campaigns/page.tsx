@@ -20,7 +20,7 @@ interface Campaign {
   status: CampaignStatus;
 }
 
-const mockCampaigns: Campaign[] = [
+const mockCampaigns: Campaign[] = [ 
   {
     id: 1,
     name: "Fashion Launch",
@@ -58,7 +58,9 @@ export default function ClientCampaignsPage() {
   const [filter, setFilter] = useState<"all" | CampaignStatus>("all");
 
   const filteredCampaigns =
-    filter === "all" ? campaigns : campaigns.filter((c) => c.status === filter);
+    filter === "all"
+      ? campaigns
+      : campaigns.filter((c) => c.status === filter);
 
   const deleteCampaign = (id: number) => {
     if (!confirm("Are you sure you want to delete this campaign?")) return;
@@ -68,8 +70,10 @@ export default function ClientCampaignsPage() {
   const completeCampaign = (id: number) => {
     if (!confirm("Mark this campaign as completed?")) return;
 
-    setCampaigns((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: "completed" } : c)),
+    setCampaigns((prev) =>  
+      prev.map((c) =>
+        c.id === id ? { ...c, status: "completed" } : c
+      )
     );
   };
 
@@ -86,12 +90,12 @@ export default function ClientCampaignsPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-10">
-        <h1 className="text-3xl font-semibold text-white">My Campaigns</h1>
-
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold">My Campaigns</h1>
         <Link
           href="/client/create-campaign"
-          className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+          className="px-4 py-2 bg-black text-white rounded-lg"
         >
           + Create Campaign
         </Link>
@@ -106,7 +110,9 @@ export default function ClientCampaignsPage() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onClick={() => setFilter(status as any)}
             className={`px-4 py-2 rounded-lg border ${
-              filter === status ? "bg-black text-white" : "bg-white text-black"
+              filter === status
+                ? "bg-black text-white"
+                : "bg-white text-black"
             }`}
           >
             {status.toUpperCase()}
@@ -114,21 +120,7 @@ export default function ClientCampaignsPage() {
         ))}
       </div>
 
-      <EngagementPieChart />
-
-      <div className="grid grid-cols-3 gap-6">
-        {campaigns.map((c) => (
-          <CampaignCard 
-            key={c.id} 
-            campaign={{
-              ...c,
-              title: c.name,
-              start: c.startDate,
-            }} 
-          />
-        ))}
-      </div>
-
+      {/* Campaign List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredCampaigns.map((campaign) => (
           <div
@@ -137,7 +129,9 @@ export default function ClientCampaignsPage() {
           >
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="font-semibold text-lg">{campaign.name}</h2>
+                <h2 className="font-semibold text-lg">
+                  {campaign.name}
+                </h2>
                 <p className="text-sm text-gray-500">
                   {campaign.type} • {campaign.category}
                 </p>
@@ -145,7 +139,7 @@ export default function ClientCampaignsPage() {
 
               <span
                 className={`px-3 py-1 text-sm rounded-full ${badgeColor(
-                  campaign.status,
+                  campaign.status
                 )}`}
               >
                 {campaign.status}
@@ -159,9 +153,10 @@ export default function ClientCampaignsPage() {
               <p>💰 Budget: ₹{campaign.budget.toLocaleString()}</p>
             </div>
 
+            {/* Actions */}
             <div className="flex justify-end gap-3 mt-4">
               <Link
-                href={`/campaigns/${campaign.id}`}
+                href={`/client/campaigns/${campaign.id}`}
                 className="text-sm px-4 py-1 border rounded-lg"
               >
                 View
@@ -190,7 +185,9 @@ export default function ClientCampaignsPage() {
       </div>
 
       {filteredCampaigns.length === 0 && (
-        <p className="text-center text-gray-500 mt-10">No campaigns found.</p>
+        <p className="text-center text-gray-500 mt-10">
+          No campaigns found.
+        </p>
       )}
     </div>
   );

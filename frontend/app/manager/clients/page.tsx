@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 
 export default function ClientsPage() {
@@ -9,12 +8,14 @@ export default function ClientsPage() {
       id: 1,
       name: "Nike India",
       email: "nike@gmail.com",
+      logo: "/logos/nike.png",
       status: "Pending",
     },
     {
       id: 2,
       name: "Adidas",
       email: "adidas@gmail.com",
+      logo: "/logos/adidas.png",
       status: "Approved",
     },
   ]);
@@ -48,6 +49,7 @@ export default function ClientsPage() {
 
           <thead className="bg-gray-100 text-gray-600">
             <tr>
+              <th className="text-left p-4">Logo</th>
               <th className="text-left p-4">Client</th>
               <th className="text-left p-4">Email</th>
               <th className="text-left p-4">Status</th>
@@ -58,6 +60,14 @@ export default function ClientsPage() {
           <tbody>
             {clients.map((client) => (
               <tr key={client.id} className="border-b hover:bg-gray-50 transition">
+
+                <td className="p-4">
+                  <img
+                    src={client.logo}
+                    alt={client.name}
+                    className="w-10 h-10 object-contain rounded"
+                  />
+                </td>
 
                 <td className="p-4 font-medium">{client.name}</td>
 
@@ -80,7 +90,6 @@ export default function ClientsPage() {
 
                 <td className="p-4 text-center space-x-2">
 
-                  
                   {client.status === "Pending" && (
                     <>
                       <button
@@ -99,7 +108,6 @@ export default function ClientsPage() {
                     </>
                   )}
 
-                  
                   {client.status === "Approved" && (
                     <button
                       onClick={() => handleReject(client.id)}
@@ -109,7 +117,6 @@ export default function ClientsPage() {
                     </button>
                   )}
 
-                  
                   {client.status === "Rejected" && (
                     <button
                       onClick={() => handleApprove(client.id)}

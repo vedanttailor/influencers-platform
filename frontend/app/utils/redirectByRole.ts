@@ -13,11 +13,11 @@ export const redirectByRole = (role: string, router: any) => {
       break;
 
     case "client":
-      router.replace("/client/campaigns");
+      router.replace("/client/dashboard");
       break;
 
     case "influencer":
-      router.replace("/influencer/dashboard");
+      router.replace("/Influencer/dashboard");
       break;
 
     default:

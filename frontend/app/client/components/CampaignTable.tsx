@@ -1,48 +1,45 @@
-interface Campaign {
-  title: string;
-  status: string;
-  category: string;
-  start: string;
-  budget: number;
-}
-
-export default function CampaignCard({ campaign }: { campaign: Campaign }) {
+import Link from "next/link";
+export default function CampaignTable() {
   return (
-    <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl">
-
-      <div className="flex justify-between items-center">
-
-        <h3 className="text-lg font-semibold">
-          {campaign.title}
-        </h3>
-
-        <span className="text-xs px-3 py-1 rounded-full bg-green-600">
-          {campaign.status}
-        </span>
-
-      </div>
-
-      <p className="text-sm text-slate-400 mt-2">
-        {campaign.category}
-      </p>
-
-      <div className="mt-4 flex justify-between text-sm text-slate-400">
-        <span>{campaign.start}</span>
-        <span>₹{campaign.budget}</span>
-      </div>
-
-      <div className="flex gap-3 mt-4">
-
-        <button className="px-3 py-1 bg-slate-800 rounded">
-          View
-        </button>
-
-        <button className="px-3 py-1 bg-indigo-600 rounded">
-          Edit
-        </button>
-
-      </div>
-
+    <div className="bg-white p-6 rounded-lg shadow">
+      <h3 className="font-semibold mb-4">Campaigns</h3>
+      <table className="w-full text-left">
+        <thead>
+          <tr className="text-gray-500">
+            <th>Campaign</th>
+            <th>Status</th>
+            <th>Influencers</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.name} className="border-t">
+              <td className="py-3">{row.name}</td>
+              <td>
+                <span className={`px-3 py-1 rounded text-white ${row.color}`}>
+                  {row.status}
+                </span>
+              </td>
+              <td>{row.inf}</td>
+             <td>
+              <Link
+              href="/client/campaigns"
+              className="text-blue-600 cursor-pointer"
+              >
+              View →
+              </Link>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
+
+const rows = [
+  { name: "Summer Fashion Promo", status: "Active", inf: "8 Influencers", color: "bg-green-500" },
+  { name: "Tech Gadgets Launch", status: "Ongoing", inf: "12 Influencers", color: "bg-yellow-500" },
+  { name: "Fitness Challenge", status: "Completed", inf: "10 Influencers", color: "bg-orange-500" },
+];
