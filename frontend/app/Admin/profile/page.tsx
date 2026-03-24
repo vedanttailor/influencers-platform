@@ -5,12 +5,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getAdmin, saveAdmin } from "../store/adminStore";
 
 export default function AdminProfile() {
+  const router = useRouter();
+
   const [admin, setAdmin] = useState<any>(null);
 
-  // form states (must always exist)
+  // form states
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role] = useState("Super Admin");
@@ -29,7 +32,7 @@ export default function AdminProfile() {
     setAdmin(data);
     setName(data.name);
     setEmail(data.email);
-    setPhoto(data.image || "/avatar.  png");
+    setPhoto(data.image || "/avatar.png");
   }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,6 +52,12 @@ export default function AdminProfile() {
 
     saveAdmin({ name, email, image: photo });
     setShowSuccess(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    router.push("/login");
   };
 
   if (!admin) return null;
@@ -130,8 +139,15 @@ export default function AdminProfile() {
           </div>
         </div>
 
-        {/* Save */}
-        <div className="flex justify-end mt-6">
+        {/* Buttons */}
+        <div className="flex justify-between mt-6">
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
+          >
+            Logout
+          </button>
+
           <button
             onClick={handleSave}
             className="bg-blue-600 text-white px-6 py-2 rounded"

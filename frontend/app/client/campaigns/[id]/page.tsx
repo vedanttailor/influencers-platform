@@ -109,11 +109,11 @@ export default function CampaignDetailsPage() {
         </h1>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-          <p>📱 Platform: {campaign.platform}</p>
-          <p>💰 Budget: ₹{campaign.budget.toLocaleString()}</p>
-          <p>📌 Status: {campaign.status}</p>
-          <p>📅 Start: {campaign.startDate}</p>
-          <p>📅 End: {campaign.endDate}</p>
+          <p> Platform: {campaign.platform}</p>
+          <p> Budget: ₹{campaign.budget.toLocaleString()}</p>
+          <p> Status: {campaign.status}</p>
+          <p> Start: {campaign.startDate}</p>
+          <p> End: {campaign.endDate}</p>
         </div>
       </div>
 
@@ -148,10 +148,10 @@ export default function CampaignDetailsPage() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3 text-sm">
-              <p>👍 Likes: {inf.likes}</p>
-              <p>💬 Comments: {inf.comments}</p>
-              <p>🔁 Shares: {inf.shares}</p>
-              <p>👀 Views: {inf.views}</p>
+              <p> Likes: {inf.likes}</p>
+              <p> Comments: {inf.comments}</p>
+              <p> Shares: {inf.shares}</p>
+              <p> Views: {inf.views}</p>
             </div>
           </div>
         ))}

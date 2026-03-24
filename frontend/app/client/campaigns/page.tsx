@@ -148,9 +148,9 @@ export default function ClientCampaignsPage() {
 
             <div className="mt-4 text-sm text-gray-600 space-y-1">
               <p>
-                📅 {campaign.startDate} → {campaign.endDate}
+                 {campaign.startDate} → {campaign.endDate}
               </p>
-              <p>💰 Budget: ₹{campaign.budget.toLocaleString()}</p>
+              <p> Budget: ₹{campaign.budget.toLocaleString()}</p>
             </div>
 
             {/* Actions */}

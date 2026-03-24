@@ -1,44 +1,38 @@
 "use client";
+
 import { useState } from "react";
 
 export default function CampaignsPage() {
-
   const [campaigns, setCampaigns] = useState([
     {
       id: 1,
       name: "Summer Sale",
       client: "Nike",
-      influencer: "John Doe",
-      status: "Active",
+      status: "Available",
     },
     {
       id: 2,
       name: "Winter Launch",
       client: "Adidas",
-      influencer: "Emma Watson",
-      status: "Completed",
+      status: "Available",
     },
   ]);
 
-  const [campaignName, setCampaignName] = useState("");
-  const [client, setClient] = useState("");
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [influencer, setInfluencer] = useState("");
 
-  const handleAssignCampaign = () => {
-    if (!campaignName || !client || !influencer) return;
+  const handleAssign = () => {
+    if (!influencer) return;
 
-    const newCampaign = {
-      id: campaigns.length + 1,
-      name: campaignName,
-      client: client,
-      influencer: influencer,
-      status: "Active",
-    };
+    setCampaigns((prev) =>
+      prev.map((c) =>
+        c.id === selectedCampaign.id
+          ? { ...c, influencer, status: "Assigned" }
+          : c
+      )
+    );
 
-    setCampaigns([...campaigns, newCampaign]);
-
-    setCampaignName("");
-    setClient("");
+    setSelectedCampaign(null);
     setInfluencer("");
   };
 
@@ -48,120 +42,88 @@ export default function CampaignsPage() {
         Campaign Management
       </h2>
 
-      {/* ASSIGN CAMPAIGN FORM */}
-      <div className="bg-white p-6 rounded-xl shadow mb-8 max-w-2xl">
+      {/*Campaign Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {campaigns.map((camp) => (
+          <div
+            key={camp.id}
+            className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
+          >
+            <h3 className="text-lg font-semibold">{camp.name}</h3>
+            <p className="text-sm text-gray-500 mb-2">
+              Client: {camp.client}
+            </p>
 
-        <h3 className="text-lg font-semibold mb-4">
-          Assign New Campaign
-        </h3>
-
-        <div className="space-y-4">
-
-          <div>
-            <label className="text-sm text-gray-600">
-              Campaign Name
-            </label>
-            <input
-              value={campaignName}
-              onChange={(e) => setCampaignName(e.target.value)}
-              placeholder="Enter Campaign Name"
-              className="w-full border p-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm text-gray-600">
-              Select Client
-            </label>
-            <select
-              value={client}
-              onChange={(e) => setClient(e.target.value)}
-              className="w-full border p-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            <span
+              className={`text-xs px-3 py-1 rounded-full
+                ${
+                  camp.status === "Assigned"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                }`}
             >
-              <option value="">Select Client</option>
-              <option>Nike</option>
-              <option>Adidas</option>
-            </select>
-          </div>
+              {camp.status}
+            </span>
 
-          <div>
-            <label className="text-sm text-gray-600">
-              Select Influencer
-            </label>
+            {camp.influencer && (
+              <p className="text-sm mt-2 text-gray-600">
+                Influencer: {camp.influencer}
+              </p>
+            )}
+
+            <button
+              onClick={() => setSelectedCampaign(camp)}
+              className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
+            >
+              Assign Influencer
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/*Assign Modal */}
+      {selectedCampaign && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-xl w-96">
+            <h3 className="text-lg font-semibold mb-4">
+              Assign Influencer
+            </h3>
+
+            <p className="text-sm mb-3">
+              Campaign:{" "}
+              <span className="font-medium">
+                {selectedCampaign.name}
+              </span>
+            </p>
+
             <select
               value={influencer}
               onChange={(e) => setInfluencer(e.target.value)}
-              className="w-full border p-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border p-2 rounded mb-4"
             >
               <option value="">Select Influencer</option>
               <option>John Doe</option>
               <option>Emma Watson</option>
             </select>
-          </div>
 
-          <button
-            onClick={handleAssignCampaign}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded transition"
-          >
-            Assign Campaign
-          </button>
-
-        </div>
-      </div>
-
-      {/* CAMPAIGN LIST */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
-
-        <h3 className="text-lg font-semibold p-4 border-b">
-          Assigned Campaigns
-        </h3>
-
-        <table className="w-full text-sm">
-          <thead className="bg-gray-100 text-gray-600">
-            <tr>
-              <th className="text-left p-4">Campaign</th>
-              <th className="text-left p-4">Client</th>
-              <th className="text-left p-4">Influencer</th>
-              <th className="text-left p-4">Status</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {campaigns.map((camp) => (
-              <tr
-                key={camp.id}
-                className="border-b hover:bg-gray-50 transition"
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setSelectedCampaign(null)}
+                className="px-4 py-2 bg-gray-200 rounded"
               >
-                <td className="p-4 font-medium">
-                  {camp.name}
-                </td>
+                Cancel
+              </button>
 
-                <td className="p-4 text-gray-500">
-                  {camp.client}
-                </td>
-
-                <td className="p-4 text-gray-500">
-                  {camp.influencer}
-                </td>
-
-                <td className="p-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold
-                    ${
-                      camp.status === "Active"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-200 text-gray-700"
-                    }`}
-                  >
-                    {camp.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-
-        </table>
-      </div>
+              <button
+                onClick={handleAssign}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Assign
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

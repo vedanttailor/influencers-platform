@@ -43,8 +43,7 @@ export default function Sidebar() {
 
       {/* Logo */}
       <div
-        className="px-6 py-5 text-xl font-bold border-b"
-        style={{ borderColor: "#e5e7eb", color: "black" }}
+        className="px-6 py-5 text-xl "
       >
         Influencer CRM
       </div>
