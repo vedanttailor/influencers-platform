@@ -12,7 +12,7 @@
 body {
   min-height: 100vh;
   font-family: var(--font-sans);
-  background: linear-gradient(135deg, lighypurple);
+  background: linear-gradient(135deg, lightpurple);
   color: #000000;
 }
 

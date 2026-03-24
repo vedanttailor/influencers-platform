@@ -12,22 +12,22 @@ import {
 const links = [
   {
     name: "Dashboard",
-    href: "/Influencer/dashboard",
+    href: "/influencer/dashboard",
     icon: LayoutDashboard,
   },
   {
     name: "Campaigns",
-    href: "/Influencer/campaigns",
+    href: "/influencer/campaigns",
     icon: Megaphone,
   },
   {
     name: "Earnings",
-    href: "/Influencer/earnings",
+    href: "/influencer/earnings",
     icon: DollarSign,
   },
   {
     name: "Profile",
-    href: "/Influencer/profile",
+    href: "/influencer/profile",
     icon: User,
   },
 ];
