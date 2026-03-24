@@ -1,10 +1,14 @@
 from pydantic import BaseModel, EmailStr # type: ignore
+from typing import Optional
+from app.models import UserRole 
 
 class SignupSchema(BaseModel):
-    role: str
+    role: UserRole
     full_name: str
     email: EmailStr
     password: str
+    phone: Optional[str] = None
+    profile_img: Optional[str] = None
 
 class LoginSchema(BaseModel):
     email: EmailStr
