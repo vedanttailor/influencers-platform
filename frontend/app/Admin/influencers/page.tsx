@@ -98,7 +98,7 @@ export default function InfluencersPage() {
       <div className="grid grid-cols-2 gap-6">
         <RiskTable />
         <InfluencerTable />
-        <InfluencerDetailPage />
+        < InfluencerDetailPage />
       </div>
 
 

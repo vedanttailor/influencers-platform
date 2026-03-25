@@ -4,10 +4,23 @@ from fastapi import APIRouter, Depends, HTTPException # type: ignore
 from sqlalchemy.orm import Session # type: ignore
 from app.auth.schemas import SignupSchema, LoginSchema 
 from app.database import SessionLocal
-from app.models import User
+from app.models import User,  Influencer, Client, Campaign
 from app.core.security import hash_password, verify_password, create_token
+from app.auth.permissions import require_role
 from .utils import get_user_by_email
 from datetime import datetime
+from fastapi import File, UploadFile, HTTPException # type: ignore
+import os
+from dotenv import load_dotenv # type: ignore
+import cloudinary.uploader # type: ignore
+
+load_dotenv()
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+)
 
 router = APIRouter(prefix="/auth")
 
@@ -20,6 +33,7 @@ def get_db():
 
 @router.post("/signup")
 def signup(data: SignupSchema, db: Session = Depends(get_db)):
+    print("Recive profile_img", data.profile_img)
     if get_user_by_email(db, data.email):
         raise HTTPException(400, "Email already exists")
 
@@ -27,15 +41,23 @@ def signup(data: SignupSchema, db: Session = Depends(get_db)):
         full_name=data.full_name,
         email=data.email,
         password=hash_password(data.password),
-        role=data.role
+        role=data.role,
+        phone=data.phone,
+        profile_img=data.profile_img
     )
     db.add(user)
     db.commit()
     db.refresh(user)    
 
     token = create_token(user.id, user.role)
-
-    return {"token": token, "role": user.role}
+    
+    return {
+    "message": "Login successful",
+    "data": {
+        "token": token,
+        "role": user.role
+    }
+}
 
 @router.post("/login")
 def login(data: LoginSchema, db: Session = Depends(get_db)):
@@ -62,9 +84,17 @@ def login(data: LoginSchema, db: Session = Depends(get_db)):
 
 @router.delete("/users/{id}")
 def delete_user(id: str, db: Session = Depends(get_db)):
-    user = db.query(User).get(id)
+
+    user = db.query(User).filter(User.id == id).first()
+
+    if not user:
+        raise HTTPException(404, "User not found")
+
     user.is_deleted = datetime.utcnow()
+
     db.commit()
+
+    return {"message": "User deleted"}
 
 
 @router.post("/forgot-password")
@@ -93,4 +123,54 @@ def get_me(current_user = Depends(get_current_user), db: Session = Depends(get_d
         "full_name": user.full_name,
         "email": user.email,
         "role": user.role,
+        "profile_img": user.profile_img,
     }
+    
+@router.get("/admin")
+def dashboard(db: Session = Depends(get_db),user=Depends(require_role("admin"))):
+
+    users = db.query(User).count()
+    influencers = db.query(Influencer).count()
+    clients = db.query(Client).count()
+    campaigns = db.query(Campaign).count()
+
+    return {
+        "users": users,
+        "influencers": influencers,
+        "clients": clients,
+        "campaigns": campaigns
+    }
+    
+@router.get("/campaign")
+def campaigns(db: Session = Depends(get_db)):
+    return db.query(Campaign).all()
+
+@router.get("/client")
+def get_clients(db: Session = Depends(get_db),user=Depends(require_role("client"))):
+    return db.query(Client).all()
+
+@router.get("/influencer")
+def get_influencers(db: Session = Depends(get_db),user=Depends(require_role("influencer"))):
+    return db.query(Influencer).all()
+
+@router.get("/influencer/{id}")
+def get_influencer(id: str, db: Session = Depends(get_db)):
+    return db.query(Influencer).filter(Influencer.id == id).first()
+
+
+@router.post("/upload-profile-image")
+def upload_profile_image(file: UploadFile = File(...)):
+    
+  
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(400, "Only image files allowed")
+
+    try:
+        result = cloudinary.uploader.upload(file.file)
+
+        return {
+            "image_url": result["secure_url"]
+        }
+
+    except Exception as e:
+        raise HTTPException(500, str(e))
