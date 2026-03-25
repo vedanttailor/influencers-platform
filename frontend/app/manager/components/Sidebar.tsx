@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import path from "path";
 
 const menu = [
   { name: "Dashboard", path: "/manager/dashboard" },
   { name: "Clients", path: "/manager/clients" },
   { name: "Influencers", path: "/manager/influencers" },
   { name: "Campaigns", path: "/manager/campaigns" },
+  { name: "Profile", path: "/manager/profile" },
 ];
 
 export default function Sidebar() {

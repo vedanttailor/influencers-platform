@@ -1,36 +1,48 @@
-/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
-/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { Bell } from "lucide-react";
 import { useEffect, useState } from "react";
-import { FiBell, FiHelpCircle } from "react-icons/fi";
-import { getAdmin } from "@/app/Admin/store/adminStore";
 
 export default function Topbar() {
-  const [admin, setAdmin] = useState<any>(null);
+
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    setAdmin(getAdmin());
+    const fetchUser = async () => {
+      const res = await fetch("http://127.0.0.1:8000/auth/me", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      const data = await res.json();
+      setUser(data);
+    };
+
+    fetchUser();
   }, []);
 
-  if (!admin) return null;
-
   return (
-    <div className="h-16 bg-white shadow px-6 flex justify-end items-center gap-5">
-      <FiHelpCircle className="text-xl text-gray-600 cursor-pointer" />
-      <FiBell className="text-xl text-gray-600 cursor-pointer" />
+    <header className="flex items-center justify-between px-8 py-4 ">
+      <h1 className="text-lg font-semibold"></h1>
 
-      <span>{admin.name}</span> 
+      <div className="flex items-center gap-6">
+        <Bell className="cursor-pointer" />
 
-      <div className="flex items-center gap-3">
-        <img
-          src={admin.image || "/avatar.png"}
-          className="w-10 h-10 rounded-full object-cover"
-        />
-        
+        <div className="flex items-center gap-3">
+          <img
+            src={user?.profile_img || "https://i.pravatar.cc/40"}
+            className="w-8 h-8 rounded-full object-cover"
+          />
+
+          <span className="text-sm">
+            {user?.full_name || "Loading..."}
+          </span>
+        </div>
       </div>
-    </div>
+    </header>
   );
 }
