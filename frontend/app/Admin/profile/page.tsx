@@ -1,16 +1,18 @@
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-hooks/set-state-in-effect */
+
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAdmin, saveAdmin } from "../../store/adminStore";
+import { useRouter } from "next/navigation";
 
 export default function AdminProfile() {
+  const router = useRouter();
+
   const [admin, setAdmin] = useState<any>(null);
 
-  // form states (must always exist)
+  // form states
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role] = useState("Super Admin");
@@ -19,36 +21,96 @@ export default function AdminProfile() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [photo, setPhoto] = useState("/avatar.png");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
 
-  // load admin safely
+ 
   useEffect(() => {
-    const data = getAdmin();
-    setAdmin(data);
-    setName(data.name);
-    setEmail(data.email);
-    setPhoto(data.image || "/avatar.png");
+    const fetchAdmin = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/auth/me", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        const data = await res.json();
+
+        setAdmin(data);
+        setName(data.full_name);
+        setEmail(data.email);
+        setPhoto(data.profile_img || "/avatar.png");
+      } catch (err) {
+        console.error("Failed to fetch admin", err);
+      }
+    };
+
+    fetchAdmin();
   }, []);
 
+  
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const img = e.target.files?.[0];
     if (!img) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => setPhoto(reader.result as string);
-    reader.readAsDataURL(img);
+    setSelectedFile(img);
+    setPhoto(URL.createObjectURL(img));
   };
 
-  const handleSave = () => {
+  
+  const handleSave = async () => {
     if (password && password !== confirmPassword) {
       setShowError(true);
       return;
     }
 
-    saveAdmin({ name, email, image: photo });
-    setShowSuccess(true);
+    try {
+      let imageUrl = photo;
+
+      
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        const res = await fetch(
+          "http://127.0.0.1:8000/auth/upload-profile-image",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const data = await res.json();
+        imageUrl = data.image_url;
+      }
+
+      
+      await fetch("http://127.0.0.1:8000/auth/update-profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          full_name: name,
+          email: email,
+          profile_img: imageUrl,
+        }),
+      });
+
+      setShowSuccess(true);
+    } catch (err) {
+      console.error("Save failed", err);
+    }
+  };
+
+  
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    router.push("/login");
   };
 
   if (!admin) return null;
@@ -58,7 +120,7 @@ export default function AdminProfile() {
       <div className="max-w-3xl bg-white shadow rounded-lg p-6">
         <h1 className="text-2xl font-semibold mb-6">Admin Profile</h1>
 
-        {/* Image */}
+        
         <div className="flex items-center gap-6 mb-6">
           <img
             src={photo}
@@ -77,7 +139,7 @@ export default function AdminProfile() {
           </label>
         </div>
 
-        {/* Form */}
+        
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm">Full Name</label>
@@ -107,7 +169,7 @@ export default function AdminProfile() {
           </div>
         </div>
 
-        {/* Password */}
+        
         <div className="mt-6 grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm">New Password</label>
@@ -130,8 +192,15 @@ export default function AdminProfile() {
           </div>
         </div>
 
-        {/* Save */}
-        <div className="flex justify-end mt-6">
+        
+        <div className="flex justify-between mt-6">
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
+          >
+            Logout
+          </button>
+
           <button
             onClick={handleSave}
             className="bg-blue-600 text-white px-6 py-2 rounded"
@@ -141,7 +210,7 @@ export default function AdminProfile() {
         </div>
       </div>
 
-      {/* Success Modal */}
+      
       {showSuccess && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
           <div className="bg-white rounded p-6 w-80 text-center">
@@ -159,7 +228,7 @@ export default function AdminProfile() {
         </div>
       )}
 
-      {/* Error Modal */}
+      
       {showError && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
           <div className="bg-white rounded p-6 w-80 text-center">

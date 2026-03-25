@@ -1,6 +1,6 @@
-import CreateManagerModal from "../../components/managers/CreateManagerModal";
-import ManagerTable from "../../components/managers/ManagerTable";
-import { ManagerProvider } from "../../components/admin/manager/ManagerContext";
+import CreateManagerModal from "../components/managers/CreateManagerModal";
+import ManagerTable from "../components/managers/ManagerTable";
+import { ManagerProvider } from "../components/admin/manager/ManagerContext";
 
 export default function ManagerPage() {
   return (

@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 
 export default function ClientsPage() {
@@ -9,15 +8,29 @@ export default function ClientsPage() {
       id: 1,
       name: "Nike India",
       email: "nike@gmail.com",
+      contact: "+91 9876543210",
+      budget: 500000,
+      startDate: "2026-03-01",
+      endDate: "2026-03-31",
+      logo: "https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg",
       status: "Pending",
-    },
+    } ,
     {
       id: 2,
       name: "Adidas",
       email: "adidas@gmail.com",
+      contact: "+91 9123456780",
+      budget: 750000,
+      startDate: "2026-03-05",
+      endDate: "2026-04-05",
+      logo: "https://upload.wikimedia.org/wikipedia/commons/2/20/Adidas_Logo.svg",
       status: "Approved",
     },
   ]);
+
+  // 🔥 Modal State
+  const [selectedClient, setSelectedClient] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleApprove = (id: number) => {
     setClients((prev) =>
@@ -48,6 +61,7 @@ export default function ClientsPage() {
 
           <thead className="bg-gray-100 text-gray-600">
             <tr>
+              <th className="text-left p-4">Logo</th>
               <th className="text-left p-4">Client</th>
               <th className="text-left p-4">Email</th>
               <th className="text-left p-4">Status</th>
@@ -58,6 +72,14 @@ export default function ClientsPage() {
           <tbody>
             {clients.map((client) => (
               <tr key={client.id} className="border-b hover:bg-gray-50 transition">
+
+                <td className="p-4">
+                  <img
+                    src={client.logo}
+                    alt={client.name}
+                    className="w-10 h-10 object-contain rounded"
+                  />
+                </td>
 
                 <td className="p-4 font-medium">{client.name}</td>
 
@@ -80,7 +102,17 @@ export default function ClientsPage() {
 
                 <td className="p-4 text-center space-x-2">
 
-                  
+                  {/* ✅ VIEW BUTTON */}
+                  <button
+                    onClick={() => {
+                      setSelectedClient(client);
+                      setIsModalOpen(true);
+                    }}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
+                  >
+                    View
+                  </button>
+
                   {client.status === "Pending" && (
                     <>
                       <button
@@ -99,7 +131,6 @@ export default function ClientsPage() {
                     </>
                   )}
 
-                  
                   {client.status === "Approved" && (
                     <button
                       onClick={() => handleReject(client.id)}
@@ -109,7 +140,6 @@ export default function ClientsPage() {
                     </button>
                   )}
 
-                  
                   {client.status === "Rejected" && (
                     <button
                       onClick={() => handleApprove(client.id)}
@@ -120,13 +150,52 @@ export default function ClientsPage() {
                   )}
 
                 </td>
-
               </tr>
             ))}
           </tbody>
 
         </table>
       </div>
+
+      {/* ✅ POPUP MODAL */}
+      {isModalOpen && selectedClient && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="bg-white p-6 rounded-xl w-[400px] shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="float-right text-lg"
+            >
+              ✖
+            </button>
+
+            <div className="text-center mb-4">
+              <img
+                src={selectedClient.logo}
+                alt={selectedClient.name}
+                className="w-16 h-16 mx-auto mb-2"
+              />
+              <h2 className="font-bold text-lg">{selectedClient.name}</h2>
+            </div>
+
+            <div className="text-sm space-y-2">
+              <p><strong>Email:</strong> {selectedClient.email}</p>
+              <p><strong>Contact:</strong> {selectedClient.contact}</p>
+              <p><strong>Budget:</strong> ₹{selectedClient.budget.toLocaleString()}</p>
+              <p><strong>Start Date:</strong> {selectedClient.startDate}</p>
+              <p><strong>End Date:</strong> {selectedClient.endDate}</p>
+              <p><strong>Status:</strong> {selectedClient.status}</p>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
