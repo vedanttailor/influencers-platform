@@ -1,9 +1,13 @@
-import hashlib
-from passlib.context import CryptContext # type: ignore
+import os
+from dotenv import load_dotenv # type: ignore
 from jose import jwt # type: ignore
 from datetime import datetime, timedelta
+import hashlib
+from passlib.context import CryptContext # type: ignore
 
-SECRET = "SUPER_SECRET_KEY"
+load_dotenv()
+
+SECRET = os.getenv("SECRET_KEY")
 ALGO = "HS256"
 
 pwd_ctx = CryptContext(schemes=["bcrypt"])

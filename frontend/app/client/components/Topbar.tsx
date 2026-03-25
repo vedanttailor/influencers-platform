@@ -1,85 +1,53 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+
 import { Bell } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function Topbar() {
-  const [showNotifications, setShowNotifications] = useState(false);
-  const ref = useRef(null);
 
-  const notifications = [
-    "New campaign assigned",
-    "Influencer accepted your request",
-    "Payment received",
-  ];
+  const [user, setUser] = useState<any>(null);
 
-  //  Close dropdown when clicking outside
   useEffect(() => {
-    function handleClickOutside(e) {
-      if (ref.current && !ref.current.contains(e.target)) {
-        setShowNotifications(false);
-      }
-    }
+    const fetchUser = async () => {
+      const res = await fetch("http://127.0.0.1:8000/auth/me", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+      const data = await res.json();
+      setUser(data);
+    };
+
+    fetchUser();
   }, []);
 
   return (
-    <header className="flex items-center justify-between px-8 py-4 relative">
-
+    <header className="flex items-center justify-between px-8 py-4 ">
       <h1 className="text-lg font-semibold"></h1>
 
       <div className="flex items-center gap-6">
+        <Bell className="cursor-pointer" />
 
-        {/*  Bell */}
-        <div className="relative" ref={ref}>
-          <Bell
-            className="cursor-pointer"
-            onClick={() => setShowNotifications(!showNotifications)}
-          />
-
-          {/*  Badge */}
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
-            {notifications.length}
+            {Notification.length}
           </span>
 
-          {/*  Dropdown */}
-          {showNotifications && (
-            <div className="absolute right-0 mt-3 w-64 bg-white shadow-lg rounded-lg p-4 z-50">
-              <h3 className="text-sm font-semibold mb-2">
-                Notifications
-              </h3>
 
-              {notifications.length > 0 ? (
-                <ul className="space-y-2 max-h-60 overflow-y-auto">
-                  {notifications.map((note, index) => (
-                    <li
-                      key={index}
-                      className="text-sm p-2 bg-gray-100 rounded-md hover:bg-gray-200 transition"
-                    >
-                      {note}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-gray-500">
-                  No notifications
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/*  Profile */}
         <div className="flex items-center gap-3">
           <img
-            src="https://i.pravatar.cc/40"
-            className="w-8 h-8 rounded-full"
+            src={user?.profile_img || "https://i.pravatar.cc/40"}
+            className="w-8 h-8 rounded-full object-cover"
           />
-          <span className="text-sm">Manav Tailor</span>
-        </div>
 
+          <span className="text-sm">
+            {user?.full_name || "Loading..."}
+          </span>
+        </div>
       </div>
     </header>
   );
