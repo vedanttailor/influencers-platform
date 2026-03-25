@@ -40,7 +40,7 @@ const COLORS = ["#2563eb", "#93c5fd"];
 export default function ReportsPage() {
   return (
     <div className="space-y-8">
-      
+      {/* Page Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Reports & Analytics</h1>
         <button className="px-4 py-2 bg-black text-white rounded-lg">
@@ -48,7 +48,7 @@ export default function ReportsPage() {
         </button>
       </div>
 
-      
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {summaryData.map((item, index) => (
           <div
@@ -61,9 +61,9 @@ export default function ReportsPage() {
         ))}
       </div>
 
-      
+      {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+        {/* Bar Chart */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="font-semibold mb-4">
             Campaign Engagement
@@ -78,7 +78,7 @@ export default function ReportsPage() {
           </ResponsiveContainer>
         </div>
 
-        
+        {/* Pie Chart */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="font-semibold mb-4">
             Budget Utilization
@@ -107,7 +107,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      
+      {/* Campaign Report Table */}
       <div className="bg-white rounded-lg shadow overflow-x-auto">
         <table className="w-full text-left">
           <thead className="bg-gray-100">

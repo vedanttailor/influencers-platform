@@ -31,7 +31,7 @@ export default function AvailableCampaigns() {
             <div className="text-right">
               <p className="font-semibold">₹{c.budget}</p>
               <Link
-                href={`/influencer/campaigns/${c.id}`}
+                href={`/Influencer/campaigns/${c.id}`}
                 className="mt-2 inline-block bg-blue-600 text-white px-4 py-1.5 rounded text-sm"
               >
                 View

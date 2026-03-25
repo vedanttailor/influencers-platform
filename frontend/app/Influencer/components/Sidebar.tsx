@@ -36,10 +36,15 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-slate-900 text-white flex flex-col">
+    <aside
+      className="w-64 flex flex-col"
+      style={{ backgroundColor: "white", color: "black" }}
+    >
 
       {/* Logo */}
-      <div className="px-6 py-5 text-xl font-bold border-b border-slate-800">
+      <div
+        className="px-6 py-5 text-xl "
+      >
         Influencer CRM
       </div>
 
@@ -53,12 +58,11 @@ export default function Sidebar() {
             <Link
               key={link.name}
               href={link.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition
-              ${
-                active
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-300 hover:bg-slate-800"
-              }`}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition"
+              style={{
+                color: active ? "black" : "#374151",
+                backgroundColor: active ? "#e5e7eb" : "transparent"
+              }}
             >
               <Icon size={18} />
               {link.name}

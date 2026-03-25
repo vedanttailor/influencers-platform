@@ -1,4 +1,5 @@
-"use client";
+import "../Admin.css";
+// "use client";
 
 import { useState } from "react";
 import ClientHeader from "./ClientHeader";

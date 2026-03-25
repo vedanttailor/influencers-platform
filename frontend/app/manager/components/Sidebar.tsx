@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import path from "path";
 
 const menu = [
-  { name: "Dashboard", path: "/dashboard" },
-  { name: "Clients", path: "/clients" },
-  { name: "Influencers", path: "/influencers" },
-  { name: "Campaigns", path: "/campaigns" },
+  { name: "Dashboard", path: "/manager/dashboard" },
+  { name: "Clients", path: "/manager/clients" },
+  { name: "Influencers", path: "/manager/influencers" },
+  { name: "Campaigns", path: "/manager/campaigns" },
+  { name: "Profile", path: "/manager/profile" },
 ];
 
 export default function Sidebar() {
@@ -20,19 +23,24 @@ export default function Sidebar() {
       </h2>
 
       <nav className="p-4 space-y-2">
-        {menu.map((item) => (
-          <Link
-            key={item.path}
-            href={item.path}
-            className={`block px-4 py-2 rounded-md ${
-              pathname === item.path
-                ? "bg-blue-600 text-white"
-                : "hover:bg-gray-100"
-            }`}
-          >
-            {item.name}
-          </Link>
-        ))}
+        {menu.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={`flex items-center gap-3 px-4 py-2 rounded-md transition ${
+                pathname === item.path
+                  ? "bg-blue-600 text-white"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              <Icon size={18} />
+              {item.name}
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );
