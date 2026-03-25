@@ -5,7 +5,8 @@
 import { useState } from "react";
 import { redirectByRole } from "@/app/utils/redirectByRole";
 import { useRouter } from "next/navigation";
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { data } from "framer-motion/client";
 
 export default function SignupPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -13,14 +14,37 @@ export default function SignupPage() {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [file, setFile] = useState<File | null>(null);
 
   const handleSignup = async (e: any) => {
     e.preventDefault();
     setMsg(null);
     setLoading(true);
+    let imageUrl = "";
+
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await fetch(
+        "http://127.0.0.1:8000/auth/upload-profile-image",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+
+      const uploadData = await uploadRes.json();
+      console.log("upload response:", uploadData);
+
+      if (uploadData.image_url){
+        imageUrl = uploadData.image_url;
+      }else{
+        console.error("Image upload failed");
+      }
+    }
 
     const form = e.target;
-    
 
     const data = {
       full_name: form.fname.value,
@@ -28,7 +52,9 @@ export default function SignupPage() {
       password: form.fpass.value,
       phone: form.fphone.value,
       role: form.frole.value,
+      profile_img: imageUrl,
     };
+
 
     try {
       const res = await fetch("http://127.0.0.1:8000/auth/signup", {
@@ -152,7 +178,9 @@ export default function SignupPage() {
                            file:rounded-lg hover:file:bg-indigo-700"
                 onChange={(e) => {
                   if (e.target.files?.[0]) {
-                    setImagePreview(URL.createObjectURL(e.target.files[0]));
+                    const selectedFile = e.target.files[0];
+                    setFile(selectedFile);
+                    setImagePreview(URL.createObjectURL(selectedFile));
                   }
                 }}
               />
@@ -177,5 +205,9 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+
+    
+  
+
   );
 }

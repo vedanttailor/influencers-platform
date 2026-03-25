@@ -12,7 +12,7 @@ from datetime import datetime
 from fastapi import File, UploadFile, HTTPException # type: ignore
 import os
 from dotenv import load_dotenv # type: ignore
-import cloudinary # type: ignore
+import cloudinary.uploader # type: ignore
 
 load_dotenv()
 
@@ -33,6 +33,7 @@ def get_db():
 
 @router.post("/signup")
 def signup(data: SignupSchema, db: Session = Depends(get_db)):
+    print("Recive profile_img", data.profile_img)
     if get_user_by_email(db, data.email):
         raise HTTPException(400, "Email already exists")
 
@@ -122,6 +123,7 @@ def get_me(current_user = Depends(get_current_user), db: Session = Depends(get_d
         "full_name": user.full_name,
         "email": user.email,
         "role": user.role,
+        "profile_img": user.profile_img,
     }
     
 @router.get("/admin")
