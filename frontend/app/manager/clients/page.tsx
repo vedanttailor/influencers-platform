@@ -28,7 +28,7 @@ export default function ClientsPage() {
     },
   ]);
 
-  // 🔥 Modal State
+  
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -102,7 +102,7 @@ export default function ClientsPage() {
 
                 <td className="p-4 text-center space-x-2">
 
-                  {/* ✅ VIEW BUTTON */}
+                  
                   <button
                     onClick={() => {
                       setSelectedClient(client);
@@ -157,7 +157,6 @@ export default function ClientsPage() {
         </table>
       </div>
 
-      {/* ✅ POPUP MODAL */}
       {isModalOpen && selectedClient && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"

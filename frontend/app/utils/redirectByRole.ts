@@ -17,7 +17,7 @@ export const redirectByRole = (role: string, router: any) => {
       break;
 
     case "influencer":
-      router.replace("/influencer/dashboard");
+      router.replace("/Influencer/dashboard");
       break;
 
     default:

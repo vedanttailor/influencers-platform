@@ -163,8 +163,8 @@ export default function SignupPage() {
               <option value="">Select role</option>
               <option value="client">Client</option>
               <option value="influencer">Influencer</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
+              {/* <option value="manager">Manager</option>
+              <option value="admin">Admin</option> */}
             </select>
 
             <div>
