@@ -12,7 +12,7 @@
 body {
   min-height: 100vh;
   font-family: var(--font-sans);
-  background: linear-gradient(135deg, lightpurple);
+  background: linear-gradient(135deg, bg-purple-50);
   color: #000000;
 }
 
@@ -76,7 +76,7 @@ select:-webkit-autofill {
 
 .card {
   background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px);
   border-radius: 10px;
   padding: 20px;
   border: 1px solid rgba(255,255,255,0.08);

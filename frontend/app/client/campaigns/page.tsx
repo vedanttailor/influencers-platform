@@ -90,7 +90,7 @@ export default function ClientCampaignsPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      {/* Header */}
+      
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">My Campaigns</h1>
         <Link
@@ -120,7 +120,7 @@ export default function ClientCampaignsPage() {
         ))}
       </div>
 
-      {/* Campaign List */}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredCampaigns.map((campaign) => (
           <div
@@ -153,7 +153,7 @@ export default function ClientCampaignsPage() {
               <p> Budget: ₹{campaign.budget.toLocaleString()}</p>
             </div>
 
-            {/* Actions */}
+            
             <div className="flex justify-end gap-3 mt-4">
               <Link
                 href={`/client/campaigns/${campaign.id}`}

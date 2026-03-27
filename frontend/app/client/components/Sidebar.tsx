@@ -27,7 +27,6 @@ export default function Sidebar() {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function SidebarItem({ href, icon, label }: any) {
   return (
     <Link
