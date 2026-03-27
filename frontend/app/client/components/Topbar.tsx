@@ -26,7 +26,7 @@ export default function Topbar() {
   }, []);
 
   return (
-    <header className="flex items-center justify-between px-8 py-4 ">
+   <header className="flex items-center justify-between px-8 py-4 bg-white text-black shadow-sm"> 
       <h1 className="text-lg font-semibold"></h1>
 
       <div className="flex items-center gap-6">

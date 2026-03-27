@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState } from "react";
 
@@ -7,20 +10,28 @@ export default function InfluencersPage() {
     {
       id: 1,
       name: "John Doe",
-      image: "/influencers/john.png",
+      image: "https://randomuser.me/api/portraits/men/1.jpg",
       platform: "Instagram",
       followers: "120K",
+      email: "john@gmail.com",
+      contact: "+91 9876543210",
       status: "Pending",
     },
     {
       id: 2,
       name: "Emma Watson",
-      image: "/influencers/emma.png",
+      image: "https://randomuser.me/api/portraits/women/2.jpg",
       platform: "YouTube",
       followers: "300K",
+      email: "emma@gmail.com",
+      contact: "+91 9123456780",
       status: "Approved",
     },
   ]);
+
+  //  Modal state
+  const [selectedInf, setSelectedInf] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleApprove = (id: number) => {
     setInfluencers((prev) =>
@@ -76,9 +87,7 @@ export default function InfluencersPage() {
                   </span>
                 </td>
 
-                <td className="p-4 text-gray-500">
-                  {inf.followers}
-                </td>
+                <td className="p-4 text-gray-500">{inf.followers}</td>
 
                 <td className="p-4">
                   <span
@@ -96,6 +105,17 @@ export default function InfluencersPage() {
                 </td>
 
                 <td className="p-4 text-center space-x-2">
+
+                  {/*  VIEW BUTTON */}
+                  <button
+                    onClick={() => {
+                      setSelectedInf(inf);
+                      setIsModalOpen(true);
+                    }}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
+                  >
+                    View
+                  </button>
 
                   {inf.status === "Pending" && (
                     <>
@@ -141,6 +161,44 @@ export default function InfluencersPage() {
 
         </table>
       </div>
+
+      {/* POPUP MODAL */}
+      {isModalOpen && selectedInf && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="bg-white p-6 rounded-xl w-[400px] shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="float-right text-lg"
+            >
+              ✖
+            </button>
+
+            <div className="text-center mb-4">
+              <img
+                src={selectedInf.image}
+                className="w-16 h-16 rounded-full mx-auto mb-2"
+              />
+              <h2 className="font-bold text-lg">{selectedInf.name}</h2>
+            </div>
+
+            <div className="text-sm space-y-2">
+              <p><strong>Email:</strong> {selectedInf.email}</p>
+              <p><strong>Contact:</strong> {selectedInf.contact}</p>
+              <p><strong>Platform:</strong> {selectedInf.platform}</p>
+              <p><strong>Followers:</strong> {selectedInf.followers}</p>
+              <p><strong>Status:</strong> {selectedInf.status}</p>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -1,158 +1,262 @@
-// export default function CreateCampaign() {
-//   return <h1 className="text-2xl font-bold">Create Campaign</h1>;
-// }
-
-
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { useState } from "react";
+
 export default function CreateCampaignForm() {
+  const [formData, setFormData] = useState({
+    name: "",
+    brand: "",
+    type: "",
+    category: "",
+    objective: "",
+    description: "",
+    startDate: "",
+    endDate: "",
+    budget: "",
+  });
+
+  const [logo, setLogo] = useState(null);
+  const [preview, setPreview] = useState("");
+  const [platforms, setPlatforms] = useState<string[]>([]);
+  const [platformError, setPlatformError] = useState(false);
+
+  const platformList = ["Instagram", "YouTube"];
+
+  const handleChange = (e: any) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLogoChange = (e: any) => {
+    const file = e.target.files[0];
+    if (file) {
+      setLogo(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handlePlatformChange = (platform: string) => {
+    if (platforms.includes(platform)) {
+      setPlatforms(platforms.filter((p) => p !== platform));
+    } else {
+      setPlatforms([...platforms, platform]);
+    }
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      name: "",
+      brand: "",
+      type: "",
+      category: "",
+      objective: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+      budget: "",
+    });
+
+    setPlatforms([]);
+    setLogo(null);
+    setPreview("");
+    setPlatformError(false);
+  };
+
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+
+    if (platforms.length === 0) {
+      setPlatformError(true);
+      return;
+    }
+
+    console.log("Form Data:", formData);
+    console.log("Platforms:", platforms);
+    console.log("Logo:", logo);
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-2xl font-semibold mb-6">Create Campaign</h1>
 
-      <form className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-8">
 
-        {/*Basic Campaign Information*/}
         <section className="bg-white p-6 rounded-xl shadow">
-          <h2 className="text-lg font-medium mb-4">Basic Campaign Information</h2>
+          <h2 className="text-lg font-medium mb-4">
+            Basic Campaign Information
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="text" placeholder="Campaign Name"
-              className="input" />
+            <input
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Campaign Name"
+              className="input"
+              required
+            />
 
-            <input type="text" placeholder="Brand / Client Name"
-              className="input" />
+            <input
+              name="brand"
+              value={formData.brand}
+              onChange={handleChange}
+              placeholder="Brand / Client Name"
+              className="input"
+              required
+            />
 
-            <select className="input">
+            <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              className="input"
+              required
+            >
               <option value="">Campaign Type</option>
               <option>Product Promotion</option>
               <option>Brand Awareness</option>
               <option>App Install</option>
-              <option>Event Promotion</option>
-              <option>Product Launch</option>
-              <option>Giveaway / Contest</option>
-              <option>Influencer Takeover</option>
-              <option>Affiliate Marketig</option>
-              <option>Discout / Offer Campaign</option>
-              <option>User Generated Content</option>
-              <option>Brand Collaboration</option>
-              <option>Review / Testimonial Campaign</option>
-              <option>Unboxing Campaign</option>
-              <option>Seasonal Campaign</option>
-              <option>Festival Campaign</option>
-              <option>Pre-Launch / Teaser Campaign</option>
-              <option>Rebranding Campaign</option>
-              <option>CSR / Social Awareness Campaign</option>
-              <option>Store / Website Traffic Campaign</option>
-              <option>Live Stream Promotion</option>
             </select>
 
-            <select className="input">
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="input"
+              required
+            >
               <option value="">Campaign Category</option>
-              <option>Fashion & Apparel</option>
-              <option>Beauty & Skincare</option>
-              <option>Health & Fitness</option>
-              <option>Food & Beverages</option>
-              <option>Technology & Gadgets</option>
-              <option>Mobile Apps & SaaS</option>
-              <option>Finance & FinTech</option>
-              <option>Education & E-Learning</option>
-              <option>Travel & Tourism</option>
-              <option>Lifestyle</option>
-              <option>Gaming & Esports</option>
-              <option>Entertainment & Media</option>
-              <option>Sports & Outdoors</option>
-              <option>Automobile</option>
-              <option>Real Estate</option>
-              <option>E-commerce</option>
-              <option>Jewelry & Accessories</option>
-              <option>Home Decor & Furniture</option>
-              <option>Parenting & Baby Care</option>
-              <option>NGOs & Social Causes</option>
+              <option>Fashion</option>
+              <option>Technology</option>
             </select>
 
-            <select className="input">
+            <select
+              name="objective"
+              value={formData.objective}
+              onChange={handleChange}
+              className="input"
+              required
+            >
               <option value="">Campaign Objective</option>
-              <option>Brand Awareness</option>
-              <option>Reach / Impressions</option>
-              <option>Engagement (Likes, Comments, Shares)</option>
-              <option>Follower Growth</option>
-              <option>Website Traffic</option>
-              <option>App Installs</option>
-              <option>Lead Generation</option>
-              <option>Sales / Conversions</option>
-              <option>Product Trials</option>
-              <option>Video Views</option>
-              <option>Content Creation (UGC)</option>
-              <option>Audience Education</option>
-              <option>Event Registrations</option>
-              <option>Email Signups</option>
-              <option>Promo Code Usage</option>
-              <option>Store Visits</option>
-              <option>Community Building</option>
-              <option>Brand Trust & Credibility</option>
+              <option>Engagement</option>
+              <option>Sales</option>
             </select>
+
+            <div className="md:col-span-2">
+              <label className="text-sm text-gray-600 mb-2 block">
+                Select Platforms *
+              </label>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {platformList.map((platform) => (
+                  <div
+                    key={platform}
+                    onClick={() => handlePlatformChange(platform)}
+                    className={`flex items-center gap-2 p-2 border rounded cursor-pointer ${
+                      platforms.includes(platform)
+                        ? "bg-black text-white"
+                        : "bg-white"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={platforms.includes(platform)}
+                      readOnly
+                    />
+                    <span>{platform}</span>
+                  </div>
+                ))}
+              </div>
+
+              {platformError && (
+                <p className="text-red-500 text-sm mt-2">
+                  Please select at least one platform
+                </p>
+              )}
+            </div>
+
+            <div className="md:col-span-2">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoChange}
+                className="input"
+              />
+
+              {preview && (
+                <img src={preview} className="w-24 h-24 mt-2 rounded border" />
+              )}
+            </div>
           </div>
 
           <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
             placeholder="Campaign Description"
-            rows={4}
             className="input mt-4"
           />
         </section>
 
-        {/*Campaign Timeline*/}
+
         <section className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-lg font-medium mb-4">Campaign Timeline</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input type="date" className="input" />
-            <input type="date" className="input" />
-
-            {/* <select className="input">
-              <option value="">Timezone</option>
-              <option>IST (India)</option>
-              <option>UTC</option>
-              <option>EST</option>
-              <option>PST</option>
-            </select> */}
-          </div>
-        </section>
-
-        {/*Budget & Payment Details*/}
-        <section className="bg-white p-6 rounded-xl shadow">
-          <h2 className="text-lg font-medium mb-4">Budget & Payment Details</h2>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="number"
-              placeholder="Total Campaign Budget"
-              className="input"
-            />
+            <div>
+              <label className="text-sm text-gray-600">Start Date *</label>
+              <input
+                type="date"
+                name="startDate"
+                value={formData.startDate}
+                onChange={handleChange}
+                className="input mt-1"
+                required
+              />
+            </div>
 
-            <select className="input">
-              <option value="">Budget Type</option>
-              <option>Fixed</option>
-              <option>Per Influencer</option>
-              <option>Performance Based</option>
-            </select>
-
-            <select className="input md:col-span-2">
-              <option value="Payment Model">Payment Model</option>
-              <option>Per Post</option>
-              <option>Per Reel</option>
-              <option>Per Story</option>
-              <option>CPM</option>
-              <option>CPC</option>
-              <option>CPA</option>
-            </select>
+            <div>
+              <label className="text-sm text-gray-600">End Date *</label>
+              <input
+                type="date"
+                name="endDate"
+                value={formData.endDate}
+                onChange={handleChange}
+                className="input mt-1"
+                min={formData.startDate}
+                required
+              />
+            </div>
           </div>
+
+          {formData.endDate &&
+            formData.startDate &&
+            formData.endDate < formData.startDate && (
+              <p className="text-red-500 text-sm mt-2">
+                End date cannot be earlier than start date
+              </p>
+            )}
         </section>
 
-        {/*Actions*/}
+        <section className="bg-white p-6 rounded-xl shadow">
+          <input
+            type="number"
+            name="budget"
+            value={formData.budget}
+            onChange={handleChange}
+            placeholder="Budget ₹"
+            className="input"
+            required
+          />
+        </section>
+
         <div className="flex justify-end gap-4">
           <button
             type="button"
+            onClick={handleCancel}
             className="px-6 py-2 border rounded-lg"
           >
             Cancel
@@ -165,20 +269,14 @@ export default function CreateCampaignForm() {
             Create Campaign
           </button>
         </div>
-
       </form>
 
-      {/* Tailwind Input Utility */}
       <style jsx>{`
         .input {
           width: 100%;
           padding: 0.6rem 0.75rem;
           border: 1px solid #e5e7eb;
           border-radius: 0.5rem;
-          outline: none;
-        }
-        .input:focus {
-          border-color: LightBlue;
         }
       `}</style>
     </div>

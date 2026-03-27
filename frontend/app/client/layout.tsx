@@ -19,7 +19,7 @@ export default function ClientLayout({
 
             <div className="flex flex-col flex-1">
 
-              <div className="shrink-0" style={{ backgroundColor: "white" }}>
+              <div className="shrink-0" style={{ backgroundColor: "purple-50" }}>
                 <Topbar />
               </div>
 
