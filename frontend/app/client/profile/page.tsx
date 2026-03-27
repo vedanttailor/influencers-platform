@@ -4,11 +4,9 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "../components/UserContext";
-import { useRouter } from "next/router";
 
 export default function ProfilePage() {
   const { user, updateUser } = useUser();
-  const router = useRouter();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -142,7 +140,7 @@ export default function ProfilePage() {
     <div className="max-w-3xl space-y-8">
       <h1 className="text-2xl font-bold">Profile Settings</h1>
 
-      {/* Profile Photo */}
+      
       <div className="bg-white p-6 rounded-lg shadow space-y-4">
         <h2 className="font-semibold">Profile Photo</h2>
 
@@ -173,7 +171,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Basic Information */}
+      
       <div className="bg-white p-6 rounded-lg shadow space-y-4">
         <h2 className="font-semibold">Basic Information</h2>
 
@@ -204,7 +202,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Change Password */}
+      
       <div className="bg-white p-6 rounded-lg shadow space-y-4">
         <h2 className="font-semibold">Change Password</h2>
 
@@ -213,7 +211,9 @@ export default function ProfilePage() {
             type="password"
             placeholder="Current password"
             value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
+            onChange={(e) =>
+              setCurrentPassword(e.target.value)
+            }
             className="w-full border p-2 rounded-lg"
           />
 
@@ -221,7 +221,9 @@ export default function ProfilePage() {
             type="password"
             placeholder="New password"
             value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            onChange={(e) =>
+              setNewPassword(e.target.value)
+            }
             className="w-full border p-2 rounded-lg"
           />
 
@@ -229,7 +231,9 @@ export default function ProfilePage() {
             type="password"
             placeholder="Confirm new password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) =>
+              setConfirmPassword(e.target.value)
+            }
             className="w-full border p-2 rounded-lg"
           />
         </div>

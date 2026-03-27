@@ -14,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body bg-lightpurple>
+      <body className="bg-lightpurple text-black">
         <div className="flex min-h-screen">
           <Sidebar />
           <div className="flex-1">
@@ -23,6 +23,6 @@ export default function RootLayout({
           </div>
         </div>
       </body>
-    </html>  
+    </html>
   );
 }

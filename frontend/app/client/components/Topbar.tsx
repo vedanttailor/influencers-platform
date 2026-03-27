@@ -3,7 +3,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-
 import { Bell } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -32,11 +31,6 @@ export default function Topbar() {
 
       <div className="flex items-center gap-6">
         <Bell className="cursor-pointer" />
-
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
-            {Notification.length}
-          </span>
-
 
         <div className="flex items-center gap-3">
           <img
