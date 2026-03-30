@@ -1,28 +1,34 @@
-// import "./globals.css";
-import Sidebar from "../manager/components/Sidebar";
-import Topbar from "../manager/components/Topbar";
+import Sidebar from "./components/Sidebar";
+import Topbar from "./components/Topbar";
 
 export const metadata = {
-  title: "Influencer CRM",
+  title: "Influencer CRM - Manager",
   description: "Manager Panel",
 };
 
-export default function RootLayout({
+export default function ManagerLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-purple-50">
-        <div className="flex min-h-screen">
-          <Sidebar />
-          <div className="flex-1">
-            <Topbar />
-            <main className="p-6">{children}</main>
-          </div>
-        </div>
-      </body>
-    </html>  
+    <div className="flex min-h-screen bg-gray-50">
+      
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        
+        {/* Topbar */}
+        <Topbar />
+
+        {/* Page Content */}
+        <main className="p-6">
+          {children}
+        </main>
+
+      </div>
+    </div>
   );
 }

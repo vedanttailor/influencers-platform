@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Megaphone,
-  DollarSign,
+  IndianRupee,
   User,
 } from "lucide-react";
 
@@ -16,7 +16,7 @@ export default function Sidebar() {
     <aside className="w-64 h-screen bg-white shadow-md flex flex-col">
       
       <div className="p-6 font-bold text-xl text-black">
-        Influencer Panel
+        Welcome Influencer
       </div>
 
       <nav className="space-y-2 px-4">
@@ -36,7 +36,7 @@ export default function Sidebar() {
 
         <SidebarItem
           href="/Influencer/earnings"
-          icon={<DollarSign size={18} />}
+          icon={<IndianRupee size={18} />}
           label="Earnings"
           active={pathname === "/Influencer/earnings"}
         />
