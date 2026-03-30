@@ -3,7 +3,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUser } from "../components/UserContext";
+import { useUser } from "../campaigns/components/UserContext";
 
 export default function ProfilePage() {
   const { user, updateUser } = useUser();

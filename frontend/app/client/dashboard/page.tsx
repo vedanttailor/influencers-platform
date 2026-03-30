@@ -1,8 +1,8 @@
 'use client';
 
-import StatCard from "../components/StatCard";
-import EngagementChart from "../components/EngagementChart";
-import CampaignTable from "../components/CampaignTable";
+import StatCard from "../campaigns/components/StatCard";
+import EngagementChart from "../campaigns/components/EngagementChart";
+import CampaignTable from "../campaigns/components/CampaignTable";
 import Link from "next/link";
 
 export default function Dashboard() {

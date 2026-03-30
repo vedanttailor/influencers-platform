@@ -5,8 +5,8 @@ import { useState } from "react";
 import Link from "next/link";
 
 
-import EngagementPieChart from "../components/EngagementChart";
-import CampaignCard from "../components/CampaignTable";
+import EngagementPieChart from "./components/EngagementChart";
+import CampaignCard from "./components/CampaignTable";
 
 type CampaignStatus = "active" | "completed" | "pending";
 
