@@ -25,7 +25,7 @@ def create_token(user_id, role):
     payload = {
         "sub": str(user_id),
         "role": role,
-        "exp": datetime.utcnow() + timedelta(days=1)
+        "exp": datetime.utcnow() + timedelta(minutes=5)
     }
     return jwt.encode(payload, SECRET, algorithm=ALGO)
 

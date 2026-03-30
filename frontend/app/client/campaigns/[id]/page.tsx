@@ -45,7 +45,7 @@ const mockCampaignDetails: CampaignDetails[] = [
         name: "Aarav Sharma",
         platform: "Instagram",
         profile: "https://instagram.com/aarav",
-        postLink: "https://tenor.com/search/funny-baby-gifs",
+        postLink: "https://www.instagram.com/reel/DMK7kHnIcRy/?igsh=Y2ltdWtncWdseGpm",
         likes: 12000,
         comments: 430,
         shares: 210,
