@@ -17,3 +17,11 @@ class LoginSchema(BaseModel):
 class ResetSchema(BaseModel):
     token: str
     new_password: str
+    
+class ForgotPasswordSchema(BaseModel):
+    email: EmailStr
+
+class ResetPasswordSchema(BaseModel):
+    email: EmailStr
+    code: str
+    new_password: str

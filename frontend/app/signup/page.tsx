@@ -136,6 +136,7 @@ export default function SignupPage() {
               autoComplete="new-name"
               placeholder="Full name"
               className="input"
+              required
             />
             <input
               name="femail"
@@ -143,6 +144,7 @@ export default function SignupPage() {
               type="email"
               placeholder="Email"
               className="input"
+              required
             />
             <input
               name="fpass"
@@ -150,6 +152,7 @@ export default function SignupPage() {
               type="password"
               placeholder="Password"
               className="input"
+              required
             />
             <input
               name="fphone"
@@ -157,9 +160,11 @@ export default function SignupPage() {
               type="tel"
               placeholder="Phone number"
               className="input"
+              maxLength={10}
+              required
             />
 
-            <select name="frole" className="input">
+            <select name="frole" className="input" required>
               <option value="">Select role</option>
               <option value="client">Client</option>
               <option value="influencer">Influencer</option>
@@ -176,6 +181,7 @@ export default function SignupPage() {
                            file:bg-indigo-600 file:border-0 
                            file:text-white file:px-4 file:py-2 
                            file:rounded-lg hover:file:bg-indigo-700"
+                           required
                 onChange={(e) => {
                   if (e.target.files?.[0]) {
                     const selectedFile = e.target.files[0];
@@ -202,6 +208,12 @@ export default function SignupPage() {
               {loading ? "Creating..." : "Create Account"}
             </button>
           </form>
+           <p className="text-sm text-center mt-4 text-gray-400">
+            You have an account?{" "}
+            <a href="/login" className="text-indigo-400 font-medium">
+              Login
+            </a>
+          </p>
         </div>
       </div>
     </div>

@@ -26,7 +26,7 @@ export default function Sidebar() {
     <aside className="w-64 h-screen bg-white border-r">
       
       <div className="p-6 font-bold text-xl text-black">
-        Manager Panel
+        Welcome Manager
       </div>
 
       <nav className="space-y-2 px-4">
@@ -48,6 +48,7 @@ export default function Sidebar() {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function SidebarItem({ href, icon, label, active }: any) {
   return (
     <Link

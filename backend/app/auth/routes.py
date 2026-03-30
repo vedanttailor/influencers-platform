@@ -1,3 +1,4 @@
+from app.auth.schemas import ForgotPasswordSchema, ResetPasswordSchema
 from app.auth.service import forgot_password, reset_password
 from app.auth.dependencies import get_current_user
 from fastapi import APIRouter, Depends, HTTPException # type: ignore
@@ -98,15 +99,15 @@ def delete_user(id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/forgot-password")
-def forgot(data: dict, db: Session = Depends(get_db)):
-    return forgot_password(data["email"], db)
+def forgot(data: ForgotPasswordSchema, db: Session = Depends(get_db)):
+    return forgot_password(data.email, db)
 
 @router.post("/reset-password")
-def reset(data: dict, db: Session = Depends(get_db)):
+def reset(data: ResetPasswordSchema, db: Session = Depends(get_db)):
     return reset_password(
-        data["email"],
-        data["code"],
-        data["new_password"],
+        data.email,
+        data.code,
+        data.new_password,
         db
     )
     
