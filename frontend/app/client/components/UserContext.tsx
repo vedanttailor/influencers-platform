@@ -27,7 +27,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       try {
         const token = localStorage.getItem("token");
 
-        // ✅ FIX: If no token, don't call API
         if (!token) {
           console.warn("No token found, skipping fetchUser");
           return;
@@ -50,7 +49,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           name: data.full_name || "",
           email: data.email || "",
           avatar: data.profile_img
-            ? `http://127.0.0.1:8000${data.profile_img}`
+            ? `"http://127.0.0.1:8000/auth/upload-profile-image",`
             : "/avatar.png",
         });
       } catch (err) {
