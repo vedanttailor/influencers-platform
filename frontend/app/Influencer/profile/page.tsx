@@ -23,7 +23,6 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // ✅ Fetch user (same as your backend)
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -34,6 +33,8 @@ export default function ProfilePage() {
         });
 
         const data = await res.json();
+
+        console.log("USER DATA:", data);
 
         setUser(data);
         setForm({
@@ -49,7 +50,6 @@ export default function ProfilePage() {
     fetchUser();
   }, []);
 
-  // Handle input
   const handleChange = (e: any) => {
     setForm({
       ...form,
@@ -57,7 +57,6 @@ export default function ProfilePage() {
     });
   };
 
-  // Upload preview
   const handleImageUpload = (e: any) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -71,7 +70,6 @@ export default function ProfilePage() {
     setAvatar("");
   };
 
-  // ✅ Save Profile (your backend intact)
   const handleSaveProfile = async () => {
     try {
       let imageUrl = avatar;
@@ -112,14 +110,13 @@ export default function ProfilePage() {
         profile_img: imageUrl,
       });
 
-      alert("Profile updated successfully ✅");
+      alert("Profile updated successfully");
     } catch (err) {
       console.error("Save failed", err);
-      alert("Something went wrong ❌");
+      alert("Something went wrong");
     }
   };
 
-  // Password UI only (no API change)
   const handlePasswordChange = () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       alert("Please fill all fields");
@@ -131,7 +128,7 @@ export default function ProfilePage() {
       return;
     }
 
-    alert("Password updated successfully ✅");
+    alert("Password updated successfully");
 
     setCurrentPassword("");
     setNewPassword("");
@@ -148,13 +145,11 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-10">
-      
-      {/* Header */}
+
       <h1 className="text-3xl font-bold text-gray-800">
         Profile Settings
       </h1>
 
-      {/* Profile Card */}
       <div className="bg-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-5">
           <img
@@ -165,6 +160,10 @@ export default function ProfilePage() {
           <div>
             <p className="text-lg font-semibold">{form.full_name}</p>
             <p className="text-sm text-gray-500">{form.email}</p>
+
+            <p className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-lg inline-block mt-1">
+              User ID: {user?.id || user?._id || user?.user_id || "Not Available"}
+            </p>
           </div>
         </div>
 
@@ -191,7 +190,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Basic Info */}
       <div className="bg-white p-6 rounded-2xl shadow-md space-y-6">
         <h2 className="text-lg font-semibold border-b pb-2">
           Basic Information
@@ -216,41 +214,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Password */}
-      <div className="bg-white p-6 rounded-2xl shadow-md space-y-6">
-        <h2 className="text-lg font-semibold border-b pb-2">
-          Change Password
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-4">
-          <input
-            type="password"
-            placeholder="Current password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            className="border p-3 rounded-lg"
-          />
-
-          <input
-            type="password"
-            placeholder="New password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="border p-3 rounded-lg"
-          />
-
-          <input
-            type="password"
-            placeholder="Confirm password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="border p-3 rounded-lg"
-          />
-        </div>
-
-      </div>
-
-      {/* Actions */}
       <div className="flex justify-between items-center">
         <button
           onClick={handleLogout}
@@ -260,7 +223,10 @@ export default function ProfilePage() {
         </button>
 
         <button
-          onClick={handleSaveProfile || handlePasswordChange}
+          onClick={() => {
+            handleSaveProfile();
+            handlePasswordChange();
+          }}
           className="px-8 py-3 bg-indigo-600 text-white rounded-lg"
         >
           Save Profile

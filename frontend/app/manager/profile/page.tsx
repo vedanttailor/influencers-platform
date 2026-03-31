@@ -11,10 +11,10 @@ export default function ManagerProfile() {
 
   const [user, setUser] = useState<any>(null);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState(""); // ✅ added
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [avatar, setAvatar] = useState("/avatar.png");
 
-  
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -26,8 +26,11 @@ export default function ManagerProfile() {
 
         const data = await res.json();
 
+        console.log("USER DATA:", data); // ✅ debug
+
         setUser(data);
         setName(data.full_name);
+        setEmail(data.email); // ✅ set email
         setAvatar(data.profile_img || "/avatar.png");
       } catch (err) {
         console.error("Failed to fetch user", err);
@@ -37,7 +40,6 @@ export default function ManagerProfile() {
     fetchUser();
   }, []);
 
-  
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -46,12 +48,10 @@ export default function ManagerProfile() {
     setAvatar(URL.createObjectURL(file));
   };
 
-  
   const handleSave = async () => {
     try {
       let imageUrl = avatar;
 
-      
       if (selectedFile) {
         const formData = new FormData();
         formData.append("file", selectedFile);
@@ -68,7 +68,6 @@ export default function ManagerProfile() {
         imageUrl = data.image_url;
       }
 
-      
       await fetch("http://127.0.0.1:8000/auth/update-profile", {
         method: "PUT",
         headers: {
@@ -77,6 +76,7 @@ export default function ManagerProfile() {
         },
         body: JSON.stringify({
           full_name: name,
+          email: email, 
           profile_img: imageUrl,
         }),
       });
@@ -84,17 +84,17 @@ export default function ManagerProfile() {
       setUser({
         ...user,
         full_name: name,
+        email: email, 
         profile_img: imageUrl,
       });
 
       alert("Profile updated successfully ");
     } catch (err) {
       console.error("Save failed", err);
-      alert("Something went wrong ❌");
+      alert("Something went wrong ");
     }
   };
 
-  
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
@@ -108,10 +108,8 @@ export default function ManagerProfile() {
     <div className="max-w-2xl mx-auto space-y-6">
       <h1 className="text-3xl font-bold">Manager Profile</h1>
 
-      
       <div className="bg-white p-8 rounded-xl shadow space-y-6">
-        
-        
+
         <div className="flex items-center gap-6">
           <img
             src={avatar}
@@ -131,7 +129,12 @@ export default function ManagerProfile() {
           </label>
         </div>
 
-        
+        <div>
+          <p className="text-sm text-gray-500">
+            User ID: {user?.id || user?._id || user?.user_id || "Not Available"}
+          </p>
+        </div>
+
         <div>
           <label className="text-sm text-gray-500">Full Name</label>
           <input
@@ -142,7 +145,16 @@ export default function ManagerProfile() {
           />
         </div>
 
-        
+        <div>
+          <label className="text-sm text-gray-500">Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="border p-2 rounded w-full"
+          />
+        </div>
+
         <div className="flex justify-between">
           <button
             onClick={handleLogout}
@@ -158,7 +170,6 @@ export default function ManagerProfile() {
             Save
           </button>
         </div>
-
       </div>
     </div>
   );

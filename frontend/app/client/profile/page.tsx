@@ -23,9 +23,12 @@ export default function ProfilePage() {
           },
         });
 
-        const data = await res.json();
+        const data = await res.json(); 
+
+        console.log("USER DATA:", data);
 
         updateUser({
+          id: data.id || data._id || data.user_id || "", 
           name: data.full_name,
           email: data.email,
           avatar: data.profile_img,
@@ -100,30 +103,13 @@ export default function ProfilePage() {
     localStorage.removeItem("token");
 
     updateUser({
+      id: "",
       name: "",
       email: "",
       avatar: "",
     });
 
     window.location.href = "/login";
-  };
-
-  const handlePasswordChange = () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      alert("Please fill all password fields");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      alert("New passwords do not match");
-      return;
-    }
-
-    alert("Password updated successfully");
-
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
   };
 
   if (!user) return null;
@@ -140,7 +126,7 @@ export default function ProfilePage() {
       <div className="bg-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-5">
           <img
-            src={user?.avatar || "https://i.pravatar.cc/150"}
+            src={user?.avatar || "no image"}
             alt="Profile"
             className="w-28 h-28 rounded-full object-cover border-4 border-indigo-200 shadow"
           />
@@ -151,6 +137,10 @@ export default function ProfilePage() {
             </p>
             <p className="text-sm text-gray-500">
               {user.email}
+            </p>
+
+            <p className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-lg inline-block mt-1">
+              User ID: {user?.id || "Not Available"}
             </p>
           </div>
         </div>
@@ -210,45 +200,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-2xl shadow-md space-y-6">
-        <h2 className="text-lg font-semibold text-gray-700 border-b pb-2">
-          Change Password
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-4">
-          <input
-            type="password"
-            placeholder="Current password"
-            value={currentPassword}
-            onChange={(e) =>
-              setCurrentPassword(e.target.value)
-            }
-            className="border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
-          />
-
-          <input
-            type="password"
-            placeholder="New password"
-            value={newPassword}
-            onChange={(e) =>
-              setNewPassword(e.target.value)
-            }
-            className="border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
-          />
-
-          <input
-            type="password"
-            placeholder="Confirm password"
-            value={confirmPassword}
-            onChange={(e) =>
-              setConfirmPassword(e.target.value)
-            }
-            className="border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
-          />
-        </div>
-
-      </div>
-
       <div className="flex justify-between items-center">
         <button
           onClick={handleLogout}
@@ -258,7 +209,9 @@ export default function ProfilePage() {
         </button>
 
         <button
-          onClick={handleSaveProfile || handlePasswordChange}
+          onClick={() => {
+            handleSaveProfile();
+          }}
           className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
         >
           Save Profile
