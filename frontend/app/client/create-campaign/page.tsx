@@ -61,7 +61,6 @@ export default function CreateCampaignForm() {
     setPlatformError(false);
   };
 
-
   const handleSubmit = (e: any) => {
     e.preventDefault();
 
@@ -80,7 +79,6 @@ export default function CreateCampaignForm() {
       <h1 className="text-2xl font-semibold mb-6">Create Campaign</h1>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-
         <section className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-lg font-medium mb-4">
             Basic Campaign Information
@@ -175,7 +173,8 @@ export default function CreateCampaignForm() {
               )}
             </div>
 
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 flex flex-col gap-2">
+              <label className="text-sm text-gray-600">Select the Campaign Logo*</label>
               <input
                 type="file"
                 accept="image/*"
@@ -184,7 +183,12 @@ export default function CreateCampaignForm() {
               />
 
               {preview && (
-                <img src={preview} className="w-24 h-24 mt-2 rounded border" />
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={preview}
+                  className="w-24 h-24 mt-2 rounded border"
+                  alt="Preview"
+                />
               )}
             </div>
           </div>
@@ -197,7 +201,6 @@ export default function CreateCampaignForm() {
             className="input mt-4"
           />
         </section>
-
 
         <section className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-lg font-medium mb-4">Campaign Timeline</h2>

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useParams } from "next/navigation";
@@ -25,12 +26,9 @@ interface CampaignDetails {
   endDate: string;
   status: CampaignStatus;
   influencers: Influencer[];
+  logo?: string; // ✅ added
 }
 
-/**
- * MOCK DATA (no database)
- * ID must match campaigns/page.tsx IDs
- */
 const mockCampaignDetails: CampaignDetails[] = [
   {
     id: 1,
@@ -40,12 +38,14 @@ const mockCampaignDetails: CampaignDetails[] = [
     startDate: "2025-06-01",
     endDate: "2025-06-20",
     status: "active",
+    logo: "https://via.placeholder.com/80",
     influencers: [
       {
         name: "Aarav Sharma",
         platform: "Instagram",
         profile: "https://instagram.com/aarav",
-        postLink: "https://www.instagram.com/reel/DMK7kHnIcRy/?igsh=Y2ltdWtncWdseGpm",
+        postLink:
+          "https://www.instagram.com/reel/DMK7kHnIcRy/?igsh=Y2ltdWtncWdseGpm",
         likes: 12000,
         comments: 430,
         shares: 210,
@@ -61,12 +61,14 @@ const mockCampaignDetails: CampaignDetails[] = [
     startDate: "2025-04-01",
     endDate: "2025-04-15",
     status: "completed",
+    logo: "https://via.placeholder.com/80",
     influencers: [
       {
         name: "Rohit Verma",
         platform: "YouTube",
         profile: "https://youtube.com/@rohit",
-        postLink: "https://youtu.be/LpOq7ZIjiEQ?si=rqo2j7g-xdOEuUyh",
+        postLink:
+          "https://youtu.be/LpOq7ZIjiEQ?si=rqo2j7g-xdOEuUyh",
         likes: 8400,
         comments: 320,
         shares: 140,
@@ -94,7 +96,6 @@ export default function CampaignDetailsPage() {
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
-      {/* Back */}
       <Link
         href="/client/campaigns"
         className="text-sm text-gray-600 inline-block"
@@ -102,11 +103,19 @@ export default function CampaignDetailsPage() {
         ← Back to Campaigns
       </Link>
 
-      {/* Campaign Info */}
       <div className="bg-white p-6 rounded-xl border">
-        <h1 className="text-2xl font-semibold mb-4">
-          {campaign.name}
-        </h1>
+        
+  
+        <div className="flex items-center gap-4 mb-4">
+          <img
+            src={campaign.logo || "/avatar.png"}
+            alt="logo"
+            className="w-16 h-16 rounded-lg object-cover border"
+          />
+          <h1 className="text-2xl font-semibold">
+            {campaign.name}
+          </h1>
+        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <p> Platform: {campaign.platform}</p>
@@ -117,7 +126,6 @@ export default function CampaignDetailsPage() {
         </div>
       </div>
 
-      {/* Influencer Performance */}
       <div className="bg-white p-6 rounded-xl border">
         <h2 className="text-xl font-semibold mb-4">
           Influencer Performance
@@ -130,9 +138,7 @@ export default function CampaignDetailsPage() {
           >
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="font-semibold">
-                  {inf.name}
-                </h3>
+                <h3 className="font-semibold">{inf.name}</h3>
                 <p className="text-sm text-gray-500">
                   Platform: {inf.platform}
                 </p>

@@ -3,10 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 
-
-import EngagementPieChart from "../components/EngagementChart";
-import CampaignCard from "../components/CampaignTable";
-
 type CampaignStatus = "active" | "completed" | "pending";
 
 interface Campaign {
@@ -18,9 +14,10 @@ interface Campaign {
   endDate: string;
   budget: number;
   status: CampaignStatus;
+  logo?: string; // ✅ added
 }
 
-const mockCampaigns: Campaign[] = [ 
+const mockCampaigns: Campaign[] = [
   {
     id: 1,
     name: "Fashion Launch",
@@ -30,6 +27,7 @@ const mockCampaigns: Campaign[] = [
     endDate: "2025-06-20",
     budget: 50000,
     status: "active",
+    logo: "https://via.placeholder.com/60",
   },
   {
     id: 2,
@@ -40,6 +38,7 @@ const mockCampaigns: Campaign[] = [
     endDate: "2025-04-15",
     budget: 30000,
     status: "completed",
+    logo: "https://via.placeholder.com/60",
   },
   {
     id: 3,
@@ -50,6 +49,7 @@ const mockCampaigns: Campaign[] = [
     endDate: "2025-05-30",
     budget: 45000,
     status: "pending",
+    logo: "https://via.placeholder.com/60",
   },
 ];
 
@@ -70,7 +70,7 @@ export default function ClientCampaignsPage() {
   const completeCampaign = (id: number) => {
     if (!confirm("Mark this campaign as completed?")) return;
 
-    setCampaigns((prev) =>  
+    setCampaigns((prev) =>
       prev.map((c) =>
         c.id === id ? { ...c, status: "completed" } : c
       )
@@ -90,7 +90,6 @@ export default function ClientCampaignsPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">My Campaigns</h1>
         <Link
@@ -101,13 +100,10 @@ export default function ClientCampaignsPage() {
         </Link>
       </div>
 
-      <aside className="w-64 shrink-0"></aside>
-
       <div className="flex gap-3 mb-6">
         {["all", "active", "completed", "pending"].map((status) => (
           <button
             key={status}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onClick={() => setFilter(status as any)}
             className={`px-4 py-2 rounded-lg border ${
               filter === status
@@ -120,7 +116,6 @@ export default function ClientCampaignsPage() {
         ))}
       </div>
 
-      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredCampaigns.map((campaign) => (
           <div
@@ -128,13 +123,22 @@ export default function ClientCampaignsPage() {
             className="bg-white p-5 rounded-xl shadow-sm border"
           >
             <div className="flex justify-between items-start">
-              <div>
-                <h2 className="font-semibold text-lg">
-                  {campaign.name}
-                </h2>
-                <p className="text-sm text-gray-500">
-                  {campaign.type} • {campaign.category}
-                </p>
+              <div className="flex items-center gap-3">
+                {/* ✅ LOGO */}
+                <img
+                  src={campaign.logo || "/avatar.png"}
+                  alt="logo"
+                  className="w-12 h-12 rounded-lg object-cover border"
+                />
+
+                <div>
+                  <h2 className="font-semibold text-lg">
+                    {campaign.name}
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    {campaign.type} • {campaign.category}
+                  </p>
+                </div>
               </div>
 
               <span
@@ -148,12 +152,11 @@ export default function ClientCampaignsPage() {
 
             <div className="mt-4 text-sm text-gray-600 space-y-1">
               <p>
-                 {campaign.startDate} → {campaign.endDate}
+                {campaign.startDate} → {campaign.endDate}
               </p>
               <p> Budget: ₹{campaign.budget.toLocaleString()}</p>
             </div>
 
-            
             <div className="flex justify-end gap-3 mt-4">
               <Link
                 href={`/client/campaigns/${campaign.id}`}
