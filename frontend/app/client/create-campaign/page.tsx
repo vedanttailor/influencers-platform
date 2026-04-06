@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -17,7 +18,7 @@ export default function CreateCampaignForm() {
 
   const [logo, setLogo] = useState(null);
   const [preview, setPreview] = useState("");
-  const [platforms, setPlatforms] = useState([]);
+  const [platforms, setPlatforms] = useState<string[]>([]);
   const [platformError, setPlatformError] = useState(false);
 
   const platformList = ["Instagram", "YouTube"];
@@ -174,7 +175,9 @@ export default function CreateCampaignForm() {
             </div>
 
             <div className="md:col-span-2 flex flex-col gap-2">
-              <label className="text-sm text-gray-600">Select the Campaign Logo*</label>
+              <label className="text-sm text-gray-600">
+                Select the Campaign Logo*
+              </label>
               <input
                 type="file"
                 accept="image/*"

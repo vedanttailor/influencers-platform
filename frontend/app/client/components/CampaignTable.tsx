@@ -22,13 +22,13 @@ export default function CampaignTable() {
                 </span>
               </td>
               <td>{row.inf}</td>
-             <td>
-              <Link
-              href="/client/campaigns"
-              className="text-blue-600 cursor-pointer"
-              >
-              View →
-              </Link>
+              <td>
+                <Link
+                  href="/client/campaigns"
+                  className="text-blue-600 cursor-pointer"
+                >
+                  View →
+                </Link>
               </td>
             </tr>
           ))}
@@ -39,7 +39,22 @@ export default function CampaignTable() {
 }
 
 const rows = [
-  { name: "Summer Fashion Promo", status: "Active", inf: "8 Influencers", color: "bg-green-500" },
-  { name: "Tech Gadgets Launch", status: "Ongoing", inf: "12 Influencers", color: "bg-yellow-500" },
-  { name: "Fitness Challenge", status: "Completed", inf: "10 Influencers", color: "bg-orange-500" },
+  {
+    name: "Summer Fashion Promo",
+    status: "Active",
+    inf: "8 Influencers",
+    color: "bg-green-500",
+  },
+  {
+    name: "Tech Gadgets Launch",
+    status: "Ongoing",
+    inf: "12 Influencers",
+    color: "bg-yellow-500",
+  },
+  {
+    name: "Fitness Challenge",
+    status: "Completed",
+    inf: "10 Influencers",
+    color: "bg-orange-500",
+  },
 ];
