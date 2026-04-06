@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -58,9 +60,7 @@ export default function ClientCampaignsPage() {
   const [filter, setFilter] = useState<"all" | CampaignStatus>("all");
 
   const filteredCampaigns =
-    filter === "all"
-      ? campaigns
-      : campaigns.filter((c) => c.status === filter);
+    filter === "all" ? campaigns : campaigns.filter((c) => c.status === filter);
 
   const deleteCampaign = (id: number) => {
     if (!confirm("Are you sure you want to delete this campaign?")) return;
@@ -71,9 +71,7 @@ export default function ClientCampaignsPage() {
     if (!confirm("Mark this campaign as completed?")) return;
 
     setCampaigns((prev) =>
-      prev.map((c) =>
-        c.id === id ? { ...c, status: "completed" } : c
-      )
+      prev.map((c) => (c.id === id ? { ...c, status: "completed" } : c)),
     );
   };
 
@@ -106,9 +104,7 @@ export default function ClientCampaignsPage() {
             key={status}
             onClick={() => setFilter(status as any)}
             className={`px-4 py-2 rounded-lg border ${
-              filter === status
-                ? "bg-black text-white"
-                : "bg-white text-black"
+              filter === status ? "bg-black text-white" : "bg-white text-black"
             }`}
           >
             {status.toUpperCase()}
@@ -124,7 +120,6 @@ export default function ClientCampaignsPage() {
           >
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-3">
-                {/* ✅ LOGO */}
                 <img
                   src={campaign.logo || "/avatar.png"}
                   alt="logo"
@@ -132,9 +127,7 @@ export default function ClientCampaignsPage() {
                 />
 
                 <div>
-                  <h2 className="font-semibold text-lg">
-                    {campaign.name}
-                  </h2>
+                  <h2 className="font-semibold text-lg">{campaign.name}</h2>
                   <p className="text-sm text-gray-500">
                     {campaign.type} • {campaign.category}
                   </p>
@@ -143,7 +136,7 @@ export default function ClientCampaignsPage() {
 
               <span
                 className={`px-3 py-1 text-sm rounded-full ${badgeColor(
-                  campaign.status
+                  campaign.status,
                 )}`}
               >
                 {campaign.status}
@@ -188,9 +181,7 @@ export default function ClientCampaignsPage() {
       </div>
 
       {filteredCampaigns.length === 0 && (
-        <p className="text-center text-gray-500 mt-10">
-          No campaigns found.
-        </p>
+        <p className="text-center text-gray-500 mt-10">No campaigns found.</p>
       )}
     </div>
   );

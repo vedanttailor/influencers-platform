@@ -67,8 +67,7 @@ const mockCampaignDetails: CampaignDetails[] = [
         name: "Rohit Verma",
         platform: "YouTube",
         profile: "https://youtube.com/@rohit",
-        postLink:
-          "https://youtu.be/LpOq7ZIjiEQ?si=rqo2j7g-xdOEuUyh",
+        postLink: "https://youtu.be/LpOq7ZIjiEQ?si=rqo2j7g-xdOEuUyh",
         likes: 8400,
         comments: 320,
         shares: 140,
@@ -82,15 +81,11 @@ export default function CampaignDetailsPage() {
   const params = useParams();
   const id = Number(params.id);
 
-  const campaign = mockCampaignDetails.find(
-    (c) => c.id === id
-  );
+  const campaign = mockCampaignDetails.find((c) => c.id === id);
 
   if (!campaign) {
     return (
-      <p className="text-center mt-10 text-gray-500">
-        Campaign not found
-      </p>
+      <p className="text-center mt-10 text-gray-500">Campaign not found</p>
     );
   }
 
@@ -104,17 +99,13 @@ export default function CampaignDetailsPage() {
       </Link>
 
       <div className="bg-white p-6 rounded-xl border">
-        
-  
         <div className="flex items-center gap-4 mb-4">
           <img
             src={campaign.logo || "/avatar.png"}
             alt="logo"
             className="w-16 h-16 rounded-lg object-cover border"
           />
-          <h1 className="text-2xl font-semibold">
-            {campaign.name}
-          </h1>
+          <h1 className="text-2xl font-semibold">{campaign.name}</h1>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
@@ -127,15 +118,10 @@ export default function CampaignDetailsPage() {
       </div>
 
       <div className="bg-white p-6 rounded-xl border">
-        <h2 className="text-xl font-semibold mb-4">
-          Influencer Performance
-        </h2>
+        <h2 className="text-xl font-semibold mb-4">Influencer Performance</h2>
 
         {campaign.influencers.map((inf, index) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 mb-4"
-          >
+          <div key={index} className="border rounded-lg p-4 mb-4">
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="font-semibold">{inf.name}</h3>
