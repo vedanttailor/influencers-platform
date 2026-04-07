@@ -1,27 +1,44 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { useEffect } from "react";
 import { useCampaignStore } from "@/lib/useCampaignStore";
 
+type CampaignEarning = {
+  id: string | number;
+  campaign_name: string;
+  brand_name: string;
+  budget: number;
+  status: string;
+};
+
+type Earnings = {
+  total_earning: number;
+  pending_earning: number;
+  completed_campaigns: number;
+  campaigns: CampaignEarning[];
+};
+
+type CampaignStore = {
+  earnings?: Earnings;
+  fetchEarnings: () => void;
+};
+
 export default function EarningsPage() {
-  const { campaigns } = useCampaignStore();
+  const { earnings, fetchEarnings } = useCampaignStore() as CampaignStore;
 
-  const completed = campaigns.filter((c: any) => c.status === "completed");
-  const active = campaigns.filter((c: any) => c.status === "active");
+  useEffect(() => {
+    fetchEarnings();
+  }, []);
 
-  const totalEarnings = completed.reduce(
-    (sum: number, c: any) => sum + (c.payment || 0),
-    0
-  );
-
-  const pendingEarnings = active.reduce(
-    (sum: number, c: any) => sum + (c.payment || 0),
-    0
-  );
+  if (!earnings) {
+    return <p className="text-center mt-10">Loading earnings...</p>;
+  }
 
   return (
     <div className="space-y-8">
-
+      {/* HEADER */}
       <div>
         <h1 className="text-3xl font-bold">Earnings</h1>
         <p className="text-gray-500">
@@ -29,77 +46,70 @@ export default function EarningsPage() {
         </p>
       </div>
 
-      
+      {/* STATS */}
       <div className="grid grid-cols-3 gap-6">
-
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500 text-sm">Total Earned</h3>
           <p className="text-3xl font-bold text-green-600">
-            ₹{totalEarnings}
+            ₹{earnings.total_earning}
           </p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500 text-sm">Pending Earnings</h3>
           <p className="text-3xl font-bold text-yellow-600">
-            ₹{pendingEarnings}
+            ₹{earnings.pending_earning}
           </p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
-          <h3 className="text-gray-500 text-sm">Completed Campaigns</h3>
+          <h3 className="text-gray-500 text-sm">
+            Completed Campaigns
+          </h3>
           <p className="text-3xl font-bold">
-            {completed.length}
+            {earnings.completed_campaigns}
           </p>
         </div>
-
       </div>
 
-     
-
+      {/* TABLE */}
       <div className="bg-white rounded-xl shadow">
-
         <div className="p-5 border-b font-semibold">
           Campaign Earnings
         </div>
 
         <table className="w-full text-sm">
-
           <thead className="bg-gray-50 text-gray-600">
             <tr>
-              <th className="text-left p-4">Campaign</th>
-              <th className="text-left p-4">Brand</th>
-              <th className="text-left p-4">Payment</th>
-              <th className="text-left p-4">Status</th>
+              <th className="p-4 text-left">Campaign</th>
+              <th className="p-4 text-left">Brand</th>
+              <th className="p-4 text-left">Payment</th>
+              <th className="p-4 text-left">Status</th>
             </tr>
           </thead>
 
           <tbody>
-
-            {campaigns.map((c: any) => (
+            {earnings.campaigns.map((c: any) => (
               <tr key={c.id} className="border-t">
-
                 <td className="p-4 font-medium">
-                  {c.title}
+                  {c.campaign_name}
                 </td>
 
                 <td className="p-4">
-                  {c.brand || "Brand"}
+                  {c.brand_name}
                 </td>
 
                 <td className="p-4 font-semibold">
-                  ₹{c.payment || 0}
+                  ₹{c.budget}
                 </td>
 
                 <td className="p-4">
-
                   <span
-                    className={`px-3 py-1 rounded-full text-xs
-                      ${
-                        c.status === "completed"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-yellow-100 text-yellow-600"
-                      }`}
+                    className={`px-3 py-1 rounded-full text-xs ${
+                      c.status === "completed"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-yellow-100 text-yellow-600"
+                    }`}
                   >
                     {c.status}
                   </span>

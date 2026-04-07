@@ -1,160 +1,133 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
 type CampaignStatus = "active" | "completed" | "pending";
 
-interface Influencer {
-  name: string;
-  platform: string;
-  profile: string;
-  postLink: string;
-  likes: number;
-  comments: number;
-  shares: number;
-  views: number;
-}
-
-interface CampaignDetails {
-  id: number;
-  name: string;
-  platform: string;
-  budget: number;
-  startDate: string;
-  endDate: string;
-  status: CampaignStatus;
-  influencers: Influencer[];
-}
-
-/**
- * MOCK DATA (no database)
- * ID must match campaigns/page.tsx IDs
- */
-const mockCampaignDetails: CampaignDetails[] = [
-  {
-    id: 1,
-    name: "Fashion Launch",
-    platform: "Instagram",
-    budget: 50000,
-    startDate: "2025-06-01",
-    endDate: "2025-06-20",
-    status: "active",
-    influencers: [
-      {
-        name: "Aarav Sharma",
-        platform: "Instagram",
-        profile: "https://instagram.com/aarav",
-        postLink: "https://www.instagram.com/reel/DMK7kHnIcRy/?igsh=Y2ltdWtncWdseGpm",
-        likes: 12000,
-        comments: 430,
-        shares: 210,
-        views: 85000,
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Fitness App Installs",
-    platform: "YouTube",
-    budget: 30000,
-    startDate: "2025-04-01",
-    endDate: "2025-04-15",
-    status: "completed",
-    influencers: [
-      {
-        name: "Rohit Verma",
-        platform: "YouTube",
-        profile: "https://youtube.com/@rohit",
-        postLink: "https://youtu.be/LpOq7ZIjiEQ?si=rqo2j7g-xdOEuUyh",
-        likes: 8400,
-        comments: 320,
-        shares: 140,
-        views: 62000,
-      },
-    ],
-  },
-];
-
 export default function CampaignDetailsPage() {
   const params = useParams();
-  const id = Number(params.id);
+  const id = params.id as string;
 
-  const campaign = mockCampaignDetails.find(
-    (c) => c.id === id
-  );
+  const [campaign, setCampaign] = useState<any>(null);
+
+  useEffect(() => {
+    if (id) fetchCampaign();
+  }, [id]);
+
+  const fetchCampaign = async () => {
+    try {
+      const data = await api.get(`/campaigns/${id}`);
+      setCampaign(data);
+    } catch (err) {
+      console.error("Failed to fetch campaign", err);
+    }
+  };
+
+  const deleteCampaign = async () => {
+    if (!confirm("Are you sure you want to delete this campaign?")) return;
+
+    try {
+      await api.delete(`/campaigns/${id}`);
+      window.location.href = "/client/campaigns";
+    } catch (err) {
+      console.error("Delete failed", err);
+    }
+  };
+
+  const completeCampaign = async () => {
+    if (!confirm("Mark this campaign as completed?")) return;
+
+    try {
+      await api.patch(`/campaigns/${id}`, {
+        status: "completed",
+      });
+
+      setCampaign((prev: any) => ({
+        ...prev,
+        status: "completed",
+      }));
+    } catch (err) {
+      console.error("Update failed", err);
+    }
+  };
+
+  const badgeColor = (status: CampaignStatus) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-700";
+      case "completed":
+        return "bg-blue-100 text-blue-700";
+      case "pending":
+        return "bg-yellow-100 text-yellow-700";
+      default:
+        return "";
+    }
+  };
 
   if (!campaign) {
-    return (
-      <p className="text-center mt-10 text-gray-500">
-        Campaign not found
-      </p>
-    );
+    return <p className="text-center mt-10">Loading...</p>;
   }
+
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
-      {/* Back */}
-      <Link
-        href="/client/campaigns"
-        className="text-sm text-gray-600 inline-block"
-      >
+      <Link href="/client/campaigns" className="text-sm text-gray-600">
         ← Back to Campaigns
       </Link>
 
-      {/* Campaign Info */}
       <div className="bg-white p-6 rounded-xl border">
-        <h1 className="text-2xl font-semibold mb-4">
-          {campaign.name}
-        </h1>
+        <div className="flex items-center gap-4 mb-4">
+          <img
+            src={campaign.logo || "/avatar.png"}
+            alt="logo"
+            className="w-16 h-16 rounded-lg object-cover border"
+          />
+
+          <div>
+            <h1 className="text-2xl font-semibold">{campaign.campaign_name}</h1>
+
+            <span
+              className={`px-3 py-1 text-sm rounded-full ${badgeColor(
+                campaign.status,
+              )}`}
+            >
+              {campaign.status}
+            </span>
+          </div>
+        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-          <p> Platform: {campaign.platform}</p>
-          <p> Budget: ₹{campaign.budget.toLocaleString()}</p>
-          <p> Status: {campaign.status}</p>
-          <p> Start: {campaign.startDate}</p>
-          <p> End: {campaign.endDate}</p>
+          <p>Type: {campaign.campaign_type}</p>
+          <p>Category: {campaign.campaign_category}</p>
+          <p>Platforms: {campaign.platforms?.join(", ") || "-"}</p>
+          <p>Budget: ₹{campaign.budget}</p>
+          <p>Start: {campaign.start_date}</p>
+          <p>End: {campaign.end_date}</p>
         </div>
-      </div>
 
-      {/* Influencer Performance */}
-      <div className="bg-white p-6 rounded-xl border">
-        <h2 className="text-xl font-semibold mb-4">
-          Influencer Performance
-        </h2>
+        <div className="flex justify-end gap-3 mt-6">
+          {campaign.status === "active" && (
+            <button
+              onClick={completeCampaign}
+              className="px-4 py-2 border border-green-500 text-green-600 rounded-lg"
+            >
+              Complete
+            </button>
+          )}
 
-        {campaign.influencers.map((inf, index) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 mb-4"
+          <button
+            onClick={deleteCampaign}
+            className="px-4 py-2 border border-red-400 text-red-600 rounded-lg"
           >
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="font-semibold">
-                  {inf.name}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  Platform: {inf.platform}
-                </p>
-              </div>
-
-              <a
-                href={inf.postLink}
-                target="_blank"
-                className="text-blue-600 text-sm"
-              >
-                View Post →
-              </a>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3 text-sm">
-              <p> Likes: {inf.likes}</p>
-              <p> Comments: {inf.comments}</p>
-              <p> Shares: {inf.shares}</p>
-              <p> Views: {inf.views}</p>
-            </div>
-          </div>
-        ))}
+            Delete
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,32 +1,60 @@
-'use client';
+"use client";
 
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
 import StatCard from "../campaigns/components/StatCard";
 import EngagementChart from "../campaigns/components/EngagementChart";
 import CampaignTable from "../campaigns/components/CampaignTable";
-import Link from "next/link";
 
 export default function Dashboard() {
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    completed: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await api.get("/campaigns/stats"); // ✅ FIXED
+
+        setStats({
+          total: data?.total ?? 0,
+          active: data?.active ?? 0,
+          completed: data?.completed ?? 0,
+        });
+      } catch (err) {
+        console.error("Failed to fetch stats", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-4 gap-4">
         <StatCard
-  title="Total Campaigns"
-  value="30"
-  href="/client/campaigns"
-/>
+          title="Total Campaigns"
+          value={loading ? "..." : stats.total.toString()}
+          href="/client/campaigns"
+        />
 
-<StatCard
-  title="Active Campaigns"
-  value="12"
-  href="/client/campaigns?status=active"
-/>
+        <StatCard
+          title="Active Campaigns"
+          value={loading ? "..." : stats.active.toString()}
+          href="/client/campaigns?status=active"
+        />
 
-<StatCard
-  title="Completed Campaigns"
-  value="18"
-  href="/client/campaigns?status=completed"
-/>
-
+        <StatCard
+          title="Completed Campaigns"
+          value={loading ? "..." : stats.completed.toString()}
+          href="/client/campaigns?status=completed"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-6">

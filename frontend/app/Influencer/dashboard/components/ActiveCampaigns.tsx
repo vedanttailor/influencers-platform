@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import { Campaign } from "@/lib/types";
 import { useCampaignStore } from "@/lib/useCampaignStore";
 
 export default function ActiveCampaigns() {
-  const { campaigns } = useCampaignStore();
+  const { campaigns } = useCampaignStore() as { campaigns: Campaign[] };
   const active = campaigns.filter(
     c => c.status === "applied" || c.status === "accepted"
   );

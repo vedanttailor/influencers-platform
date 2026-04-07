@@ -1,41 +1,82 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
-import { Campaign } from "./types";
+import { api } from "@/lib/api";
 
-type Store = {
-  campaigns: Campaign[];
-  apply: (id: number) => void;
-  submitLink: (id: number, link: string) => void;
-};
+export const useCampaignStore = create((set) => ({
+  campaigns: [],
 
-export const useCampaignStore = create<Store>((set) => ({
-  campaigns: [
-    {
-      id: 1,
-      title: "Instagram Reel Promo",
-      client: "Nike",
-      platform: "Instagram",
-      budget: 8000,
-      description: "Create 1 reel",
-      guidelines: "No music copyright",
-      hashtags: ["#nike", "#fitness"],
-      endDate: "2026-02-05",
-      status: "available",
-    },
-  ],
+  fetchCampaigns: async () => {
+    try {
+      const data = await api.get("/influencer/campaigns");
 
-  apply: (id) =>
-    set((state) => ({
-      campaigns: state.campaigns.map((c) =>
-        c.id === id ? { ...c, status: "applied" } : c
+      const formatted = data.map((c: any) => ({
+        id: c.id,
+        title: c.campaign_name,
+        client: c.brand_name,
+        platform: c.platforms?.join(", "),
+        budget: Number(c.budget),
+        endDate: c.end_date,
+        status: c.status || "available",
+        description: "",
+      }));
+
+      set({ campaigns: formatted });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
+  fetchMyCampaigns: async () => {
+    try {
+      const data = await api.get("/influencer/my-campaigns");
+
+      const formatted = data.map((c: any) => ({
+        id: c.id,
+        title: c.campaign_name,
+        client: c.brand_name,
+        budget: Number(c.budget),
+        status: c.status,
+        endDate: c.end_date,
+        post_url: c.post_url,
+      }));
+
+      set((state: any) => ({
+        campaigns: [...state.campaigns, ...formatted],
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
+  apply: async (id: string) => {
+    await api.post("/influencer/apply", { campaign_id: id });
+
+    set((state: any) => ({
+      campaigns: state.campaigns.map((c: any) =>
+        c.id === id ? { ...c, status: "applied" } : c,
       ),
-    })),
+    }));
+  },
+  earnings: null,
 
-  submitLink: (id, link) =>
-    set((state) => ({
-      campaigns: state.campaigns.map((c) =>
-        c.id === id
-          ? { ...c, postLink: link, status: "completed" }
-          : c
+  fetchEarnings: async () => {
+    try {
+      const data = await api.get("/influencer/earnings");
+      set({ earnings: data });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
+  submitLink: async (id: string, link: string) => {
+    await api.patch(`/influencer/submit/${id}`, {
+      post_url: link,
+    });
+
+    set((state: any) => ({
+      campaigns: state.campaigns.map((c: any) =>
+        c.id === id ? { ...c, status: "completed" } : c,
       ),
-    })),
+    }));
+  },
 }));
