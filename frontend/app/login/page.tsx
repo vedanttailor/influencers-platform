@@ -41,7 +41,7 @@ export default function LoginPage() {
         localStorage.setItem("role", result.role);
 
         setError(false);
-        setMsg("Login successful ✅");
+        setMsg("Login successful ");
 
         setTimeout(() => {
           redirectByRole(result.role, router);
@@ -71,7 +71,7 @@ export default function LoginPage() {
                         border border-white/10 shadow-2xl"
         >
           <h2 className="text-2xl font-semibold mb-2 text-white">
-            Welcome back
+            Welcome To Influencer CRM
           </h2>
 
           {msg && (

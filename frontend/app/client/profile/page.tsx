@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
@@ -8,35 +8,13 @@ import { useUser } from "../campaigns/components/UserContext";
 export default function ProfilePage() {
   const { user, updateUser } = useUser();
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("http://127.0.0.1:8000/auth/me", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-
-        const data = await res.json();
-
-        updateUser({
-          name: data.full_name,
-          email: data.email,
-          avatar: data.profile_img,
-        });
-      } catch (err) {
-        console.error("Failed to fetch user", err);
-      }
-    };
-
-    fetchUser();
-  }, []);
+  if (!user) return <p className="p-6">Loading...</p>;
 
   const handleImageUpload = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -47,18 +25,20 @@ export default function ProfilePage() {
     setSelectedFile(file);
 
     updateUser({
-      avatar: URL.createObjectURL(file),
+      avatar: URL.createObjectURL(file), 
     });
   };
 
   const handleRemoveImage = () => {
     setSelectedFile(null);
-    updateUser({ avatar: "" });
+    updateUser({ avatar: "/avatar.png" });
   };
 
   const handleSaveProfile = async () => {
     try {
-      let imageUrl = user?.avatar;
+      setLoading(true);
+
+      let imageUrl = user.avatar;
 
       if (selectedFile) {
         const formData = new FormData();
@@ -85,14 +65,20 @@ export default function ProfilePage() {
         body: JSON.stringify({
           full_name: user.name,
           email: user.email,
-          profile_img: imageUrl || null,
+          profile_img: imageUrl,
         }),
+      });
+
+      updateUser({
+        avatar: imageUrl || "/avatar.png",
       });
 
       alert("Profile updated successfully ");
     } catch (err) {
       console.error("Save failed", err);
       alert("Something went wrong ");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -100,6 +86,7 @@ export default function ProfilePage() {
     localStorage.removeItem("token");
 
     updateUser({
+      id: "",
       name: "",
       email: "",
       avatar: "",
@@ -138,9 +125,10 @@ export default function ProfilePage() {
       </div>
 
       <div className="bg-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
+        
         <div className="flex items-center gap-5">
           <img
-            src={user?.avatar || "https://i.pravatar.cc/150"}
+            src={user.avatar || "/avatar.png"}
             alt="Profile"
             className="w-28 h-28 rounded-full object-cover border-4 border-indigo-200 shadow"
           />
@@ -149,16 +137,23 @@ export default function ProfilePage() {
             <p className="text-lg font-semibold text-gray-800">
               {user.name}
             </p>
+
             <p className="text-sm text-gray-500">
               {user.email}
             </p>
+
+            <p className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-lg inline-block mt-1">
+              User ID: {user.id || "Not Available"}
+            </p>
           </div>
         </div>
+
 
         <div className="flex flex-col gap-2">
           <label className="text-sm text-gray-600 font-medium">
             Update Photo
           </label>
+
           <input
             type="file"
             accept="image/*"
@@ -166,7 +161,7 @@ export default function ProfilePage() {
             className="text-sm file:mr-3 file:px-4 file:py-2 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100"
           />
 
-          {user?.avatar && (
+          {user.avatar && user.avatar !== "/avatar.png" && (
             <button
               type="button"
               onClick={handleRemoveImage}
@@ -184,6 +179,7 @@ export default function ProfilePage() {
         </h2>
 
         <div className="grid md:grid-cols-2 gap-6">
+          
           <div>
             <label className="text-sm text-gray-500">Name</label>
             <input
@@ -207,49 +203,12 @@ export default function ProfilePage() {
               className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
             />
           </div>
+
         </div>
       </div>
-
-      <div className="bg-white p-6 rounded-2xl shadow-md space-y-6">
-        <h2 className="text-lg font-semibold text-gray-700 border-b pb-2">
-          Change Password
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-4">
-          <input
-            type="password"
-            placeholder="Current password"
-            value={currentPassword}
-            onChange={(e) =>
-              setCurrentPassword(e.target.value)
-            }
-            className="border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
-          />
-
-          <input
-            type="password"
-            placeholder="New password"
-            value={newPassword}
-            onChange={(e) =>
-              setNewPassword(e.target.value)
-            }
-            className="border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
-          />
-
-          <input
-            type="password"
-            placeholder="Confirm password"
-            value={confirmPassword}
-            onChange={(e) =>
-              setConfirmPassword(e.target.value)
-            }
-            className="border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
-          />
-        </div>
-
-      </div>
-
+              
       <div className="flex justify-between items-center">
+        
         <button
           onClick={handleLogout}
           className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
@@ -258,11 +217,13 @@ export default function ProfilePage() {
         </button>
 
         <button
-          onClick={handleSaveProfile || handlePasswordChange}
-          className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
+          onClick={handleSaveProfile}
+          disabled={loading}
+          className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium disabled:opacity-50"
         >
-          Save Profile
+          {loading ? "Saving..." : "Save Profile"}
         </button>
+
       </div>
     </div>
   );

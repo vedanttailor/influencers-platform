@@ -3,35 +3,28 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 type User = {
+  id: string;
   name: string;
   email: string;
   avatar: string;
 };
 
 type UserContextType = {
-  user: User;
+  user: User | null;
   updateUser: (data: Partial<User>) => void;
 };
 
 const UserContext = createContext<UserContextType | null>(null);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User>({
-    name: "",
-    email: "",
-    avatar: "",
-  });
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
 
-        // ✅ FIX: If no token, don't call API
-        if (!token) {
-          console.warn("No token found, skipping fetchUser");
-          return;
-        }
+        if (!token) return;
 
         const res = await fetch("http://127.0.0.1:8000/auth/me", {
           headers: {
@@ -39,22 +32,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           },
         });
 
-        if (!res.ok) {
-          console.warn("Unauthorized or failed request");
-          return;
-        }
+        if (!res.ok) return;
 
         const data = await res.json();
 
         setUser({
+          id: data.id || data._id || "",
           name: data.full_name || "",
           email: data.email || "",
-          avatar: data.profile_img
-            ? `http://127.0.0.1:8000${data.profile_img}`
-            : "/avatar.png",
+          avatar: data.profile_img || "/avatar.png",
         });
+
       } catch (err) {
-        console.error("UserContext fetch error:", err);
+        console.error("User fetch error:", err);
       }
     };
 
@@ -62,7 +52,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateUser = (data: Partial<User>) => {
-    setUser((prev) => ({ ...prev, ...data }));
+    setUser((prev) => (prev ? { ...prev, ...data } : prev));
   };
 
   return (

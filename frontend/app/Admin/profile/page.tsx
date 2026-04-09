@@ -9,24 +9,14 @@ import { useRouter } from "next/navigation";
 
 export default function AdminProfile() {
   const router = useRouter();
-
   const [admin, setAdmin] = useState<any>(null);
-
-  // form states
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role] = useState("Super Admin");
-
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
   const [photo, setPhoto] = useState("/avatar.png");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
   const [showSuccess, setShowSuccess] = useState(false);
-  const [showError, setShowError] = useState(false);
 
- 
   useEffect(() => {
     const fetchAdmin = async () => {
       try {
@@ -38,10 +28,12 @@ export default function AdminProfile() {
 
         const data = await res.json();
 
+        console.log("ADMIN DATA:", data);
+
         setAdmin(data);
         setName(data.full_name);
         setEmail(data.email);
-        setPhoto(data.profile_img || "/avatar.png");
+        setPhoto(data.profile_img || "no image");
       } catch (err) {
         console.error("Failed to fetch admin", err);
       }
@@ -50,7 +42,6 @@ export default function AdminProfile() {
     fetchAdmin();
   }, []);
 
-  
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const img = e.target.files?.[0];
     if (!img) return;
@@ -59,17 +50,10 @@ export default function AdminProfile() {
     setPhoto(URL.createObjectURL(img));
   };
 
-  
   const handleSave = async () => {
-    if (password && password !== confirmPassword) {
-      setShowError(true);
-      return;
-    }
-
     try {
       let imageUrl = photo;
 
-      
       if (selectedFile) {
         const formData = new FormData();
         formData.append("file", selectedFile);
@@ -86,7 +70,6 @@ export default function AdminProfile() {
         imageUrl = data.image_url;
       }
 
-      
       await fetch("http://127.0.0.1:8000/auth/update-profile", {
         method: "PUT",
         headers: {
@@ -106,7 +89,6 @@ export default function AdminProfile() {
     }
   };
 
-  
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
@@ -120,7 +102,6 @@ export default function AdminProfile() {
       <div className="max-w-3xl bg-white shadow rounded-lg p-6">
         <h1 className="text-2xl font-semibold mb-6">Admin Profile</h1>
 
-        
         <div className="flex items-center gap-6 mb-6">
           <img
             src={photo}
@@ -139,7 +120,12 @@ export default function AdminProfile() {
           </label>
         </div>
 
-        
+        <div className="mb-4">
+          <p className="text-sm text-gray-500">
+            User ID: {admin?.id || admin?._id || admin?.user_id || "Not Available"}
+          </p>
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm">Full Name</label>
@@ -169,30 +155,6 @@ export default function AdminProfile() {
           </div>
         </div>
 
-        
-        <div className="mt-6 grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm">New Password</label>
-            <input
-              type="password"
-              className="border rounded p-2 w-full"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm">Confirm Password</label>
-            <input
-              type="password"
-              className="border rounded p-2 w-full"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-          </div>
-        </div>
-
-        
         <div className="flex justify-between mt-6">
           <button
             onClick={handleLogout}
@@ -210,7 +172,6 @@ export default function AdminProfile() {
         </div>
       </div>
 
-      
       {showSuccess && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
           <div className="bg-white rounded p-6 w-80 text-center">
@@ -221,26 +182,6 @@ export default function AdminProfile() {
             <button
               onClick={() => setShowSuccess(false)}
               className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              OK
-            </button>
-          </div>
-        </div>
-      )}
-
-      
-      {showError && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white rounded p-6 w-80 text-center">
-            <h2 className="text-lg font-bold mb-2 text-red-600">
-              Password Mismatch
-            </h2>
-            <p className="text-gray-600 mb-4">
-              Password and Confirm Password must match.
-            </p>
-            <button
-              onClick={() => setShowError(false)}
-              className="bg-red-600 text-white px-4 py-2 rounded"
             >
               OK
             </button>
