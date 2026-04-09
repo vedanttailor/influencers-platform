@@ -53,7 +53,7 @@ def signup(data: SignupSchema, db: Session = Depends(get_db)):
     token = create_token(user.id, user.role)
     
     return {
-    "message": "Login successful",
+    "message": "Signup successful",
     "data": {
         "token": token,
         "role": user.role
@@ -142,7 +142,7 @@ def dashboard(db: Session = Depends(get_db),user=Depends(require_role("admin")))
         "campaigns": campaigns
     }
     
-@router.get("/campaign")
+@router.get("/campaigns")
 def campaigns(db: Session = Depends(get_db)):
     return db.query(Campaign).all()
 

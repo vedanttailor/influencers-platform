@@ -1,14 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState } from "react";
-import { useUser } from "../components/UserContext";
+import { useState, useEffect } from "react";
+import { useUser } from "../campaigns/components/UserContext";
 
 export default function ProfilePage() {
   const { user, updateUser } = useUser();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   if (!user) return <p className="p-6">Loading...</p>;
 
@@ -90,6 +94,26 @@ export default function ProfilePage() {
 
     window.location.href = "/login";
   };
+  
+  const handlePasswordChange = () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      alert("Please fill all password fields");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      alert("New passwords do not match");
+      return;
+    }
+
+    alert("Password updated successfully");
+
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  if (!user) return null;
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-10">

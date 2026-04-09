@@ -1,6 +1,8 @@
-import { UserProvider } from "./components/UserContext";
-import Sidebar from "./components/Sidebar";
-import Topbar from "./components/Topbar";
+"use client";
+
+import { UserProvider } from "./campaigns/components/UserContext";
+import Sidebar from "./campaigns/components/Sidebar";
+import Topbar from "./campaigns/components/Topbar";
 
 export default function ClientLayout({
   children,

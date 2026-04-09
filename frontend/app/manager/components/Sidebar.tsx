@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import path from "path";
 
 import {
   LayoutDashboard,
@@ -48,7 +51,7 @@ export default function Sidebar() {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 function SidebarItem({ href, icon, label, active }: any) {
   return (
     <Link
