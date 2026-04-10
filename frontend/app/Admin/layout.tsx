@@ -3,7 +3,6 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Sidebar from "./components/admin/dashboard/Sidebar";
 import Topbar from "./components/admin/dashboard/TopBar";
-  
 
 export default function AdminLayout({
   children,
@@ -12,16 +11,12 @@ export default function AdminLayout({
 }) {
   return (
     <ProtectedRoute allowed={["admin"]}>
-      <div className="flex h-screen overflow-hidden">
-        <aside className="w-64 shrink-0">
-          <Sidebar />
-        </aside>
+      <div className="shell-root">
+        <Sidebar />
 
-        <div className="flex flex-col flex-1">
+        <div className="flex min-w-0 flex-1 flex-col">
           <Topbar />
-          <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
-            {children}
-          </main>
+          <main className="app-main p-6 lg:p-8">{children}</main>
         </div>
       </div>
     </ProtectedRoute>

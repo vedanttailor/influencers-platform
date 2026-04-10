@@ -2,7 +2,11 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Influencer Platform",
@@ -15,8 +19,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className + " bg-gray-50 text-gray-900"}>
+    <html lang="en" className={inter.variable}>
+      <body
+        className={`${inter.className} bg-slate-100 text-slate-900 antialiased`}
+      >
         {children}
       </body>
     </html>

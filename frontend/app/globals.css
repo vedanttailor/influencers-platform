@@ -2,82 +2,226 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --background: 248 250 252;
+    --foreground: 15 23 42;
+    --muted: 100 116 139;
+    --card: 255 255 255;
+    --border: 226 232 240;
+    --primary: 13 148 136;
+    --primary-hover: 15 118 110;
+    --ring: 45 212 191;
+    --radius: 0.75rem;
+  }
 
+  html {
+    @apply antialiased;
+  }
 
-:root {
-  --font-sans: "Geist", sans-serif;
+  ::selection {
+    @apply bg-teal-200/80 text-teal-950;
+  }
 }
-
-
 body {
   min-height: 100vh;
-  font-family: var(--font-sans);
-  background: linear-gradient(150deg, bg-purple-50);
-  color: #000000;
+  font-feature-settings: "rlig" 1, "calt" 1;
+  @apply bg-slate-100 text-slate-900;
 }
 
-
-
+/* Form controls */
 .input {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  background: rgb(255, 255, 255);
-  color: rgb(0, 0, 0);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  background: rgb(255 255 255);
+  color: rgb(15 23 42);
+  border: 1px solid rgb(226 232 240);
   outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .input::placeholder {
-  color: #9ca3af;
+  color: rgb(148 163 184);
 }
 
 .input:focus {
-  box-shadow: 0 0 0 2px #6366f1;
+  border-color: rgb(45 212 191);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.22);
 }
 
-
+select.input {
+  cursor: pointer;
+}
 
 select.input option {
   background-color: #ffffff;
-  color: #000000;
+  color: #0f172a;
 }
-
-
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 textarea:-webkit-autofill,
 select:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px rgba(255,255,255,0.08) inset !important;
-  -webkit-text-fill-color: rgb(0, 0, 0) !important;
-  caret-color: white;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: rgb(15 23 42) !important;
+  caret-color: rgb(15 23 42);
   transition: background-color 9999s ease-in-out 0s;
 }
 
-
-
 .btn {
   width: 100%;
-  padding: 12px;
-  background: #6366f1;
+  padding: 0.75rem 1rem;
+  background: rgb(13 148 136);
   color: white;
-  border-radius: 6px;
+  border-radius: 0.75rem;
   font-weight: 600;
-  transition: 0.2s;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .btn:hover {
-  background: #4f46e5;
+  background: rgb(15 118 110);
 }
 
-
+.btn:focus-visible {
+  outline: 2px solid rgb(20 184 166);
+  outline-offset: 2px;
+}
 
 .card {
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(20px);
-  border-radius: 10px;
-  padding: 20px;
-  border: 1px solid rgba(255,255,255,0.08);
+  @apply rounded-2xl border border-slate-200/90 bg-white shadow-card;
+}
+
+/* Auth (login / signup / forgot password) */
+.auth-shell {
+  @apply min-h-screen grid bg-slate-100 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)];
+}
+
+.auth-brand {
+  @apply relative hidden flex-col justify-center overflow-hidden px-10 py-14 text-white md:flex lg:px-16;
+  background: linear-gradient(
+    155deg,
+    rgb(15 23 42) 0%,
+    rgb(15 23 42) 42%,
+    rgb(17 94 89) 88%,
+    rgb(13 148 136) 100%
+  );
+}
+
+.auth-brand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+      circle at 20% 20%,
+      rgba(45, 212, 191, 0.18),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 80% 0%,
+      rgba(56, 189, 248, 0.12),
+      transparent 40%
+    );
+  pointer-events: none;
+}
+
+.auth-brand-inner {
+  @apply relative z-[1] max-w-md;
+}
+
+.auth-brand-badge {
+  @apply mb-6 inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-teal-100/90 backdrop-blur-sm;
+}
+
+.auth-brand-title {
+  @apply text-3xl font-semibold leading-tight tracking-tight lg:text-4xl;
+}
+
+.auth-brand-sub {
+  @apply mt-4 text-base leading-relaxed text-slate-300 lg:text-lg;
+}
+
+.auth-form-area {
+  @apply flex items-center justify-center px-4 py-10 sm:px-6 sm:py-12;
+}
+
+.auth-card {
+  @apply relative w-full max-w-md rounded-2xl border border-slate-200/90 bg-white p-8 shadow-[0_24px_64px_-28px_rgba(15,23,42,0.2)];
+}
+
+.auth-card-wide {
+  @apply relative w-full max-w-lg rounded-2xl border border-slate-200/90 bg-white p-8 shadow-[0_24px_64px_-28px_rgba(15,23,42,0.2)];
+}
+
+.auth-heading {
+  @apply text-2xl font-semibold tracking-tight text-slate-900;
+}
+
+.auth-sub {
+  @apply mt-1 text-sm text-slate-500;
+}
+
+.auth-alert {
+  @apply mb-4 rounded-xl border px-3 py-3 text-sm;
+}
+
+.auth-alert-error {
+  @apply border-red-200 bg-red-50 text-red-800;
+}
+
+.auth-alert-success {
+  @apply border-emerald-200 bg-emerald-50 text-emerald-900;
+}
+
+.auth-link {
+  @apply text-sm font-medium text-teal-600 transition hover:text-teal-700;
+}
+
+.auth-btn-primary {
+  @apply w-full rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+/* Main scroll surface */
+.app-main {
+  @apply min-h-0 flex-1 overflow-y-auto bg-slate-50/90;
+  background-image: radial-gradient(
+      ellipse 85% 50% at 50% -12%,
+      rgba(45, 212, 191, 0.07),
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse 55% 38% at 100% 0%,
+      rgba(14, 165, 233, 0.05),
+      transparent 48%
+    );
+}
+
+.shell-root {
+  @apply flex h-screen overflow-hidden bg-slate-200/60;
+}
+
+.shell-sidebar {
+  @apply h-screen w-64 shrink-0 border-r border-slate-800/80 bg-slate-900 text-slate-200;
+  box-shadow: 6px 0 32px -12px rgba(15, 23, 42, 0.45);
+}
+
+.shell-topbar {
+  @apply sticky top-0 z-20 flex h-[3.25rem] items-center justify-between border-b border-slate-200/90 bg-white/95 px-6 shadow-topbar backdrop-blur-md;
+}
+
+.sidebar-label {
+  @apply text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500;
+}
+
+.sidebar-title {
+  @apply mt-1 text-lg font-semibold tracking-tight text-white;
+}
+
+.nav-item {
+  @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-white/[0.06] hover:text-slate-100;
+}
+
+.nav-item-active {
+  @apply bg-teal-500/15 text-teal-200 shadow-[inset_3px_0_0_0_rgb(45,212,191)];
 }

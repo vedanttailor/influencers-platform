@@ -57,6 +57,16 @@ export default function ForgotPasswordPage() {
   };
 
   const resetPassword = async () => {
+    if (!code.trim()) {
+      setError(true);
+      return setMessage("Verification code is required");
+    }
+
+    if (newPassword.length < 6) {
+      setError(true);
+      return setMessage("Password must be at least 6 characters");
+    }
+
     if (newPassword !== confirmPassword) {
       setError(true);
       return setMessage("Passwords do not match");
@@ -90,7 +100,7 @@ export default function ForgotPasswordPage() {
         throw new Error(data?.detail || "Reset failed");
       }
 
-      setMessage("Password updated successfully 🎉");
+      setMessage("Password updated successfully.");
       setStep(3);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
@@ -103,60 +113,53 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2 bg-gradient-to-br from-slate-950 via-slate-900 to-black">
-      
-      <div className="hidden md:flex flex-col justify-center px-16 text-white">
-        <h1 className="text-4xl font-bold mb-4">Influencer CRM</h1>
-        <p className="text-gray-400 text-lg">
-          Secure your account access.
-        </p>
+    <div className="auth-shell">
+      <div className="auth-brand">
+        <div className="auth-brand-inner">
+          <p className="auth-brand-badge">Campaign CRM</p>
+          <h1 className="auth-brand-title">Reset access securely</h1>
+          <p className="auth-brand-sub">
+            Verify your email and choose a new password in a few quick steps.
+          </p>
+        </div>
       </div>
 
-      <div className="flex items-center justify-center px-4">
-        <div
-          className="w-full max-w-lg p-8 rounded-2xl 
-                     bg-white/10 backdrop-blur-xl 
-                     border border-white/10 shadow-2xl"
-        >
-          <h2 className="text-2xl font-semibold mb-2 text-white">
-            Forgot Password
-          </h2>
-
-          <p className="text-sm text-gray-400 mb-6">
+      <div className="auth-form-area">
+        <div className="auth-card-wide">
+          <h2 className="auth-heading">Forgot password</h2>
+          <p className="auth-sub">
             Step {step} of 3
           </p>
 
           {message && (
             <div
-              className={`mb-6 p-3 rounded-lg text-sm 
-              ${error ? "bg-red-500/20 text-red-300" : "bg-green-500/20 text-green-300"}`}
+              className={`auth-alert mt-5 ${error ? "auth-alert-error" : "auth-alert-success"}`}
             >
               {message}
             </div>
           )}
 
-          {/* FORM START */}
-          <form autoComplete="off">
+          <form autoComplete="off" className={message ? "mt-4" : "mt-6"}>
             {step === 1 && (
               <div className="space-y-4">
                 <input
                   name="email"
+                  type="email"
                   className="input"
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="off"
+                  required
                 />
 
                 <button
                   type="button"
                   onClick={sendCode}
                   disabled={loading}
-                  className="w-full mt-2 bg-indigo-600 text-white py-3 rounded-lg 
-                             hover:bg-indigo-700 transition 
-                             disabled:opacity-50"
+                  className="auth-btn-primary mt-2"
                 >
-                  {loading ? "Sending..." : "Send Code"}
+                  {loading ? "Sending..." : "Send code"}
                 </button>
               </div>
             )}
@@ -170,6 +173,7 @@ export default function ForgotPasswordPage() {
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   autoComplete="one-time-code"
+                  required
                 />
 
                 <input
@@ -180,6 +184,7 @@ export default function ForgotPasswordPage() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   autoComplete="new-password"
+                  required
                 />
 
                 <input
@@ -190,42 +195,40 @@ export default function ForgotPasswordPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   autoComplete="new-password"
+                  required
                 />
 
                 <button
                   type="button"
                   onClick={resetPassword}
                   disabled={loading}
-                  className="w-full mt-2 bg-indigo-600 text-white py-3 rounded-lg 
-                             hover:bg-indigo-700 transition 
-                             disabled:opacity-50"
+                  className="auth-btn-primary mt-2"
                 >
-                  {loading ? "Resetting..." : "Reset Password"}
+                  {loading ? "Resetting..." : "Reset password"}
                 </button>
               </div>
             )}
 
             {step === 3 && (
               <div className="space-y-4">
-                <p className="text-green-300 text-center">
+                <p className="text-center text-sm font-medium text-emerald-800">
                   Password updated successfully
                 </p>
 
-                <Link
-                  href="/login"
-                  className="w-full block text-center bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700"
-                >
-                  Back to Login
+                <Link href="/login" className="auth-btn-primary block text-center">
+                  Back to sign in
                 </Link>
               </div>
             )}
           </form>
 
-          <div className="text-center mt-6">
-            <Link href="/login" className="text-sm text-gray-400 hover:text-white">
-              Back to Login
-            </Link>
-          </div>
+          {step !== 3 && (
+            <div className="mt-6 text-center">
+              <Link href="/login" className="auth-link">
+                Back to sign in
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>

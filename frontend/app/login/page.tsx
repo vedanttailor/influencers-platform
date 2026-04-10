@@ -56,28 +56,26 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2 bg-gradient-to-br from-slate-950 via-slate-900 to-black">
-      <div className="hidden md:flex flex-col justify-center px-16 text-white">
-        <h1 className="text-4xl font-bold mb-4">Influencer CRM</h1>
-        <p className="text-gray-400 text-lg">
-          Manage campaigns, creators and analytics in one place.
-        </p>
+    <div className="auth-shell">
+      <div className="auth-brand">
+        <div className="auth-brand-inner">
+          <p className="auth-brand-badge">Campaign CRM</p>
+          <h1 className="auth-brand-title">Run creator campaigns with clarity</h1>
+          <p className="auth-brand-sub">
+            Manage briefs, approvals, and performance in one professional workspace—built
+            for brands and influencers.
+          </p>
+        </div>
       </div>
 
-      <div className="flex items-center justify-center">
-        <div
-          className="w-full max-w-md p-8 rounded-2xl 
-                        bg-white/10 backdrop-blur-xl 
-                        border border-white/10 shadow-2xl"
-        >
-          <h2 className="text-2xl font-semibold mb-2 text-white">
-            Welcome To Influencer CRM
-          </h2>
+      <div className="auth-form-area">
+        <div className="auth-card">
+          <h2 className="auth-heading">Sign in</h2>
+          <p className="auth-sub">Welcome back. Enter your credentials to continue.</p>
 
           {msg && (
             <div
-              className={`mb-4 p-3 rounded-lg text-sm 
-              ${error ? "bg-red-500/20 text-red-300" : "bg-green-500/20 text-green-300"}`}
+              className={`auth-alert mt-5 ${error ? "auth-alert-error" : "auth-alert-success"}`}
             >
               {msg}
             </div>
@@ -85,7 +83,7 @@ export default function LoginPage() {
 
           <form
             onSubmit={handleLogin}
-            className="space-y-4"
+            className={`space-y-4 ${msg ? "mt-4" : "mt-6"}`}
             autoComplete="off"
             autoCorrect="off"
             spellCheck={false}
@@ -99,6 +97,7 @@ export default function LoginPage() {
               type="email"
               placeholder="Email"
               className="input"
+              required
             />
             <input
               name="fpass"
@@ -106,27 +105,25 @@ export default function LoginPage() {
               type="password"
               placeholder="Password"
               className="input"
+              required
             />
 
-            <Link href="/forgot-password" className="text-sm text-blue-500">
-              Forgot password?
-            </Link>
+            <div className="flex justify-end">
+              <Link href="/forgot-password" className="auth-link">
+                Forgot password?
+              </Link>
+            </div>
 
-            <button
-              disabled={loading}
-              className="w-full bg-indigo-600 text-white py-3 rounded-lg 
-                         hover:bg-indigo-700 transition 
-                         disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Logging in..." : "Login"}
+            <button type="submit" disabled={loading} className="auth-btn-primary">
+              {loading ? "Logging in..." : "Sign in"}
             </button>
           </form>
 
-          <p className="text-sm text-center mt-4 text-gray-400">
+          <p className="mt-6 text-center text-sm text-slate-500">
             Don’t have an account?{" "}
-            <a href="/signup" className="text-indigo-400 font-medium">
-              Sign up
-            </a>
+            <Link href="/signup" className="auth-link">
+              Create account
+            </Link>
           </p>
         </div>
       </div>

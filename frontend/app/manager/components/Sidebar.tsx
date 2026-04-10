@@ -4,7 +4,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import path from "path";
 
 import {
   LayoutDashboard,
@@ -26,15 +25,18 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 h-screen bg-white border-r">
-      
-      <div className="p-6 font-bold text-xl text-black">
-        Welcome Manager
+    <aside className="shell-sidebar flex flex-col">
+      <div className="border-b border-white/10 px-5 py-6">
+        <p className="sidebar-label">Workspace</p>
+        <p className="sidebar-title">Manager</p>
       </div>
 
-      <nav className="space-y-2 px-4">
+      <nav className="flex-1 space-y-0.5 px-3 py-4">
         {menu.map((item) => {
-          const active = pathname === item.path;
+          const active =
+            pathname === item.path ||
+            (item.path !== "/manager/dashboard" &&
+              pathname.startsWith(item.path));
 
           return (
             <SidebarItem
@@ -56,12 +58,7 @@ function SidebarItem({ href, icon, label, active }: any) {
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 p-3 rounded transition
-        ${
-          active
-            ? "bg-blue-100 text-blue-600 font-medium"
-            : "text-black hover:bg-blue-50"
-        }`}
+      className={`nav-item ${active ? "nav-item-active" : ""}`}
     >
       {icon}
       <span>{label}</span>
