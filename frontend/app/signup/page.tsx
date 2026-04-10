@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -92,7 +91,7 @@ export default function SignupPage() {
     <div className="auth-shell">
       <div className="auth-brand">
         <div className="auth-brand-inner">
-          <p className="auth-brand-badge">Campaign CRM</p>
+          <p className="auth-brand-badge">Influencer CRM</p>
           <h1 className="auth-brand-title">Join your creator marketing workspace</h1>
           <p className="auth-brand-sub">
             Onboard as a client or influencer and keep every campaign, asset, and payout in

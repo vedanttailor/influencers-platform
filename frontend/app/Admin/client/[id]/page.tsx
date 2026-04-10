@@ -1,6 +1,4 @@
-import "../Admin.css";
-// "use client";
-
+"use client";
 import { useState } from "react";
 import ClientHeader from "./ClientHeader";
 import OverviewTab from "./tabs/OverviewTab";
