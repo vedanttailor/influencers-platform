@@ -48,21 +48,32 @@ function DashboardContent() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold">Welcome, {fullName}</h1>
+      <div>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+          Welcome, {fullName}
+        </h1>
+        <p className="mt-1 text-sm text-slate-600">
+          Explore available campaigns and track your active work.
+        </p>
+      </div>
 
       <StatsCards />
       <AvailableCampaigns />
       <ActiveCampaigns />
 
-      <div className="grid grid-cols-2 gap-6">
-        <div className="bg-white p-5 rounded shadow">
-          <h2>Active Campaigns</h2>
-          <p className="text-2xl">{active.length}</p>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="card p-5">
+          <p className="text-sm font-semibold text-slate-900">Active campaigns</p>
+          <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
+            {active.length}
+          </p>
         </div>
 
-        <div className="bg-white p-5 rounded shadow">
-          <h2>Applied Campaigns</h2>
-          <p className="text-2xl">{applied.length}</p>
+        <div className="card p-5">
+          <p className="text-sm font-semibold text-slate-900">Applied campaigns</p>
+          <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
+            {applied.length}
+          </p>
         </div>
       </div>
     </div>

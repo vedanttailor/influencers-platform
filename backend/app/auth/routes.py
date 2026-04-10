@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException # type: ignore
 from sqlalchemy.orm import Session # type: ignore
 from app.auth.schemas import SignupSchema, LoginSchema 
 from app.database import SessionLocal
-from app.models import User,  Influencer, Client, Campaign
+from app.models import User, Influencer, Client, Campaign
 from app.core.security import hash_password, verify_password, create_token
 from app.auth.permissions import require_role
 from .utils import get_user_by_email
@@ -125,21 +125,6 @@ def get_me(current_user = Depends(get_current_user), db: Session = Depends(get_d
         "email": user.email,
         "role": user.role,
         "profile_img": user.profile_img,
-    }
-    
-@router.get("/admin")
-def dashboard(db: Session = Depends(get_db),user=Depends(require_role("admin"))):
-
-    users = db.query(User).count()
-    influencers = db.query(Influencer).count()
-    clients = db.query(Client).count()
-    campaigns = db.query(Campaign).count()
-
-    return {
-        "users": users,
-        "influencers": influencers,
-        "clients": clients,
-        "campaigns": campaigns
     }
     
 @router.get("/campaigns")

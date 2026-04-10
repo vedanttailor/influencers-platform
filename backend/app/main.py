@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware # type: ignore
 from app.campaigns.routes import router as campaign_router
 from app.responses.routes import router as responses_router
 from app.influencer.routes import router as influencer_router
+from app.admin.routes import router as admin_router
 
 
 app = FastAPI()
@@ -16,6 +17,7 @@ app.include_router(auth_router)
 app.include_router(campaign_router)
 app.include_router(responses_router)
 app.include_router(influencer_router)
+app.include_router(admin_router)
 
 app.add_middleware(
     CORSMiddleware,

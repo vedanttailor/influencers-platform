@@ -116,7 +116,7 @@ export default function ForgotPasswordPage() {
     <div className="auth-shell">
       <div className="auth-brand">
         <div className="auth-brand-inner">
-          <p className="auth-brand-badge">Campaign CRM</p>
+          <p className="auth-brand-badge">Influencer CRM</p>
           <h1 className="auth-brand-title">Reset access securely</h1>
           <p className="auth-brand-sub">
             Verify your email and choose a new password in a few quick steps.
