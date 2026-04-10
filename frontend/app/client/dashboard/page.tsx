@@ -38,7 +38,6 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-4 gap-4">
-        <StatCard title="Total Campaigns" value="30" href="/client/campaigns" />
 
         <StatCard
           title="Total Campaigns"

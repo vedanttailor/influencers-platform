@@ -5,8 +5,7 @@
 import { useState } from "react";
 import { redirectByRole } from "@/app/utils/redirectByRole";
 import { useRouter } from "next/navigation";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { data } from "framer-motion/client";
+import Link from "next/link";
 
 export default function SignupPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -37,13 +36,12 @@ export default function SignupPage() {
       const uploadData = await uploadRes.json();
       console.log("upload response:", uploadData);
 
-      if (uploadData.image_url){
+      if (uploadData.image_url) {
         imageUrl = uploadData.image_url;
-      }else{
+      } else {
         console.error("Image upload failed");
       }
     }
-
     const form = e.target;
 
     const data = {
@@ -54,8 +52,6 @@ export default function SignupPage() {
       role: form.frole.value,
       profile_img: imageUrl,
     };
-
-
     try {
       const res = await fetch("http://127.0.0.1:8000/auth/signup", {
         method: "POST",
@@ -79,7 +75,7 @@ export default function SignupPage() {
         localStorage.setItem("token", result.token);
         localStorage.setItem("role", result.role);
         setError(false);
-        setMsg("Account created successfully 🎉");
+        setMsg("Account created successfully.");
         form.reset();
         setImagePreview(null);
         redirectByRole(result.role, router);
@@ -93,28 +89,26 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2 bg-gradient-to-br from-slate-950 via-slate-900 to-black">
-      <div className="hidden md:flex flex-col justify-center px-16 text-white">
-        <h1 className="text-4xl font-bold mb-4">Influencer CRM</h1>
-        <p className="text-gray-400 text-lg">
-          The operating system for creator marketing.
-        </p>
+    <div className="auth-shell">
+      <div className="auth-brand">
+        <div className="auth-brand-inner">
+          <p className="auth-brand-badge">Campaign CRM</p>
+          <h1 className="auth-brand-title">Join your creator marketing workspace</h1>
+          <p className="auth-brand-sub">
+            Onboard as a client or influencer and keep every campaign, asset, and payout in
+            sync.
+          </p>
+        </div>
       </div>
 
-      <div className="flex items-center justify-center">
-        <div
-          className="w-full max-w-lg p-8 rounded-2xl 
-                        bg-white/10 backdrop-blur-xl 
-                        border border-white/10 shadow-2xl"
-        >
-          <h2 className="text-2xl font-semibold mb-1 text-white">
-            Create account
-          </h2>
+      <div className="auth-form-area">
+        <div className="auth-card-wide">
+          <h2 className="auth-heading">Create account</h2>
+          <p className="auth-sub">Fill in your details to get started.</p>
 
           {msg && (
             <div
-              className={`mb-4 p-3 rounded-lg text-sm 
-              ${error ? "bg-red-500/20 text-red-300" : "bg-green-500/20 text-green-300"}`}
+              className={`auth-alert mt-5 ${error ? "auth-alert-error" : "auth-alert-success"}`}
             >
               {msg}
             </div>
@@ -122,7 +116,7 @@ export default function SignupPage() {
 
           <form
             onSubmit={handleSignup}
-            className="space-y-4"
+            className={`space-y-4 ${msg ? "mt-4" : "mt-6"}`}
             autoComplete="off"
             autoCorrect="off"
             spellCheck={false}
@@ -173,15 +167,12 @@ export default function SignupPage() {
             </select>
 
             <div>
-              <label className="text-sm text-gray-400">Profile photo</label>
+              <label className="text-sm font-medium text-slate-700">Profile photo</label>
               <input
                 type="file"
                 accept="image/*"
-                className="mt-1 block w-full text-sm text-gray-300 
-                           file:bg-indigo-600 file:border-0 
-                           file:text-white file:px-4 file:py-2 
-                           file:rounded-lg hover:file:bg-indigo-700"
-                           required
+                className="mt-2 block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-teal-600 file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-white hover:file:bg-teal-700"
+                required
                 onChange={(e) => {
                   if (e.target.files?.[0]) {
                     const selectedFile = e.target.files[0];
@@ -194,32 +185,24 @@ export default function SignupPage() {
               {imagePreview && (
                 <img
                   src={imagePreview}
-                  className="mt-2 h-20 w-20 rounded-full object-cover border border-white/20"
+                  alt=""
+                  className="mt-3 h-20 w-20 rounded-2xl border border-slate-200 object-cover shadow-sm"
                 />
               )}
             </div>
 
-            <button
-              disabled={loading}
-              className="w-full bg-indigo-600 text-white py-3 rounded-lg 
-                         hover:bg-indigo-700 transition 
-                         disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Creating..." : "Create Account"}
+            <button type="submit" disabled={loading} className="auth-btn-primary">
+              {loading ? "Creating..." : "Create account"}
             </button>
           </form>
-           <p className="text-sm text-center mt-4 text-gray-400">
-            You have an account?{" "}
-            <a href="/login" className="text-indigo-400 font-medium">
-              Login
-            </a>
+          <p className="mt-6 text-center text-sm text-slate-500">
+            Already have an account?{" "}
+            <Link href="/login" className="auth-link">
+              Sign in
+            </Link>
           </p>
         </div>
       </div>
     </div>
-
-    
-  
-
   );
 }

@@ -13,13 +13,13 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 h-screen bg-white shadow-md flex flex-col">
-      
-      <div className="p-6 font-bold text-xl text-black">
-        Welcome Influencer
+    <aside className="shell-sidebar flex flex-col">
+      <div className="border-b border-white/10 px-5 py-6">
+        <p className="sidebar-label">Workspace</p>
+        <p className="sidebar-title">Influencer</p>
       </div>
 
-      <nav className="space-y-2 px-4">
+      <nav className="flex-1 space-y-0.5 px-3 py-4">
         <SidebarItem
           href="/Influencer/dashboard"
           icon={<LayoutDashboard size={18} />}
@@ -66,11 +66,7 @@ function SidebarItem({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 p-3 rounded-lg text-sm transition ${
-        active
-          ? "bg-blue-100 text-blue-600 font-medium"
-          : "text-gray-700 hover:bg-blue-50"
-      }`}
+      className={`nav-item ${active ? "nav-item-active" : ""}`}
     >
       {icon}
       <span>{label}</span>

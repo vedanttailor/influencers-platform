@@ -7,20 +7,12 @@ export default function InfluencerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen bg-slate-100">
-
+    <div className="shell-root">
       <Sidebar />
-
-      <div className="flex flex-col flex-1">
-
+      <div className="flex min-w-0 flex-1 flex-col">
         <Topbar />
-
-        <main className="flex-1 overflow-y-auto p-8">
-          {children}
-        </main>
-
+        <main className="app-main p-6 lg:p-8">{children}</main>
       </div>
-
     </div>
   );
 }

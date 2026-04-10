@@ -9,20 +9,27 @@ export default function Topbar() {
   const { user } = useUser();
 
   return (
-    <header className="flex items-center justify-between px-8 py-4 bg-white text-black shadow-sm">
-      <h1 className="text-lg font-semibold"></h1>
+    <header className="shell-topbar">
+      <div className="min-w-0" />
 
-      <div className="flex items-center gap-6">
-        <Bell className="cursor-pointer" />
+      <div className="flex items-center gap-2 sm:gap-4">
+        <button
+          type="button"
+          className="rounded-xl p-2.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
+          aria-label="Notifications"
+        >
+          <Bell className="h-[18px] w-[18px]" strokeWidth={2} />
+        </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-200/90 bg-slate-50/90 py-1 pl-1 pr-3">
           <img
             src={user?.avatar || "/avatar.png"}
-            className="w-8 h-8 rounded-full object-cover"
+            alt=""
+            className="h-9 w-9 rounded-xl object-cover ring-2 ring-white shadow-sm"
           />
 
-          <span className="text-sm">
-            {user?.name || "Loading..."}
+          <span className="max-w-[160px] truncate text-sm font-medium text-slate-800">
+            {user?.name || "Loading…"}
           </span>
         </div>
       </div>

@@ -11,22 +11,15 @@ export default function ClientLayout({
 }) {
   return (
     <UserProvider>
-      <div className="flex h-screen overflow-hidden">
+      <div className="shell-root">
+        <Sidebar />
 
-        <div className="w-64 shrink-0">
-          <Sidebar />
-        </div>
-
-        <div className="flex flex-col flex-1">
-
-          <div className="shrink-0 bg-purple-50">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="shrink-0">
             <Topbar />
           </div>
 
-          <main className="flex-1 overflow-y-auto p-6">
-            {children}
-          </main>
-
+          <main className="app-main p-6 lg:p-8">{children}</main>
         </div>
       </div>
     </UserProvider>

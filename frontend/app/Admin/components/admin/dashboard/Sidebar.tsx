@@ -23,13 +23,13 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 h-screen bg-white border-r">
-      
-      <div className="p-6 font-bold text-xl text-black">
-        Welcome Admin
+    <aside className="shell-sidebar flex h-screen w-64 shrink-0 flex-col">
+      <div className="border-b border-white/10 px-5 py-6">
+        <p className="sidebar-label">Console</p>
+        <p className="sidebar-title">Admin</p>
       </div>
 
-      <nav className="space-y-2 px-4">
+      <nav className="flex-1 space-y-0.5 px-3 py-4">
         {menu.map((item) => {
           const active = pathname.startsWith(item.path);
 
@@ -37,7 +37,7 @@ export default function Sidebar() {
             <SidebarItem
               key={item.name}
               href={item.path}
-              icon={<item.icon size={20} />}
+              icon={<item.icon size={18} strokeWidth={2} />}
               label={item.name}
               active={active}
             />
@@ -52,14 +52,9 @@ function SidebarItem({ href, icon, label, active }: any) {
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 p-3 rounded transition
-        ${
-          active
-            ? "bg-blue-100 text-blue-600 font-medium"
-            : "text-black hover:bg-blue-50"
-        }`}
+      className={`nav-item ${active ? "nav-item-active" : ""}`}
     >
-      {icon}
+      <span className="shrink-0 opacity-90">{icon}</span>
       <span>{label}</span>
     </Link>
   );
