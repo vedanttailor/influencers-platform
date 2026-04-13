@@ -1,6 +1,7 @@
 "use client";
 
 import StatCard from "../components/admin/dashboard/StatCard";
+import DashboardOverview from "../components/admin/dashboard/DashboardOverview";
 import UsersTable from "../components/admin/dashboard/UsersTable";
 import CampaignTable from "../components/admin/dashboard/CampaignTable";
 import { useEffect, useState } from "react";
@@ -62,6 +63,8 @@ export default function AdminDashboard() {
             value={stats ? String(stats.clients) : "..."}
           />
         </div>
+
+        <DashboardOverview />
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <UsersTable />

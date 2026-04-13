@@ -4,16 +4,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
 
-type Stats = {
-  clients: number;
-  influencers: number;
-  campaigns: number;
-  pending_approvals: number;
-};
-
 type CampaignRow = {
   id: string;
-  campaign_name: string;
+  campaign_name?: string | null;
   brand_name?: string | null;
   budget?: number | null;
   status?: string | null;
@@ -57,37 +50,44 @@ function Badge({ text }: { text: string }) {
   );
 }
 
-export default function DashboardCharts() {
-  const [stats, setStats] = useState<Stats | null>(null);
+export default function DashboardOverview() {
   const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [influencers, setInfluencers] = useState<InfluencerRow[]>([]);
+  const [pendingApprovals, setPendingApprovals] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const run = async () => {
       try {
         setLoading(true);
-        const [s, camps, cl, inf] = await Promise.all([
-          api.get("/manager/stats"),
-          api.get("/manager/campaigns"),
-          api.get("/manager/clients"),
-          api.get("/manager/influencers"),
+        const [camps, cl, inf, users] = await Promise.all([
+          api.get("/admin/campaigns"),
+          api.get("/admin/clients"),
+          api.get("/admin/influencers"),
+          api.get("/admin/users"),
         ]);
-        setStats(s as Stats);
-        setCampaigns(Array.isArray(camps) ? (camps as CampaignRow[]) : []);
+
+        const campsArr = Array.isArray(camps) ? (camps as CampaignRow[]) : [];
+        const usersArr = Array.isArray(users) ? users : [];
+
+        setCampaigns(campsArr);
         setClients(Array.isArray(cl) ? (cl as ClientRow[]) : []);
         setInfluencers(Array.isArray(inf) ? (inf as InfluencerRow[]) : []);
+        setPendingApprovals(
+          usersArr.filter((u: any) => String(u?.status || "").toLowerCase() === "pending").length
+        );
       } catch (e) {
-        console.error("Failed to fetch manager dashboard overview", e);
-        setStats({ clients: 0, influencers: 0, campaigns: 0, pending_approvals: 0 });
+        console.error("Failed to fetch admin dashboard overview", e);
         setCampaigns([]);
         setClients([]);
         setInfluencers([]);
+        setPendingApprovals(0);
       } finally {
         setLoading(false);
       }
     };
+
     run();
   }, []);
 
@@ -118,10 +118,10 @@ export default function DashboardCharts() {
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <div>
             <h3 className="text-lg font-semibold">Recent Campaigns</h3>
-            <p className="text-sm text-slate-500">Latest activity across all clients.</p>
+            <p className="text-sm text-slate-500">Latest activity across the platform.</p>
           </div>
           <Link
-            href="/manager/campaigns"
+            href="/Admin/campaigns"
             className="text-sm font-semibold text-blue-600 hover:text-blue-700"
           >
             View all
@@ -144,15 +144,11 @@ export default function DashboardCharts() {
                 <tr key={c.id} className="border-t hover:bg-slate-50/60 transition">
                   <td className="p-4 font-medium text-slate-900">{c.campaign_name || "-"}</td>
                   <td className="p-4 text-slate-700">{c.brand_name || "-"}</td>
-                  <td className="p-4 text-slate-700">
-                    ₹{Number(c.budget || 0).toLocaleString()}
-                  </td>
+                  <td className="p-4 text-slate-700">₹{Number(c.budget || 0).toLocaleString()}</td>
                   <td className="p-4">
                     <Badge text={String(c.status || "-")} />
                   </td>
-                  <td className="p-4 text-slate-700">
-                    {c.influencer_id ? "Yes" : "No"}
-                  </td>
+                  <td className="p-4 text-slate-700">{c.influencer_id ? "Yes" : "No"}</td>
                 </tr>
               ))}
 
@@ -190,7 +186,7 @@ export default function DashboardCharts() {
                 <p className="text-xs text-slate-500">Users waiting for approval</p>
               </div>
               <span className="text-sm font-bold text-slate-900">
-                {stats?.pending_approvals ?? (loading ? "..." : 0)}
+                {loading ? "..." : pendingApprovals}
               </span>
             </div>
 
@@ -207,16 +203,16 @@ export default function DashboardCharts() {
 
           <div className="mt-4 flex gap-3">
             <Link
-              href="/manager/clients"
+              href="/Admin/users"
               className="flex-1 rounded-xl bg-blue-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-blue-700"
             >
-              Review Clients
+              Review Users
             </Link>
             <Link
-              href="/manager/influencers"
+              href="/Admin/campaigns"
               className="flex-1 rounded-xl bg-slate-900 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-slate-800"
             >
-              Review Influencers
+              Review Campaigns
             </Link>
           </div>
         </div>
@@ -225,7 +221,7 @@ export default function DashboardCharts() {
         <div className="bg-white rounded-xl shadow p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Top Clients</h3>
-            <Link href="/manager/clients" className="text-sm font-semibold text-blue-600 hover:text-blue-700">
+            <Link href="/Admin/client" className="text-sm font-semibold text-blue-600 hover:text-blue-700">
               View
             </Link>
           </div>
@@ -257,7 +253,7 @@ export default function DashboardCharts() {
         <div className="bg-white rounded-xl shadow p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Top Influencers</h3>
-            <Link href="/manager/influencers" className="text-sm font-semibold text-blue-600 hover:text-blue-700">
+            <Link href="/Admin/influencers" className="text-sm font-semibold text-blue-600 hover:text-blue-700">
               View
             </Link>
           </div>
@@ -288,3 +284,4 @@ export default function DashboardCharts() {
     </div>
   );
 }
+

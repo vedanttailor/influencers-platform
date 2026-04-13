@@ -2,51 +2,59 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { api } from "@/lib/api";
 
 export default function InfluencersPage() {
-
-  const [influencers, setInfluencers] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      image: "https://randomuser.me/api/portraits/men/1.jpg",
-      platform: "Instagram",
-      followers: "120K",
-      email: "john@gmail.com",
-      contact: "+91 9876543210",
-      status: "Pending",
-    },
-    {
-      id: 2,
-      name: "Emma Watson",
-      image: "https://randomuser.me/api/portraits/women/2.jpg",
-      platform: "YouTube",
-      followers: "300K",
-      email: "emma@gmail.com",
-      contact: "+91 9123456780",
-      status: "Approved",
-    },
-  ]);
+  const [influencers, setInfluencers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   //  Modal state
   const [selectedInf, setSelectedInf] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleApprove = (id: number) => {
-    setInfluencers((prev) =>
-      prev.map((inf) =>
-        inf.id === id ? { ...inf, status: "Approved" } : inf
-      )
-    );
+  const load = async () => {
+    setLoading(true);
+    try {
+      const data = await api.get("/manager/influencers");
+      setInfluencers(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error("Failed to load influencers", e);
+      setInfluencers([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReject = (id: number) => {
-    setInfluencers((prev) =>
-      prev.map((inf) =>
-        inf.id === id ? { ...inf, status: "Rejected" } : inf
-      )
-    );
+  useEffect(() => {
+    load();
+  }, []);
+
+  const displayInfluencers = useMemo(() => influencers, [influencers]);
+
+  const handleApprove = async (userId: string) => {
+    setBusyId(userId);
+    try {
+      await api.patch(`/manager/users/${userId}/action`, { action: "approve" });
+      await load();
+    } catch (e) {
+      console.error("Approve failed", e);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleReject = async (userId: string) => {
+    setBusyId(userId);
+    try {
+      await api.patch(`/manager/users/${userId}/action`, { action: "reject" });
+      await load();
+    } catch (e) {
+      console.error("Reject failed", e);
+    } finally {
+      setBusyId(null);
+    }
   };
 
   return (
@@ -68,34 +76,32 @@ export default function InfluencersPage() {
           </thead>
 
           <tbody>
-            {influencers.map((inf) => (
-              <tr key={inf.id} className="border-b hover:bg-gray-50 transition">
+            {displayInfluencers.map((inf) => (
+              <tr key={inf.user_id || inf.id} className="border-b hover:bg-gray-50 transition">
 
                 <td className="p-4">
-                  <img
-                    src={inf.image}
-                    alt={inf.name}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
+                  <div className="w-10 h-10 rounded-full bg-gray-100 grid place-items-center text-xs text-gray-500">
+                    N/A
+                  </div>
                 </td>
 
                 <td className="p-4 font-medium">{inf.name}</td>
 
                 <td className="p-4">
                   <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
-                    {inf.platform}
+                    {(inf.platforms && Array.isArray(inf.platforms) && inf.platforms[0]) || "-"}
                   </span>
                 </td>
 
-                <td className="p-4 text-gray-500">{inf.followers}</td>
+                <td className="p-4 text-gray-500">{inf.followers ?? "-"}</td>
 
                 <td className="p-4">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold
                     ${
-                      inf.status === "Approved"
+                      String(inf.status).toLowerCase() === "active"
                         ? "bg-green-100 text-green-700"
-                        : inf.status === "Rejected"
+                        : String(inf.status).toLowerCase() === "rejected"
                         ? "bg-red-100 text-red-700"
                         : "bg-yellow-100 text-yellow-700"
                     }`}
@@ -117,39 +123,33 @@ export default function InfluencersPage() {
                     View
                   </button>
 
-                  {inf.status === "Pending" && (
+                  {String(inf.status).toLowerCase() !== "active" && (
                     <>
                       <button
-                        onClick={() => handleApprove(inf.id)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs"
+                        onClick={() => handleApprove(inf.user_id)}
+                        disabled={busyId === inf.user_id}
+                        className="bg-green-500 hover:bg-green-600 disabled:opacity-60 text-white px-3 py-1 rounded text-xs"
                       >
-                        Approve
+                        {busyId === inf.user_id ? "..." : "Approve"}
                       </button>
 
                       <button
-                        onClick={() => handleReject(inf.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs"
+                        onClick={() => handleReject(inf.user_id)}
+                        disabled={busyId === inf.user_id}
+                        className="bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white px-3 py-1 rounded text-xs"
                       >
-                        Reject
+                        {busyId === inf.user_id ? "..." : "Reject"}
                       </button>
                     </>
                   )}
 
-                  {inf.status === "Approved" && (
+                  {String(inf.status).toLowerCase() === "active" && (
                     <button
-                      onClick={() => handleReject(inf.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs"
+                      onClick={() => handleReject(inf.user_id)}
+                      disabled={busyId === inf.user_id}
+                      className="bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white px-3 py-1 rounded text-xs"
                     >
-                      Reject
-                    </button>
-                  )}
-
-                  {inf.status === "Rejected" && (
-                    <button
-                      onClick={() => handleApprove(inf.id)}
-                      className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs"
-                    >
-                      Approve
+                      {busyId === inf.user_id ? "..." : "Reject"}
                     </button>
                   )}
 
@@ -180,23 +180,25 @@ export default function InfluencersPage() {
             </button>
 
             <div className="text-center mb-4">
-              <img
-                src={selectedInf.image}
-                className="w-16 h-16 rounded-full mx-auto mb-2"
-              />
               <h2 className="font-bold text-lg">{selectedInf.name}</h2>
             </div>
 
             <div className="text-sm space-y-2">
               <p><strong>Email:</strong> {selectedInf.email}</p>
-              <p><strong>Contact:</strong> {selectedInf.contact}</p>
-              <p><strong>Platform:</strong> {selectedInf.platform}</p>
-              <p><strong>Followers:</strong> {selectedInf.followers}</p>
+              <p><strong>Category:</strong> {selectedInf.category || "-"}</p>
+              <p><strong>Platforms:</strong> {(selectedInf.platforms || []).join(", ") || "-"}</p>
+              <p><strong>Followers:</strong> {selectedInf.followers ?? "-"}</p>
+              <p><strong>Engagement:</strong> {selectedInf.engagement_rate ?? "-"}</p>
+              <p><strong>Active campaigns:</strong> {selectedInf.active_campaigns ?? "-"}</p>
               <p><strong>Status:</strong> {selectedInf.status}</p>
             </div>
 
           </div>
         </div>
+      )}
+
+      {!loading && displayInfluencers.length === 0 && (
+        <p className="mt-4 text-sm text-gray-500">No influencers found.</p>
       )}
 
     </div>
