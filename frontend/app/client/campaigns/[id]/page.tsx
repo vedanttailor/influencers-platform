@@ -111,6 +111,24 @@ export default function CampaignDetailsPage() {
           <p>End: {campaign.end_date}</p>
         </div>
 
+        <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-sm font-semibold text-slate-800">Influencer Submitted Video</p>
+          {campaign.post_url ? (
+            <a
+              href={campaign.post_url}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-block text-sm text-blue-600 underline break-all"
+            >
+              {campaign.post_url}
+            </a>
+          ) : (
+            <p className="mt-2 text-sm text-slate-500">
+              Not submitted yet by influencer.
+            </p>
+          )}
+        </div>
+
         <div className="flex justify-end gap-3 mt-6">
           {campaign.status === "active" && (
             <button

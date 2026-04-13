@@ -26,6 +26,16 @@
 body {
   min-height: 100vh;
   font-feature-settings: "rlig" 1, "calt" 1;
+  background-image: radial-gradient(
+      ellipse 90% 70% at 50% -20%,
+      rgba(45, 212, 191, 0.12),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 45% 30% at 100% 0%,
+      rgba(99, 102, 241, 0.08),
+      transparent 50%
+    );
   @apply bg-slate-100 text-slate-900;
 }
 
@@ -77,11 +87,14 @@ select:-webkit-autofill {
   color: white;
   border-radius: 0.75rem;
   font-weight: 600;
-  transition: background 0.15s ease, box-shadow 0.15s ease;
+  transition: background 0.15s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 6px 18px -8px rgba(13, 148, 136, 0.6);
 }
 
 .btn:hover {
   background: rgb(15 118 110);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px -12px rgba(13, 148, 136, 0.75);
 }
 
 .btn:focus-visible {
@@ -91,6 +104,11 @@ select:-webkit-autofill {
 
 .card {
   @apply rounded-2xl border border-slate-200/90 bg-white shadow-card;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  @apply shadow-card-hover;
 }
 
 /* Auth (login / signup / forgot password) */
@@ -224,4 +242,39 @@ select:-webkit-autofill {
 
 .nav-item-active {
   @apply bg-teal-500/15 text-teal-200 shadow-[inset_3px_0_0_0_rgb(45,212,191)];
+}
+
+/* Shared modern table style across dashboard cards */
+.card table {
+  @apply w-full text-sm;
+}
+
+.card table thead tr {
+  @apply bg-slate-50 text-slate-500;
+}
+
+.card table thead th {
+  @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide;
+}
+
+.card table tbody tr {
+  @apply border-t border-slate-200/70 transition-colors;
+}
+
+.card table tbody tr:hover {
+  @apply bg-slate-50/70;
+}
+
+.card table tbody td {
+  @apply px-4 py-3 align-middle;
+}
+
+/* Better default button feel without breaking color utilities */
+button,
+a[role="button"] {
+  transition: all 0.18s ease;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }

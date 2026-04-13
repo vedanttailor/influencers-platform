@@ -1,57 +1,59 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { api } from "@/lib/api";
 
 export default function ClientsPage() {
-
-  const [clients, setClients] = useState([
-    {
-      id: 1,
-      name: "Nike India",
-      email: "nike@gmail.com",
-      contact: "+91 9876543210",
-      budget: 500000,
-      startDate: "2026-03-01",
-      endDate: "2026-03-31",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg",
-      status: "Pending",
-    } ,
-    {
-      id: 2,
-      name: "Adidas",
-      email: "adidas@gmail.com",
-      contact: "+91 9123456780",
-      budget: 750000,
-      startDate: "2026-03-05",
-      endDate: "2026-04-05",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/2/20/Adidas_Logo.svg",
-      status: "Approved",
-    },
-  ]);
+  const [clients, setClients] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleApprove = (id: number) => {
-    setClients((prev) =>
-      prev.map((client) =>
-        client.id === id
-          ? { ...client, status: "Approved" }
-          : client
-      )
-    );
+  const load = async () => {
+    setLoading(true);
+    try {
+      const data = await api.get("/manager/clients");
+      setClients(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error("Failed to load clients", e);
+      setClients([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReject = (id: number) => {
-    setClients((prev) =>
-      prev.map((client) =>
-        client.id === id
-          ? { ...client, status: "Rejected" }
-          : client
-      )
-    );
+  useEffect(() => {
+    load();
+  }, []);
+
+  const displayClients = useMemo(() => clients, [clients]);
+
+  const handleApprove = async (userId: string) => {
+    setBusyId(userId);
+    try {
+      await api.patch(`/manager/users/${userId}/action`, { action: "approve" });
+      await load();
+    } catch (e) {
+      console.error("Approve failed", e);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleReject = async (userId: string) => {
+    setBusyId(userId);
+    try {
+      await api.patch(`/manager/users/${userId}/action`, { action: "reject" });
+      await load();
+    } catch (e) {
+      console.error("Reject failed", e);
+    } finally {
+      setBusyId(null);
+    }
   };
 
   return (
@@ -72,15 +74,21 @@ export default function ClientsPage() {
           </thead>
 
           <tbody>
-            {clients.map((client) => (
-              <tr key={client.id} className="border-b hover:bg-gray-50 transition">
+            {displayClients.map((client) => (
+              <tr key={client.user_id || client.id} className="border-b hover:bg-gray-50 transition">
 
                 <td className="p-4">
-                  <img
-                    src={client.logo}
-                    alt={client.name}
-                    className="w-10 h-10 object-contain rounded"
-                  />
+                  {client.logo ? (
+                    <img
+                      src={client.logo}
+                      alt={client.name}
+                      className="w-10 h-10 object-contain rounded"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded bg-gray-100 grid place-items-center text-xs text-gray-500">
+                      N/A
+                    </div>
+                  )}
                 </td>
 
                 <td className="p-4 font-medium">{client.name}</td>
@@ -91,9 +99,9 @@ export default function ClientsPage() {
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold
                     ${
-                      client.status === "Approved"
+                      String(client.status).toLowerCase() === "active"
                         ? "bg-green-100 text-green-700"
-                        : client.status === "Rejected"
+                        : String(client.status).toLowerCase() === "rejected"
                         ? "bg-red-100 text-red-700"
                         : "bg-yellow-100 text-yellow-700"
                     }`}
@@ -115,39 +123,33 @@ export default function ClientsPage() {
                     View
                   </button>
 
-                  {client.status === "Pending" && (
+                  {String(client.status).toLowerCase() !== "active" && (
                     <>
                       <button
-                        onClick={() => handleApprove(client.id)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs"
+                        onClick={() => handleApprove(client.user_id)}
+                        disabled={busyId === client.user_id}
+                        className="bg-green-500 hover:bg-green-600 disabled:opacity-60 text-white px-3 py-1 rounded text-xs"
                       >
-                        Approve
+                        {busyId === client.user_id ? "..." : "Approve"}
                       </button>
 
                       <button
-                        onClick={() => handleReject(client.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs"
+                        onClick={() => handleReject(client.user_id)}
+                        disabled={busyId === client.user_id}
+                        className="bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white px-3 py-1 rounded text-xs"
                       >
-                        Reject
+                        {busyId === client.user_id ? "..." : "Reject"}
                       </button>
                     </>
                   )}
 
-                  {client.status === "Approved" && (
+                  {String(client.status).toLowerCase() === "active" && (
                     <button
-                      onClick={() => handleReject(client.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs"
+                      onClick={() => handleReject(client.user_id)}
+                      disabled={busyId === client.user_id}
+                      className="bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white px-3 py-1 rounded text-xs"
                     >
-                      Reject
-                    </button>
-                  )}
-
-                  {client.status === "Rejected" && (
-                    <button
-                      onClick={() => handleApprove(client.id)}
-                      className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs"
-                    >
-                      Approve
+                      {busyId === client.user_id ? "..." : "Reject"}
                     </button>
                   )}
 
@@ -176,25 +178,31 @@ export default function ClientsPage() {
             </button>
 
             <div className="text-center mb-4">
-              <img
-                src={selectedClient.logo}
-                alt={selectedClient.name}
-                className="w-16 h-16 mx-auto mb-2"
-              />
+              {selectedClient.logo ? (
+                <img
+                  src={selectedClient.logo}
+                  alt={selectedClient.name}
+                  className="w-16 h-16 mx-auto mb-2 object-contain"
+                />
+              ) : null}
               <h2 className="font-bold text-lg">{selectedClient.name}</h2>
             </div>
 
             <div className="text-sm space-y-2">
               <p><strong>Email:</strong> {selectedClient.email}</p>
-              <p><strong>Contact:</strong> {selectedClient.contact}</p>
-              <p><strong>Budget:</strong> ₹{selectedClient.budget.toLocaleString()}</p>
-              <p><strong>Start Date:</strong> {selectedClient.startDate}</p>
-              <p><strong>End Date:</strong> {selectedClient.endDate}</p>
+              <p><strong>Company:</strong> {selectedClient.company_name || "-"}</p>
+              <p><strong>Total campaigns:</strong> {selectedClient.total_campaigns ?? "-"}</p>
+              <p><strong>Active campaigns:</strong> {selectedClient.active_campaigns ?? "-"}</p>
+              <p><strong>Total spend:</strong> ₹{Number(selectedClient.total_spend || 0).toLocaleString()}</p>
               <p><strong>Status:</strong> {selectedClient.status}</p>
             </div>
 
           </div>
         </div>
+      )}
+
+      {!loading && displayClients.length === 0 && (
+        <p className="mt-4 text-sm text-gray-500">No clients found.</p>
       )}
 
     </div>

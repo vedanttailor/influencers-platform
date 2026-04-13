@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useUser } from "../campaigns/components/UserContext";
 
 export default function ProfilePage() {
@@ -10,9 +9,6 @@ export default function ProfilePage() {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   if (!user) return <p className="p-6">Loading...</p>;
 
@@ -94,27 +90,6 @@ export default function ProfilePage() {
 
     window.location.href = "/login";
   };
-  
-  const handlePasswordChange = () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      alert("Please fill all password fields");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      alert("New passwords do not match");
-      return;
-    }
-
-    alert("Password updated successfully");
-
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-  };
-
-  if (!user) return null;
-
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-10">
       
@@ -127,11 +102,13 @@ export default function ProfilePage() {
       <div className="bg-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
         
         <div className="flex items-center gap-5">
-          <img
-            src={user.avatar || "/avatar.png"}
-            alt="Profile"
-            className="w-28 h-28 rounded-full object-cover border-4 border-indigo-200 shadow"
-          />
+          <div className="rounded-2xl bg-slate-50 p-1">
+            <img
+              src={user.avatar || "/avatar.png"}
+              alt="Profile"
+              className="h-28 w-28 rounded-xl object-cover ring-2 ring-white shadow-sm"
+            />
+          </div>
 
           <div>
             <p className="text-lg font-semibold text-gray-800">

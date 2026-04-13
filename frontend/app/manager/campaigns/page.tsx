@@ -1,39 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { api } from "@/lib/api";
 
 export default function CampaignsPage() {
-  const [campaigns, setCampaigns] = useState([
-    {
-      id: 1,
-      name: "Summer Sale",
-      client: "Nike",
-      status: "Available",
-    },
-    {
-      id: 2,
-      name: "Winter Launch",
-      client: "Adidas",
-      status: "Available",
-    },
-  ]);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [influencers, setInfluencers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [influencer, setInfluencer] = useState("");
 
-  const handleAssign = () => {
-    if (!influencer) return;
+  const load = async () => {
+    setLoading(true);
+    try {
+      const [camps, infs] = await Promise.all([
+        api.get("/manager/campaigns"),
+        api.get("/manager/influencers"),
+      ]);
+      setCampaigns(Array.isArray(camps) ? camps : []);
+      setInfluencers(Array.isArray(infs) ? infs : []);
+    } catch (e) {
+      console.error("Failed to load campaigns", e);
+      setCampaigns([]);
+      setInfluencers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setCampaigns((prev) =>
-      prev.map((c) =>
-        c.id === selectedCampaign.id
-          ? { ...c, influencer, status: "Assigned" }
-          : c
-      )
-    );
+  useEffect(() => {
+    load();
+  }, []);
 
-    setSelectedCampaign(null);
-    setInfluencer("");
+  const displayCampaigns = useMemo(() => campaigns, [campaigns]);
+
+  const handleAssign = async () => {
+    if (!influencer || !selectedCampaign) return;
+
+    const campaignId = String((selectedCampaign as any).id);
+    setBusyId(campaignId);
+    try {
+      await api.patch(`/manager/campaigns/${campaignId}/assign`, {
+        influencer_user_id: influencer,
+      });
+      await load();
+      setSelectedCampaign(null);
+      setInfluencer("");
+    } catch (e) {
+      console.error("Assign failed", e);
+    } finally {
+      setBusyId(null);
+    }
   };
 
   return (
@@ -44,20 +63,20 @@ export default function CampaignsPage() {
 
       {/*Campaign Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {campaigns.map((camp) => (
+        {displayCampaigns.map((camp) => (
           <div
             key={camp.id}
             className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
           >
-            <h3 className="text-lg font-semibold">{camp.name}</h3>
+            <h3 className="text-lg font-semibold">{camp.campaign_name}</h3>
             <p className="text-sm text-gray-500 mb-2">
-              Client: {camp.client}
+              Brand: {camp.brand_name || "-"}
             </p>
 
             <span
               className={`text-xs px-3 py-1 rounded-full
                 ${
-                  camp.status === "Assigned"
+                  String(camp.status).toLowerCase() === "assigned"
                     ? "bg-green-100 text-green-700"
                     : "bg-yellow-100 text-yellow-700"
                 }`}
@@ -65,9 +84,9 @@ export default function CampaignsPage() {
               {camp.status}
             </span>
 
-            {camp.influencer && (
+            {camp.influencer_id && (
               <p className="text-sm mt-2 text-gray-600">
-                Influencer: {camp.influencer}
+                Influencer: Assigned
               </p>
             )}
 
@@ -92,7 +111,7 @@ export default function CampaignsPage() {
             <p className="text-sm mb-3">
               Campaign:{" "}
               <span className="font-medium">
-                {selectedCampaign.name}
+                {(selectedCampaign as any).campaign_name}
               </span>
             </p>
 
@@ -102,8 +121,11 @@ export default function CampaignsPage() {
               className="w-full border p-2 rounded mb-4"
             >
               <option value="">Select Influencer</option>
-              <option>John Doe</option>
-              <option>Emma Watson</option>
+              {influencers.map((inf) => (
+                <option key={inf.user_id} value={inf.user_id}>
+                  {inf.name}
+                </option>
+              ))}
             </select>
 
             <div className="flex justify-end gap-3">
@@ -116,13 +138,18 @@ export default function CampaignsPage() {
 
               <button
                 onClick={handleAssign}
-                className="px-4 py-2 bg-blue-600 text-white rounded"
+                disabled={busyId === String((selectedCampaign as any).id)}
+                className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-60"
               >
-                Assign
+                {busyId === String((selectedCampaign as any).id) ? "Assigning..." : "Assign"}
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {!loading && displayCampaigns.length === 0 && (
+        <p className="mt-4 text-sm text-gray-500">No campaigns found.</p>
       )}
     </div>
   );
