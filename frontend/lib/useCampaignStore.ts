@@ -21,7 +21,7 @@ export const useCampaignStore = create((set) => ({
         budget: Number(c.budget),
         endDate: c.end_date,
         status: c.status || "available",
-        description: "",
+        description: c.description || "",
         post_url: c.post_url || "",
       }));
 
@@ -34,7 +34,7 @@ export const useCampaignStore = create((set) => ({
         budget: Number(c.budget),
         endDate: c.end_date,
         status: c.status || "applied",
-        description: "",
+       description: c.description || "",
         post_url: c.post_url || "",
       }));
 

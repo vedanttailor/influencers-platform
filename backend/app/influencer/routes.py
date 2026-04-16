@@ -11,7 +11,7 @@ router = APIRouter(prefix="/influencer", tags=["Influencer"])
 
 def get_db():
     db = SessionLocal()
-    try:
+    try:    
         yield db
     finally:
         db.close()
@@ -40,6 +40,7 @@ def get_available_campaigns(db: Session = Depends(get_db)):
             "budget": float(c.budget),
             "end_date": c.end_date,
             "status": c.status,
+            "description": c.description,
         }
         for c in campaigns
     ]
@@ -87,6 +88,7 @@ def my_campaigns(
             "status": c.status,
             "end_date": c.end_date,
             "post_url": c.post_url,
+            "description": c.description,
         }
         for c in campaigns
     ]

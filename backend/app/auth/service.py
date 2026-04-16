@@ -16,7 +16,7 @@ def forgot_password(email: str, db: Session):
     db.commit()
 
     code = str(random.randint(100000, 999999))
-    expires = datetime.utcnow() + timedelta(day=7)
+    expires = datetime.utcnow() + timedelta(minutes=5)
 
     token = ResetToken(
         user_id=user.id,

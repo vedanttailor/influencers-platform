@@ -9,7 +9,7 @@ load_dotenv()
 
 SECRET = os.getenv("SECRET_KEY")
 ALGO = "HS256"
-TOKEN_EXPIRE_MINUTES = int(os.getenv("TOKEN_EXPIRE_MINUTES", "120"))
+TOKEN_EXPIRE_DAY = int(os.getenv("TOKEN_EXPIRE_DAY", "1"))
 
 pwd_ctx = CryptContext(schemes=["bcrypt"])
 
@@ -26,7 +26,7 @@ def create_token(user_id, role):
     payload = {
         "sub": str(user_id),
         "role": role,
-        "exp": datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
+        "exp": datetime.utcnow() + timedelta(days=TOKEN_EXPIRE_DAY)
     }
     return jwt.encode(payload, SECRET, algorithm=ALGO)
 

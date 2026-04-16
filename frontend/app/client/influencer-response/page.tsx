@@ -25,26 +25,30 @@ export default function InfluencerResponsesPage() {
 
   const fetchResponses = async () => {
     try {
-      const data = await api.get("/something")
+      setLoading(true);
+
+      const data = await api.get("/client/responses");
+
+      console.log("API RESPONSE 👉", data);
 
       const list = Array.isArray(data)
         ? data
-        : data?.data || data?.responses || [];
+        : data?.data || data?.responses || data?.result || [];
 
-      // 🔥 SAFE MAPPING (IMPORTANT)
-      const formatted = list.map((item: any) => ({
-        id: item.id,
-        influencer: item.influencer_name || item.influencer || "Unknown",
-        platforms: item.platforms || [],
-        campaign: item.campaign_name || item.campaign || "",
-        deliverables: item.deliverables || "",
+      const formatted: ResponseType[] = list.map((item: any) => ({
+        id: item.id ?? 0,
+        influencer:
+          item.influencer_name ?? item.influencer ?? "Unknown Influencer",
+        platforms: Array.isArray(item.platforms) ? item.platforms : [],
+        campaign: item.campaign_name ?? item.campaign ?? "—",
+        deliverables: item.deliverables ?? "—",
         price: item.price ? `₹${item.price}` : "—",
-        status: item.status || "Pending",
+        status: item.status ?? "Pending",
       }));
 
       setResponses(formatted);
     } catch (err) {
-      console.error("Failed to fetch responses", err);
+      console.error("❌ Failed to fetch responses", err);
     } finally {
       setLoading(false);
     }
@@ -60,7 +64,7 @@ export default function InfluencerResponsesPage() {
         )
       );
     } catch (err) {
-      console.error("Approve failed", err);
+      console.error("❌ Approve failed", err);
       alert("Failed to approve influencer");
     }
   };
@@ -77,13 +81,17 @@ export default function InfluencerResponsesPage() {
         )
       );
     } catch (err) {
-      console.error("Reject failed", err);
+      console.error("❌ Reject failed", err);
       alert("Failed to reject influencer");
     }
   };
 
   if (loading) {
-    return <p className="text-center mt-10">Loading...</p>;
+    return (
+      <p className="text-center mt-10 text-gray-500 animate-pulse">
+        Loading responses...
+      </p>
+    );
   }
 
   return (
@@ -108,7 +116,7 @@ export default function InfluencerResponsesPage() {
             {responses.length === 0 ? (
               <tr>
                 <td colSpan={7} className="text-center p-6 text-gray-500">
-                  No responses found
+                   No responses found
                 </td>
               </tr>
             ) : (
@@ -118,14 +126,18 @@ export default function InfluencerResponsesPage() {
 
                   <td className="p-4">
                     <div className="flex gap-2 flex-wrap">
-                      {res.platforms.map((p) => (
-                        <span
-                          key={p}
-                          className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"
-                        >
-                          {p}
-                        </span>
-                      ))}
+                      {res.platforms.length === 0 ? (
+                        <span className="text-gray-400 text-sm">—</span>
+                      ) : (
+                        res.platforms.map((p) => (
+                          <span
+                            key={p}
+                            className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"
+                          >
+                            {p}
+                          </span>
+                        ))
+                      )}
                     </div>
                   </td>
 
@@ -190,14 +202,13 @@ export default function InfluencerResponsesPage() {
         </table>
       </div>
 
-      {/* MODAL (UNCHANGED) */}
       {selected && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-full max-w-md space-y-3">
             <h2 className="text-xl font-bold">Influencer Details</h2>
 
             <p><b>Name:</b> {selected.influencer}</p>
-            <p><b>Platforms:</b> {selected.platforms.join(", ")}</p>
+            <p><b>Platforms:</b> {selected.platforms.join(", ") || "—"}</p>
             <p><b>Campaign:</b> {selected.campaign}</p>
             <p><b>Deliverables:</b> {selected.deliverables}</p>
             <p><b>Price:</b> {selected.price}</p>
