@@ -25,73 +25,63 @@ export default function InfluencerResponsesPage() {
 
   const fetchResponses = async () => {
     try {
-      setLoading(true);
-
-      const data = await api.get("/client/responses");
-
-      console.log("API RESPONSE 👉", data);
+      const data = await api.get("/clients/responses"); // ✅ FIXED
 
       const list = Array.isArray(data)
         ? data
-        : data?.data || data?.responses || data?.result || [];
+        : data?.data || data?.responses || [];
 
-      const formatted: ResponseType[] = list.map((item: any) => ({
-        id: item.id ?? 0,
-        influencer:
-          item.influencer_name ?? item.influencer ?? "Unknown Influencer",
-        platforms: Array.isArray(item.platforms) ? item.platforms : [],
-        campaign: item.campaign_name ?? item.campaign ?? "—",
-        deliverables: item.deliverables ?? "—",
+      const formatted = list.map((item: any) => ({
+        id: item.id,
+        influencer: item.influencer || "Unknown",
+        platforms: item.platforms || [],
+        campaign: item.campaign || "",
+        deliverables: item.deliverables || "",
         price: item.price ? `₹${item.price}` : "—",
-        status: item.status ?? "Pending",
+        status: item.status || "Pending",
       }));
 
       setResponses(formatted);
     } catch (err) {
-      console.error("❌ Failed to fetch responses", err);
+      console.error("Failed to fetch responses", err);
     } finally {
       setLoading(false);
     }
   };
-
   const approveInfluencer = async (id: number) => {
     try {
-      await api.patch(`/responses/${id}`, { status: "Approved" });
+      await api.patch(`/clients/responses/${id}`, { status: "Approved" }); // ✅ FIXED
 
       setResponses((prev) =>
         prev.map((res) =>
-          res.id === id ? { ...res, status: "Approved" } : res
-        )
+          res.id === id ? { ...res, status: "Approved" } : res,
+        ),
       );
     } catch (err) {
-      console.error("❌ Approve failed", err);
+      console.error("Approve failed", err);
       alert("Failed to approve influencer");
     }
   };
 
   const rejectInfluencer = async (id: number) => {
-    if (!confirm("Are you sure?")) return;
+  if (!confirm("Are you sure?")) return;
 
-    try {
-      await api.patch(`/responses/${id}`, { status: "Rejected" });
+  try {
+    await api.patch(`/clients/responses/${id}`, { status: "Rejected" }); // ✅ FIXED
 
-      setResponses((prev) =>
-        prev.map((res) =>
-          res.id === id ? { ...res, status: "Rejected" } : res
-        )
-      );
-    } catch (err) {
-      console.error("❌ Reject failed", err);
-      alert("Failed to reject influencer");
-    }
-  };
+    setResponses((prev) =>
+      prev.map((res) =>
+        res.id === id ? { ...res, status: "Rejected" } : res
+      )
+    );
+  } catch (err) {
+    console.error("Reject failed", err);
+    alert("Failed to reject influencer");
+  }
+};
 
   if (loading) {
-    return (
-      <p className="text-center mt-10 text-gray-500 animate-pulse">
-        Loading responses...
-      </p>
-    );
+    return <p className="text-center mt-10">Loading...</p>;
   }
 
   return (
@@ -116,7 +106,7 @@ export default function InfluencerResponsesPage() {
             {responses.length === 0 ? (
               <tr>
                 <td colSpan={7} className="text-center p-6 text-gray-500">
-                   No responses found
+                  No responses found
                 </td>
               </tr>
             ) : (
@@ -126,18 +116,14 @@ export default function InfluencerResponsesPage() {
 
                   <td className="p-4">
                     <div className="flex gap-2 flex-wrap">
-                      {res.platforms.length === 0 ? (
-                        <span className="text-gray-400 text-sm">—</span>
-                      ) : (
-                        res.platforms.map((p) => (
-                          <span
-                            key={p}
-                            className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"
-                          >
-                            {p}
-                          </span>
-                        ))
-                      )}
+                      {res.platforms.map((p) => (
+                        <span
+                          key={p}
+                          className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"
+                        >
+                          {p}
+                        </span>
+                      ))}
                     </div>
                   </td>
 
@@ -151,10 +137,10 @@ export default function InfluencerResponsesPage() {
                         res.status === "Approved"
                           ? "bg-green-100 text-green-700"
                           : res.status === "Rejected"
-                          ? "bg-red-100 text-red-700"
-                          : res.status === "Negotiation"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-gray-100 text-gray-700"
+                            ? "bg-red-100 text-red-700"
+                            : res.status === "Negotiation"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-gray-100 text-gray-700"
                       }`}
                     >
                       {res.status}
@@ -202,17 +188,30 @@ export default function InfluencerResponsesPage() {
         </table>
       </div>
 
+      {/* MODAL (UNCHANGED) */}
       {selected && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-full max-w-md space-y-3">
             <h2 className="text-xl font-bold">Influencer Details</h2>
 
-            <p><b>Name:</b> {selected.influencer}</p>
-            <p><b>Platforms:</b> {selected.platforms.join(", ") || "—"}</p>
-            <p><b>Campaign:</b> {selected.campaign}</p>
-            <p><b>Deliverables:</b> {selected.deliverables}</p>
-            <p><b>Price:</b> {selected.price}</p>
-            <p><b>Status:</b> {selected.status}</p>
+            <p>
+              <b>Name:</b> {selected.influencer}
+            </p>
+            <p>
+              <b>Platforms:</b> {selected.platforms.join(", ")}
+            </p>
+            <p>
+              <b>Campaign:</b> {selected.campaign}
+            </p>
+            <p>
+              <b>Deliverables:</b> {selected.deliverables}
+            </p>
+            <p>
+              <b>Price:</b> {selected.price}
+            </p>
+            <p>
+              <b>Status:</b> {selected.status}
+            </p>
 
             <button
               onClick={() => setSelected(null)}

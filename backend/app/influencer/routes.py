@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException # type: ignore
-from sqlalchemy.orm import Session # type: ignore
+from fastapi import APIRouter, Depends, HTTPException  # type: ignore
+from sqlalchemy.orm import Session  # type: ignore
 from app.database import SessionLocal
-from app.models import Campaign
+from app.models import Campaign, Response, User
 from app.auth.dependencies import get_current_user
-from pydantic import BaseModel # type: ignore
+from pydantic import BaseModel  # type: ignore
 import uuid
 
 router = APIRouter(prefix="/influencer", tags=["Influencer"])
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/influencer", tags=["Influencer"])
 
 def get_db():
     db = SessionLocal()
-    try:    
+    try:
         yield db
     finally:
         db.close()
@@ -61,9 +61,26 @@ def apply_campaign(
     if campaign.influencer_id:
         raise HTTPException(400, "Already assigned")
 
+    # assign influencer
     campaign.influencer_id = user["sub"]
     campaign.status = "applied"
 
+    # get influencer details
+    influencer_user = db.query(User).filter(User.id == user["sub"]).first()
+
+    # 🔥 CREATE RESPONSE (THIS WAS MISSING)
+    new_response = Response(
+        campaign_id=campaign.id,  # ✅ IMPORTANT FIX
+        influencer_name=influencer_user.full_name if influencer_user else "Unknown",
+        platforms=campaign.platforms,
+        campaign_name=campaign.campaign_name,
+        deliverables=campaign.description or "No deliverables",
+        price=str(campaign.budget),
+        status="Pending",
+        client_id=campaign.client_id
+    )
+
+    db.add(new_response)
     db.commit()
 
     return {"message": "Applied successfully"}

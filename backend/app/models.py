@@ -186,6 +186,7 @@ class Response(Base):
     __tablename__ = "responses"
 
     id = Column(Integer, primary_key=True, index=True)
+    campaign_id = Column(UUID(as_uuid=True), ForeignKey("campaigns.id"))  
     influencer_name = Column(String)
     platforms = Column(ARRAY(String))
     campaign_name = Column(String)

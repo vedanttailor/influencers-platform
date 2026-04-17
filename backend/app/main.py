@@ -9,6 +9,7 @@ from app.responses.routes import router as responses_router
 from app.influencer.routes import router as influencer_router
 from app.admin.routes import router as admin_router
 from app.manager.routes import router as manager_router
+from app.core.cloudinary import cloudinary
 
 
 app = FastAPI()
