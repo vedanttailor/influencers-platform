@@ -3,7 +3,7 @@ from http.client import HTTPException
 from fastapi import APIRouter, Depends # type: ignore
 from sqlalchemy.orm import Session # type: ignore
 from app.database import SessionLocal
-from app.models import Response
+from app.models import Response, Campaign, User, Influencer
 from app.auth.dependencies import get_current_user
 from pydantic import BaseModel # type: ignore
 
@@ -23,19 +23,45 @@ def get_db():
 def get_responses(db: Session = Depends(get_db), user=Depends(get_current_user)):
     responses = db.query(Response).filter(Response.client_id == user["sub"]).all()
 
-    return [
-        {
+    result = []
+    for r in responses:
+        campaign = db.query(Campaign).filter(
+        Campaign.id == r.campaign_id   
+        ).first()
+        item = {
             "id": r.id,
             "influencer": r.influencer_name,
             "platforms": r.platforms,
             "campaign": r.campaign_name,
             "deliverables": r.deliverables,
             "price": r.price,
-            "status": r.status
+            "status": r.status,
+            "campaign_status": "pending",
+            "post_url": None,
+            "influencer_email": None,
+            "influencer_phone": None,
+            "profile_url": None,
+            "followers_count": None
         }
-        for r in responses
-    ]
-    
+
+        if campaign:
+            item["campaign_status"] = campaign.status
+            item["post_url"] = campaign.post_url
+            
+            if campaign.influencer_id:
+                influencer_user = db.query(User).filter(User.id == campaign.influencer_id).first()
+                if influencer_user:
+                    item["influencer_email"] = influencer_user.email
+                    item["influencer_phone"] = influencer_user.phone
+                
+                influencer_profile = db.query(Influencer).filter(Influencer.user_id == campaign.influencer_id).first()
+                if influencer_profile and influencer_profile.profile:
+                    item["profile_url"] = influencer_profile.profile.get("profile_url")
+                    item["followers_count"] = influencer_profile.profile.get("followers_count")
+
+        result.append(item)
+
+    return result
 
 
 class StatusUpdate(BaseModel):
@@ -50,6 +76,18 @@ def update_response(id: int, data: StatusUpdate, db: Session = Depends(get_db)):
         raise HTTPException(404, "Response not found")
 
     res.status = data.status
+
+    # 🔥 IMPORTANT: update campaign also
+    campaign = db.query(Campaign).filter(
+    Campaign.id == res.campaign_id   # ✅ FIXED
+    ).first()
+
+    if campaign:
+        if data.status == "Approved":
+            campaign.status = "accepted"
+        elif data.status == "Rejected":
+            campaign.status = "rejected"
+
     db.commit()
 
-    return {"message": "Updated"}
+    return {"message": "Updated"}	

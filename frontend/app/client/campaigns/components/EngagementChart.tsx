@@ -20,7 +20,7 @@ export default function EngagementPieChart() {
         setData([
           { name: "Active", value: res.filter((c: any) => c.status === "active").length },
           { name: "Completed", value: res.filter((c: any) => c.status === "completed").length },
-          { name: "Pending", value: total },
+          { name: "Total", value: total },
         ]);
       } catch (err) {
         console.error(err);

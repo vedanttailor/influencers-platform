@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException # type: ignore
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form # type: ignore
 from sqlalchemy.orm import Session # type: ignore
 from app.database import SessionLocal
 from app.models import Campaign
@@ -7,6 +7,7 @@ from pydantic import BaseModel # type: ignore
 from typing import List
 import uuid
 from datetime import datetime
+import cloudinary.uploader # type: ignore
 
 router = APIRouter(prefix="/campaigns", tags=["Campaigns"])
 
@@ -19,41 +20,46 @@ def get_db():
         db.close()
 
 
-class CampaignCreate(BaseModel):
-    campaign_name: str
-    brand_name: str
-    campaign_type: str
-    campaign_category: str
-    campaign_objective: str
-    description: str
-    start_date: str
-    end_date: str
-    budget: int
-    platforms: List[str]
-
-
 class StatusUpdate(BaseModel):
     status: str
 
 
-
+# ✅ UPDATED CREATE CAMPAIGN (FILE SUPPORT)
 @router.post("")
 def create_campaign(
-    data: CampaignCreate,
+    campaign_name: str = Form(...),
+    brand_name: str = Form(...),
+    campaign_type: str = Form(...),
+    campaign_category: str = Form(...),
+    campaign_objective: str = Form(...),
+    description: str = Form(...),
+    start_date: str = Form(...),
+    end_date: str = Form(...),
+    budget: int = Form(...),
+    platforms: List[str] = Form(...),
+    logo: UploadFile = File(None),  # ✅ FILE INPUT
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
+    logo_url = None
+
+    # ✅ Upload to Cloudinary
+    if logo:
+        upload_result = cloudinary.uploader.upload(logo.file)
+        logo_url = upload_result["secure_url"]
+
     campaign = Campaign(
-        campaign_name=data.campaign_name,
-        brand_name=data.brand_name,
-        campaign_type=data.campaign_type,
-        campaign_category=data.campaign_category,
-        campaign_objective=data.campaign_objective,
-        description=data.description,
-        platforms=data.platforms,
-        start_date=datetime.fromisoformat(data.start_date),
-        end_date=datetime.fromisoformat(data.end_date),
-        budget=data.budget,
+        campaign_name=campaign_name,
+        brand_name=brand_name,
+        campaign_type=campaign_type,
+        campaign_category=campaign_category,
+        campaign_objective=campaign_objective,
+        description=description,
+        platforms=platforms,
+        start_date=datetime.fromisoformat(start_date),
+        end_date=datetime.fromisoformat(end_date),
+        budget=budget,
+        logo=logo_url,  # ✅ SAVE URL
         status="active",
         client_id=user["sub"],
     )
@@ -63,7 +69,6 @@ def create_campaign(
     db.refresh(campaign)
 
     return campaign
-
 
 
 @router.get("/stats")

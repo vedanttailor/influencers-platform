@@ -79,22 +79,56 @@ export default function CreateCampaignForm() {
   }
 
   try {
-    await api.post("/campaigns", {
-      campaign_name: formData.name,
-      brand_name: formData.brand,
-      campaign_type: formData.type,
-      campaign_category: formData.category,
-      campaign_objective: formData.objective,
-      description: formData.description,
-      start_date: formData.startDate,
-      end_date: formData.endDate,
-      budget: Number(formData.budget),
-      platforms,
+    const form = new FormData();
+
+    form.append("campaign_name", formData.name);
+    form.append("brand_name", formData.brand);
+    form.append("campaign_type", formData.type);
+    form.append("campaign_category", formData.category);
+    form.append("campaign_objective", formData.objective);
+    form.append("description", formData.description);
+    form.append("start_date", formData.startDate);
+    form.append("end_date", formData.endDate);
+
+    // ✅ IMPORTANT: always send string
+    form.append("budget", String(formData.budget));
+
+    // ✅ platforms array
+    platforms.forEach((p) => form.append("platforms", p));
+
+    // ✅ logo file
+    if (logo) {
+      form.append("logo", logo);
+    }
+
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("http://127.0.0.1:8000/campaigns", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: form,
     });
 
-    alert("Campaign created successfully");
+    if (!res.ok) {
+      const err = await res.json();
+      console.error(err);
+      alert(err.detail || "Failed to create campaign");
+      return;
+    }
+
+    alert("✅ Campaign created successfully");
+
+    // ✅ RESET FORM
+    handleCancel();
+
+    // ✅ REDIRECT (VERY IMPORTANT)
+    router.push("/client/campaigns");
+
   } catch (err) {
-    console.error(err);
+    console.error("Error:", err);
+    alert("Something went wrong");
   }
 };
 
@@ -111,23 +145,55 @@ export default function CreateCampaignForm() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input name="name" value={formData.name} onChange={handleChange} placeholder="Campaign Name" className="input" required />
-            <input name="brand" value={formData.brand} onChange={handleChange} placeholder="Brand / Client Name" className="input" required />
+            <input
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Campaign Name"
+              className="input"
+              required
+            />
+            <input
+              name="brand"
+              value={formData.brand}
+              onChange={handleChange}
+              placeholder="Brand / Client Name"
+              className="input"
+              required
+            />
 
-            <select name="type" value={formData.type} onChange={handleChange} className="input" required>
+            <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              className="input"
+              required
+            >
               <option value="">Campaign Type</option>
               <option>Product Promotion</option>
               <option>Brand Awareness</option>
               <option>App Install</option>
             </select>
 
-            <select name="category" value={formData.category} onChange={handleChange} className="input" required>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="input"
+              required
+            >
               <option value="">Campaign Category</option>
               <option>Fashion</option>
               <option>Technology</option>
             </select>
 
-            <select name="objective" value={formData.objective} onChange={handleChange} className="input" required>
+            <select
+              name="objective"
+              value={formData.objective}
+              onChange={handleChange}
+              className="input"
+              required
+            >
               <option value="">Campaign Objective</option>
               <option>Engagement</option>
               <option>Sales</option>
@@ -149,7 +215,11 @@ export default function CreateCampaignForm() {
                         : "bg-white"
                     }`}
                   >
-                    <input type="checkbox" checked={platforms.includes(platform)} readOnly />
+                    <input
+                      type="checkbox"
+                      checked={platforms.includes(platform)}
+                      readOnly
+                    />
                     <span>{platform}</span>
                   </div>
                 ))}
@@ -163,33 +233,75 @@ export default function CreateCampaignForm() {
             </div>
 
             <div className="md:col-span-2">
-              <input type="file" accept="image/*" onChange={handleLogoChange} className="input" />
-              {preview && <img src={preview} className="w-24 h-24 mt-2 rounded border" />}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoChange}
+                className="input"
+              />
+              {preview && (
+                <img src={preview} className="w-24 h-24 mt-2 rounded border" />
+              )}
             </div>
           </div>
 
-          <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Campaign Description" className="input mt-4" />
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Campaign Description"
+            className="input mt-4"
+          />
         </section>
 
         <section className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-lg font-medium mb-4">Campaign Timeline</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className="input" required />
-            <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className="input" required />
+            <input
+              type="date"
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleChange}
+              className="input"
+              required
+            />
+            <input
+              type="date"
+              name="endDate"
+              value={formData.endDate}
+              onChange={handleChange}
+              className="input"
+              required
+            />
           </div>
         </section>
 
         <section className="bg-white p-6 rounded-xl shadow">
-          <input type="number" name="budget" value={formData.budget} onChange={handleChange} placeholder="Budget ₹" className="input" required />
+          <input
+            type="number"
+            name="budget"
+            value={formData.budget}
+            onChange={handleChange}
+            placeholder="Budget ₹"
+            className="input"
+            required
+          />
         </section>
 
         <div className="flex justify-end gap-4">
-          <button type="button" onClick={handleCancel} className="px-6 py-2 border rounded-lg">
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="px-6 py-2 border rounded-lg"
+          >
             Cancel
           </button>
 
-          <button type="submit" className="px-6 py-2 bg-black text-white rounded-lg">
+          <button
+            type="submit"
+            className="px-6 py-2 bg-black text-white rounded-lg"
+          >
             Create Campaign
           </button>
         </div>
