@@ -18,11 +18,13 @@ export const useCampaignStore = create((set) => ({
         client: c.brand_name,
         platforms: Array.isArray(c.platforms) ? c.platforms : [],
         platform: Array.isArray(c.platforms) ? c.platforms.join(", ") : "",
+        company_url: c.company_url || "", 
         budget: Number(c.budget),
         endDate: c.end_date,
         status: c.status || "available",
         description: c.description || "",
         post_url: c.post_url || "",
+        logo: c.logo || "",
       }));
 
       const mine = myData.map((c: any) => ({
@@ -31,6 +33,7 @@ export const useCampaignStore = create((set) => ({
         client: c.brand_name,
         platforms: Array.isArray(c.platforms) ? c.platforms : [],
         platform: Array.isArray(c.platforms) ? c.platforms.join(", ") : "",
+        company_url: c.company_url || "", 
         budget: Number(c.budget),
         endDate: c.end_date,
         status: c.status || "applied",
@@ -53,13 +56,15 @@ export const useCampaignStore = create((set) => ({
           ...c,
           platform: c.platform || prev.platform,
           platforms:
-            Array.isArray(c.platforms) && c.platforms.length > 0
+              Array.isArray(c.platforms) && c.platforms.length > 0
               ? c.platforms
               : prev.platforms,
           endDate: c.endDate || prev.endDate,
           client: c.client || prev.client,
           title: c.title || prev.title,
-        });
+          logo: c.logo || prev.logo,
+          company_url: c.company_url,
+          });
       });
 
       set({ campaigns: Array.from(merged.values()) });

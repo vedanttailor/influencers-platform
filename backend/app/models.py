@@ -124,6 +124,7 @@ class Campaign(Base):
     campaign_type = Column(String)
     campaign_category = Column(String)
     campaign_objective = Column(Text)
+    company_url = Column(String, nullable=True)
 
     platforms = Column(ARRAY(String))  # ["instagram", "youtube"]
 
@@ -140,7 +141,7 @@ class Campaign(Base):
 
     budget = Column(Numeric)
 
-    post_url = Column(String)
+    post_url = Column(JSONB)
 
     posted_video_data = Column(JSONB)
 

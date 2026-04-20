@@ -18,6 +18,7 @@ export default function CreateCampaignForm() {
     type: "",
     category: "",
     objective: "",
+    companyUrl: "",
     description: "",
     startDate: "",
     endDate: "",
@@ -58,6 +59,7 @@ export default function CreateCampaignForm() {
       type: "",
       category: "",
       objective: "",
+      companyUrl: "",
       description: "",
       startDate: "",
       endDate: "",
@@ -71,66 +73,66 @@ export default function CreateCampaignForm() {
   };
 
   const handleSubmit = async (e: any) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (platforms.length === 0) {
-    setPlatformError(true);
-    return;
-  }
-
-  try {
-    const form = new FormData();
-
-    form.append("campaign_name", formData.name);
-    form.append("brand_name", formData.brand);
-    form.append("campaign_type", formData.type);
-    form.append("campaign_category", formData.category);
-    form.append("campaign_objective", formData.objective);
-    form.append("description", formData.description);
-    form.append("start_date", formData.startDate);
-    form.append("end_date", formData.endDate);
-
-    // ✅ IMPORTANT: always send string
-    form.append("budget", String(formData.budget));
-
-    // ✅ platforms array
-    platforms.forEach((p) => form.append("platforms", p));
-
-    // ✅ logo file
-    if (logo) {
-      form.append("logo", logo);
-    }
-
-    const token = localStorage.getItem("token");
-
-    const res = await fetch("http://127.0.0.1:8000/campaigns", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: form,
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      console.error(err);
-      alert(err.detail || "Failed to create campaign");
+    if (platforms.length === 0) {
+      setPlatformError(true);
       return;
     }
 
-    alert("✅ Campaign created successfully");
+    try {
+      const form = new FormData();
 
-    // ✅ RESET FORM
-    handleCancel();
+      form.append("campaign_name", formData.name);
+      form.append("brand_name", formData.brand);
+      form.append("campaign_type", formData.type);
+      form.append("campaign_category", formData.category);
+      form.append("campaign_objective", formData.objective);
+      form.append("company_url", formData.companyUrl);
+      form.append("description", formData.description);
+      form.append("start_date", formData.startDate);
+      form.append("end_date", formData.endDate);
 
-    // ✅ REDIRECT (VERY IMPORTANT)
-    router.push("/client/campaigns");
+      // ✅ IMPORTANT: always send string
+      form.append("budget", String(formData.budget));
 
-  } catch (err) {
-    console.error("Error:", err);
-    alert("Something went wrong");
-  }
-};
+      // ✅ platforms array
+      platforms.forEach((p) => form.append("platforms", p));
+
+      // ✅ logo file
+      if (logo) {
+        form.append("logo", logo);
+      }
+
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://127.0.0.1:8000/campaigns", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: form,
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        console.error(err);
+        alert(err.detail || "Failed to create campaign");
+        return;
+      }
+
+      alert("✅ Campaign created successfully");
+
+      // ✅ RESET FORM
+      handleCancel();
+
+      // ✅ REDIRECT (VERY IMPORTANT)
+      router.push("/client/campaigns");
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Something went wrong");
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -198,6 +200,14 @@ export default function CreateCampaignForm() {
               <option>Engagement</option>
               <option>Sales</option>
             </select>
+
+            <input
+              name="companyUrl"
+              value={formData.companyUrl}
+              onChange={handleChange}
+              placeholder="Company Website URL (https://...)"
+              className="input"
+            />
 
             <div className="md:col-span-2">
               <label className="text-sm text-gray-600 mb-2 block">
