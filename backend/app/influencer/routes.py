@@ -37,10 +37,12 @@ def get_available_campaigns(db: Session = Depends(get_db)):
             "campaign_name": c.campaign_name,
             "brand_name": c.brand_name,
             "platforms": c.platforms,
+            "company_url": c.company_url,
             "budget": float(c.budget),
             "end_date": c.end_date,
             "status": c.status,
             "description": c.description,
+            "logo": c.logo,
         }
         for c in campaigns
     ]
@@ -101,6 +103,7 @@ def my_campaigns(
             "id": str(c.id),
             "campaign_name": c.campaign_name,
             "brand_name": c.brand_name,
+            "company_url": c.company_url,
             "budget": float(c.budget),
             "status": c.status,
             "end_date": c.end_date,
@@ -126,7 +129,10 @@ def submit_link(
     if not campaign:
         raise HTTPException(404, "Campaign not found")
 
-    campaign.post_url = data.post_url
+    campaign.post_url = {
+        "instagram": data.instagram_url,
+        "youtube": data.youtube_url
+    }
     campaign.status = "completed"
 
     db.commit()

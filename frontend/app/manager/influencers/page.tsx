@@ -63,7 +63,6 @@ export default function InfluencersPage() {
 
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <table className="w-full text-sm">
-
           <thead className="bg-gray-100 text-gray-600">
             <tr>
               <th className="text-left p-4">Image</th>
@@ -77,19 +76,32 @@ export default function InfluencersPage() {
 
           <tbody>
             {displayInfluencers.map((inf) => (
-              <tr key={inf.user_id || inf.id} className="border-b hover:bg-gray-50 transition">
-
+              <tr
+                key={inf.user_id || inf.id}
+                className="border-b hover:bg-gray-50 transition"
+              >
                 <td className="p-4">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 grid place-items-center text-xs text-gray-500">
-                    N/A
-                  </div>
+                  {inf.profile_img ? (
+                    <img
+                      src={inf.profile_img}
+                      alt="profile"
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gray-100 grid place-items-center text-xs text-gray-500">
+                      N/A
+                    </div>
+                  )}
                 </td>
 
                 <td className="p-4 font-medium">{inf.name}</td>
 
                 <td className="p-4">
                   <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
-                    {(inf.platforms && Array.isArray(inf.platforms) && inf.platforms[0]) || "-"}
+                    {(inf.platforms &&
+                      Array.isArray(inf.platforms) &&
+                      inf.platforms[0]) ||
+                      "-"}
                   </span>
                 </td>
 
@@ -102,8 +114,8 @@ export default function InfluencersPage() {
                       String(inf.status).toLowerCase() === "active"
                         ? "bg-green-100 text-green-700"
                         : String(inf.status).toLowerCase() === "rejected"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-yellow-100 text-yellow-700"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-yellow-100 text-yellow-700"
                     }`}
                   >
                     {inf.status}
@@ -111,7 +123,6 @@ export default function InfluencersPage() {
                 </td>
 
                 <td className="p-4 text-center space-x-2">
-
                   {/*  VIEW BUTTON */}
                   <button
                     onClick={() => {
@@ -152,13 +163,10 @@ export default function InfluencersPage() {
                       {busyId === inf.user_id ? "..." : "Reject"}
                     </button>
                   )}
-
                 </td>
-
               </tr>
             ))}
           </tbody>
-
         </table>
       </div>
 
@@ -184,15 +192,31 @@ export default function InfluencersPage() {
             </div>
 
             <div className="text-sm space-y-2">
-              <p><strong>Email:</strong> {selectedInf.email}</p>
-              <p><strong>Category:</strong> {selectedInf.category || "-"}</p>
-              <p><strong>Platforms:</strong> {(selectedInf.platforms || []).join(", ") || "-"}</p>
-              <p><strong>Followers:</strong> {selectedInf.followers ?? "-"}</p>
-              <p><strong>Engagement:</strong> {selectedInf.engagement_rate ?? "-"}</p>
-              <p><strong>Active campaigns:</strong> {selectedInf.active_campaigns ?? "-"}</p>
-              <p><strong>Status:</strong> {selectedInf.status}</p>
+              <p>
+                <strong>Email:</strong> {selectedInf.email}
+              </p>
+              <p>
+                <strong>Category:</strong> {selectedInf.category || "-"}
+              </p>
+              <p>
+                <strong>Platforms:</strong>{" "}
+                {(selectedInf.platforms || []).join(", ") || "-"}
+              </p>
+              <p>
+                <strong>Followers:</strong> {selectedInf.followers ?? "-"}
+              </p>
+              <p>
+                <strong>Engagement:</strong>{" "}
+                {selectedInf.engagement_rate ?? "-"}
+              </p>
+              <p>
+                <strong>Active campaigns:</strong>{" "}
+                {selectedInf.active_campaigns ?? "-"}
+              </p>
+              <p>
+                <strong>Status:</strong> {selectedInf.status}
+              </p>
             </div>
-
           </div>
         </div>
       )}
@@ -200,7 +224,6 @@ export default function InfluencersPage() {
       {!loading && displayInfluencers.length === 0 && (
         <p className="mt-4 text-sm text-gray-500">No influencers found.</p>
       )}
-
     </div>
   );
 }

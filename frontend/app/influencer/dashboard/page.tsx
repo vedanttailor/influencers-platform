@@ -22,6 +22,7 @@ function DashboardContent() {
     campaigns: any[];
     fetchCampaigns: () => void;
   };
+
   const [fullName, setFullName] = useState("");
 
   useEffect(() => {
@@ -48,32 +49,45 @@ function DashboardContent() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
-          Welcome, {fullName}
-        </h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Explore available campaigns and track your active work.
-        </p>
-      </div>
+      {/* 🔥 HEADER */}
+      <h1 className="text-3xl font-bold text-gray-900">
+        Welcome, {fullName}
+      </h1>
 
+      <p className="mt-2 text-sm text-gray-600">
+        Manage your campaigns and track your performance in one place.
+      </p>
+
+      {/* 🔥 STATS CARDS */}
       <StatsCards />
-      <AvailableCampaigns />
-      <ActiveCampaigns />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="card p-5">
-          <p className="text-sm font-semibold text-slate-900">Active campaigns</p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
+      {/* 🔥 QUICK SUMMARY */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition">
+          <p className="text-sm text-gray-500">Active Campaigns</p>
+          <h2 className="text-3xl font-bold text-green-600 mt-2">
             {active.length}
-          </p>
+          </h2>
         </div>
 
-        <div className="card p-5">
-          <p className="text-sm font-semibold text-slate-900">Applied campaigns</p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
+        <div className="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition">
+          <p className="text-sm text-gray-500">Applied Campaigns</p>
+          <h2 className="text-3xl font-bold text-blue-600 mt-2">
             {applied.length}
-          </p>
+          </h2>
+        </div>
+      </div>
+
+      {/* 🔥 CAMPAIGN SECTIONS */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl shadow p-5">
+          <h3 className="text-lg font-semibold mb-4">Available Campaigns</h3>
+          <AvailableCampaigns />
+        </div>
+
+        <div className="bg-white rounded-2xl shadow p-5">
+          <h3 className="text-lg font-semibold mb-4">Active Campaigns</h3>
+          <ActiveCampaigns />
         </div>
       </div>
     </div>

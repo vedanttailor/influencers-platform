@@ -125,7 +125,11 @@ def get_manager_clients(db: Session = Depends(get_db), user=Depends(require_role
                     else user_row.full_name
                 ),
                 "company_name": client_profile.company_name if client_profile else None,
-                "logo": client_profile.product_logo if client_profile else None,
+                "logo": (
+                    client_profile.product_logo
+                    if client_profile and client_profile.product_logo
+                    else user_row.profile_img
+                ),
                 "email": user_row.email,
                 "status": user_row.status,
                 "active_campaigns": active_campaigns,
@@ -180,6 +184,7 @@ def get_manager_influencers(db: Session = Depends(get_db), user=Depends(require_
                 "email": user_row.email,
                 "category": influencer_profile.category if influencer_profile else None,
                 "status": user_row.status,
+                "profile_img": user_row.profile_img,
                 "followers": followers,
                 "engagement_rate": engagement,
                 "platforms": platforms,
