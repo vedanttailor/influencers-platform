@@ -36,11 +36,15 @@ export default function CampaignsPage() {
           >
             {/* ✅ CAMPAIGN LOGO */}
             <div className="h-40 bg-gray-100 flex items-center justify-center">
-              <img
-                src={c.logo}
-                alt="campaign"
-                className="h-50 w-60 object-cover"
-              />
+              {c.logo ? (
+                <img
+                  src={c.logo}
+                  alt="campaign"
+                  className="h-50 w-60 object-cover"
+                />
+              ) : (
+                <div className="text-gray-400 text-sm">No Image</div>
+              )}
             </div>
 
             {/* ✅ CONTENT */}

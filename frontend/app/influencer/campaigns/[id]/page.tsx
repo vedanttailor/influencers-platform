@@ -58,7 +58,15 @@ export default function CampaignDetail() {
           <b>Platform:</b> {campaign.platform || "-"}
         </p>
         <p>
-          <b>Compny URL:</b> {campaign.company_url || "-"}
+          <strong>Company URL:</strong>{" "}
+          <a
+            href={`https://${campaign.company_url}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline"
+          >
+            {campaign.company_url}
+          </a>
         </p>
         <p>
           <b>Budget:</b> ₹{Number(campaign.budget || 0).toLocaleString()}

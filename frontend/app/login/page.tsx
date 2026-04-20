@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState } from "react";
@@ -33,21 +34,28 @@ export default function LoginPage() {
 
       if (!res.ok) {
         setError(true);
+
+        // ✅ FIXED MESSAGE HANDLING
         const message =
-          result?.detail?.[0]?.msg || result?.message || "Login failed";
+          typeof result.detail === "string"
+            ? result.detail
+            : result?.detail?.[0]?.msg || "Login failed";
+
         setMsg(message);
-      } else {
-        localStorage.setItem("token", result.token);
-        localStorage.setItem("role", result.role);
-
-        setError(false);
-        setMsg("Login successful ");
-
-        setTimeout(() => {
-          redirectByRole(result.role, router);
-        }, 100);
+        return;
       }
-    } catch {
+
+      // ✅ SUCCESS FLOW
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("role", result.role);
+
+      setError(false);
+      setMsg("Login successful");
+
+      setTimeout(() => {
+        redirectByRole(result.role, router);
+      }, 500);
+    } catch (err) {
       setError(true);
       setMsg("Server not reachable");
     } finally {
@@ -60,10 +68,12 @@ export default function LoginPage() {
       <div className="auth-brand">
         <div className="auth-brand-inner">
           <p className="auth-brand-badge">Influencer CRM</p>
-          <h1 className="auth-brand-title">Run creator campaigns with clarity</h1>
+          <h1 className="auth-brand-title">
+            Run creator campaigns with clarity
+          </h1>
           <p className="auth-brand-sub">
-            Manage briefs, approvals, and performance in one professional workspace—built
-            for brands and influencers.
+            Manage briefs, approvals, and performance in one professional
+            workspace—built for brands and influencers.
           </p>
         </div>
       </div>
@@ -71,7 +81,9 @@ export default function LoginPage() {
       <div className="auth-form-area">
         <div className="auth-card">
           <h2 className="auth-heading">Sign in</h2>
-          <p className="auth-sub">Welcome back. Enter your credentials to continue.</p>
+          <p className="auth-sub">
+            Welcome back. Enter your credentials to continue.
+          </p>
 
           {msg && (
             <div
@@ -114,7 +126,11 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            <button type="submit" disabled={loading} className="auth-btn-primary">
+            <button
+              type="submit"
+              disabled={loading}
+              className="auth-btn-primary"
+            >
               {loading ? "Logging in..." : "Sign in"}
             </button>
           </form>
