@@ -12,6 +12,8 @@ export default function LoginPage() {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleLogin = async (e: any) => {
     e.preventDefault();
     setMsg(null);
@@ -35,7 +37,6 @@ export default function LoginPage() {
       if (!res.ok) {
         setError(true);
 
-        // ✅ FIXED MESSAGE HANDLING
         const message =
           typeof result.detail === "string"
             ? result.detail
@@ -45,7 +46,6 @@ export default function LoginPage() {
         return;
       }
 
-      // ✅ SUCCESS FLOW
       localStorage.setItem("token", result.token);
       localStorage.setItem("role", result.role);
 
@@ -87,7 +87,9 @@ export default function LoginPage() {
 
           {msg && (
             <div
-              className={`auth-alert mt-5 ${error ? "auth-alert-error" : "auth-alert-success"}`}
+              className={`auth-alert mt-5 ${
+                error ? "auth-alert-error" : "auth-alert-success"
+              }`}
             >
               {msg}
             </div>
@@ -111,14 +113,35 @@ export default function LoginPage() {
               className="input"
               required
             />
-            <input
-              name="fpass"
-              autoComplete="new-password"
-              type="password"
-              placeholder="Password"
-              className="input"
-              required
-            />
+
+            <div style={{ position: "relative" }}>
+              <input
+                name="fpass"
+                autoComplete="new-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className="input"
+                required
+                style={{ paddingRight: "40px" }}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                }}
+              >
+                {showPassword ? "🔓" : "🔒"}
+              </button>
+            </div>
 
             <div className="flex justify-end">
               <Link href="/forgot-password" className="auth-link">

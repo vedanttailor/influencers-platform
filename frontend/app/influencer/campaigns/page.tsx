@@ -19,7 +19,6 @@ export default function CampaignsPage() {
 
   return (
     <div className="space-y-6">
-      {/* 🔥 HEADER */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Campaigns</h1>
         <p className="text-sm text-gray-500 mt-1">
@@ -27,14 +26,12 @@ export default function CampaignsPage() {
         </p>
       </div>
 
-      {/* 🔥 GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {campaigns.map((c: any) => (
           <div
             key={c.id}
             className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
           >
-            {/* ✅ CAMPAIGN LOGO */}
             <div className="h-40 bg-gray-100 flex items-center justify-center">
               {c.logo ? (
                 <img
@@ -47,7 +44,6 @@ export default function CampaignsPage() {
               )}
             </div>
 
-            {/* ✅ CONTENT */}
             <div className="p-5">
               <h2 className="text-lg font-semibold text-gray-900 line-clamp-1">
                 {c.title}
@@ -55,7 +51,6 @@ export default function CampaignsPage() {
 
               <p className="text-sm text-gray-500 mt-1">{c.client}</p>
 
-              {/* 🔥 DETAILS */}
               <div className="flex justify-between items-center mt-4 text-sm">
                 <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-medium">
                   {c.platform}
@@ -66,7 +61,6 @@ export default function CampaignsPage() {
                 </span>
               </div>
 
-              {/* 🔥 BUTTON */}
               <Link
                 href={`/Influencer/campaigns/${c.id}`}
                 className="block mt-5 text-center bg-gray-900 hover:bg-black text-white py-2 rounded-lg transition"

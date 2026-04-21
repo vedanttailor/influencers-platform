@@ -175,6 +175,13 @@ export default function CreateCampaignForm() {
               <option>Product Promotion</option>
               <option>Brand Awareness</option>
               <option>App Install</option>
+              <option>Lead Generation</option>
+              <option>Event Promotion</option>
+              <option>Giveaway / Contest</option>
+              <option>Affiliate Marketing</option>
+              <option>Influencer Collaboration</option>
+              <option>Content Creation</option>
+              <option>Seasonal Campaign</option>
             </select>
 
             <select
@@ -187,6 +194,18 @@ export default function CreateCampaignForm() {
               <option value="">Campaign Category</option>
               <option>Fashion</option>
               <option>Technology</option>
+              <option>Food & Beverage</option>
+              <option>Health & Fitness</option>
+              <option>Beauty & Skincare</option>
+              <option>Travel & Tourism</option>
+              <option>Education</option>
+              <option>Finance & Investment</option>
+              <option>Gaming</option>
+              <option>Entertainment</option>
+              <option>Automobile</option>
+              <option>Real Estate</option>
+              <option>Sports</option>
+              <option>Parenting & Kids</option>
             </select>
 
             <select
@@ -199,6 +218,14 @@ export default function CreateCampaignForm() {
               <option value="">Campaign Objective</option>
               <option>Engagement</option>
               <option>Sales</option>
+              <option>Brand Awareness</option>
+              <option>Website Traffic</option>
+              <option>App Downloads</option>
+              <option>Lead Generation</option>
+              <option>Followers Growth</option>
+              <option>Video Views</option>
+              <option>Product Reviews</option>
+              <option>Content Reach</option>
             </select>
 
             <input
