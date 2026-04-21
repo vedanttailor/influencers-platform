@@ -120,14 +120,14 @@ export default function SignupPage() {
             autoCorrect="off"
             spellCheck={false}
           >
-            {/* Autofill traps */}
+
             <input type="text" style={{ display: "none" }} />
             <input type="password" style={{ display: "none" }} />
 
             <input
               name="fname"
               autoComplete="new-name"
-              placeholder="Full name"
+              placeholder="User Name"
               className="input"
               required
             />

@@ -79,14 +79,11 @@ def apply_campaign(
     if campaign.influencer_id:
         raise HTTPException(400, "Already assigned")
 
-    # ✅ Assign influencer
     campaign.influencer_id = user["sub"]
     campaign.status = "applied"
 
-    # Get influencer info
     influencer_user = db.query(User).filter(User.id == user["sub"]).first()
 
-    # ✅ Create response entry
     new_response = Response(
         campaign_id=campaign.id,
         influencer_name=influencer_user.full_name if influencer_user else "Unknown",
@@ -122,12 +119,14 @@ def my_campaigns(
             "id": str(c.id),
             "campaign_name": c.campaign_name,
             "brand_name": c.brand_name,
+            "platforms": c.platforms,
             "company_url": c.company_url,
             "budget": float(c.budget or 0),
             "status": c.status,
             "end_date": c.end_date,
             "post_url": c.post_url,
             "description": c.description,
+            "logo": c.logo,
         }
         for c in campaigns
     ]
@@ -152,7 +151,6 @@ def submit_link(
     if not campaign:
         raise HTTPException(404, "Campaign not found")
 
-    # ✅ Store both links
     campaign.post_url = {
         "instagram": data.instagram_url,
         "youtube": data.youtube_url
