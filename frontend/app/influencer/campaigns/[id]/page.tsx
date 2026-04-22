@@ -17,7 +17,7 @@ export default function CampaignDetail() {
       fetchCampaigns: () => void;
     };
 
-  const [postLink, setPostLink] = useState("");
+  const [postLinks, setPostLinks] = useState<any>({});
   const [localStatus, setLocalStatus] = useState<string | null>(null);
 
   useEffect(() => {
@@ -102,30 +102,39 @@ export default function CampaignDetail() {
 
         {canSubmitLink && (
           <div className="space-y-3">
-            {/* 🔥 DYNAMIC PLATFORM INPUTS */}
+
             {(Array.isArray(campaign.platforms)
               ? campaign.platforms
               : [campaign.platform]
             )
               .filter(Boolean)
-              .map((platform: string, index: number) => (
-                <input
-                  key={index}
-                  placeholder={`Paste ${platform} link`}
-                  value={postLink}
-                  onChange={(e) => setPostLink(e.target.value)}
-                  className="border w-full p-2 rounded"
-                />
-              ))}
+              .map((platform: string, index: number) => {
+                const key = platform.toLowerCase();
+
+                return (
+                  <input
+                    key={index}
+                    placeholder={`Paste ${platform} link`}
+                    value={postLinks[key] || ""}
+                    onChange={(e) =>
+                      setPostLinks((prev: any) => ({
+                        ...prev,
+                        [key]: e.target.value,
+                      }))
+                    }
+                    className="border w-full p-2 rounded"
+                  />
+                );
+              })}
 
             <button
               onClick={() => {
-                const value = postLink.trim();
-                if (!value) {
-                  alert("Please enter the posted video URL.");
+                if (!postLinks.instagram && !postLinks.youtube) {
+                  alert("Please enter at least one link.");
                   return;
                 }
-                submitLink(campaign.id, value);
+
+                submitLink(campaign.id, postLinks);
                 setLocalStatus("completed");
               }}
               className="bg-green-600 text-white px-4 py-2 rounded"
@@ -138,17 +147,32 @@ export default function CampaignDetail() {
         {status === "completed" && (
           <div className="space-y-2">
             <p className="text-green-600 font-semibold">Completed</p>
-            {campaign.post_url ? (
-              <a
-                href={campaign.post_url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-block text-blue-600 underline"
-              >
-                View submitted video link
-              </a>
+            {campaign.post_url && typeof campaign.post_url === "object" ? (
+              <div className="space-y-2">
+                {campaign.post_url.instagram && (
+                  <a
+                    href={campaign.post_url.instagram}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block text-blue-600 underline"
+                  >
+                    View Instagram Link
+                  </a>
+                )}
+
+                {campaign.post_url.youtube && (
+                  <a
+                    href={campaign.post_url.youtube}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block text-blue-600 underline"
+                  >
+                    View YouTube Link
+                  </a>
+                )}
+              </div>
             ) : (
-              <p className="text-sm text-gray-500">Video URL is Submitted...</p>
+              <p className="text-sm text-gray-500">No links submitted</p>
             )}
           </div>
         )}
