@@ -74,7 +74,6 @@ export default function CampaignDetailsPage() {
     return <p className="text-center mt-10">Loading...</p>;
   }
 
-
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       <Link href="/client/campaigns" className="text-sm text-gray-600">
@@ -112,16 +111,33 @@ export default function CampaignDetailsPage() {
         </div>
 
         <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm font-semibold text-slate-800">Influencer Submitted Video</p>
-          {campaign.post_url ? (
-            <a
-              href={campaign.post_url}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-2 inline-block text-sm text-blue-600 underline break-all"
-            >
-              {campaign.post_url}
-            </a>
+          <p className="text-sm font-semibold text-slate-800">
+            Influencer Submitted Video
+          </p>
+          {campaign.post_url && typeof campaign.post_url === "object" ? (
+            <div className="mt-2 space-y-2">
+              {campaign.post_url.instagram && (
+                <a
+                  href={campaign.post_url.instagram}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block text-sm text-blue-600 underline break-all"
+                >
+                  View Instagram Link
+                </a>
+              )}
+
+              {campaign.post_url.youtube && (
+                <a
+                  href={campaign.post_url.youtube}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block text-sm text-blue-600 underline break-all"
+                >
+                  View YouTube Link
+                </a>
+              )}
+            </div>
           ) : (
             <p className="mt-2 text-sm text-slate-500">
               Not submitted yet by influencer.

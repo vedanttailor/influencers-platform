@@ -23,7 +23,7 @@ export const useCampaignStore = create((set) => ({
         endDate: c.end_date,
         status: c.status || "available",
         description: c.description || "",
-        post_url: c.post_url || "",
+        post_url: c.post_url || {},
         logo: c.logo || "",
       }));
 
@@ -38,7 +38,8 @@ export const useCampaignStore = create((set) => ({
         endDate: c.end_date,
         status: c.status || "applied",
        description: c.description || "",
-        post_url: c.post_url || "",
+        post_url: c.post_url || {},
+        logo: c.logo || "",
       }));
 
       const merged = new Map<string, any>();
@@ -115,15 +116,18 @@ export const useCampaignStore = create((set) => ({
     }
   },
 
-  submitLink: async (id: string, link: string) => {
-    await api.patch(`/influencer/submit/${id}`, {
-      post_url: link,
-    });
+  submitLink: async (id: string, links: any) => {
+  await api.patch(`/influencer/submit/${id}`, {
+    instagram_url: links.instagram || null,
+    youtube_url: links.youtube || null,
+  });
 
-    set((state: any) => ({
-      campaigns: state.campaigns.map((c: any) =>
-        c.id === id ? { ...c, status: "completed", post_url: link } : c,
-      ),
-    }));
-  },
+  set((state: any) => ({
+    campaigns: state.campaigns.map((c: any) =>
+      c.id === id
+        ? { ...c, status: "completed", post_url: links }
+        : c,
+    ),
+  }));
+},
 }));
