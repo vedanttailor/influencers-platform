@@ -5,6 +5,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -74,10 +75,10 @@ export default function ProfilePage() {
       });
 
       setUser({ ...user, full_name: form.full_name, email: form.email, profile_img: imageUrl });
-      alert("Profile updated successfully");
+      toast.success("Profile updated successfully");
     } catch (err) {
       console.error("Save failed", err);
-      alert("Something went wrong");
+      toast.error("Something went wrong");
     }
   };
 

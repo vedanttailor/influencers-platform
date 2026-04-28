@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { redirectByRole } from "@/app/utils/redirectByRole";
+import{ FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -137,9 +138,10 @@ export default function LoginPage() {
                   border: "none",
                   cursor: "pointer",
                   fontSize: "18px",
+                  color: "#6b7280",
                 }}
               >
-                {showPassword ? "🔓" : "🔒"}
+                {showPassword ? <FaEyeSlash/> :<FaEye/> }
               </button>
             </div>
 

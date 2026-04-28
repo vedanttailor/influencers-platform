@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function ManagerProfile() {
   const router = useRouter();
@@ -88,10 +89,10 @@ export default function ManagerProfile() {
         profile_img: imageUrl,
       });
 
-      alert("Profile updated successfully ");
+      toast.success("Profile updated successfully");
     } catch (err) {
       console.error("Save failed", err);
-      alert("Something went wrong ");
+      toast.error("Something went wrong");
     }
   };
 

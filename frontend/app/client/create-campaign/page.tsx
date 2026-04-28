@@ -7,6 +7,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { api } from "@/lib/api";
 
 export default function CreateCampaignForm() {
@@ -117,11 +118,11 @@ export default function CreateCampaignForm() {
       if (!res.ok) {
         const err = await res.json();
         console.error(err);
-        alert(err.detail || "Failed to create campaign");
+        toast.error(err.detail || "Failed to create campaign");
         return;
       }
 
-      alert("✅ Campaign created successfully");
+      toast.success("Campaign created successfully");
 
       // ✅ RESET FORM
       handleCancel();
@@ -130,7 +131,7 @@ export default function CreateCampaignForm() {
       router.push("/client/campaigns");
     } catch (err) {
       console.error("Error:", err);
-      alert("Something went wrong");
+      toast.error("Something went wrong");
     }
   };
 

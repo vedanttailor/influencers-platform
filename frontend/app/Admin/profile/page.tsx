@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function AdminProfile() {
   const router = useRouter();
@@ -81,7 +82,7 @@ export default function AdminProfile() {
         }),
       });
 
-      alert("Profile updated successfully");
+      toast.success("Profile updated successfully");
     } catch (err) {
       console.error("Save failed", err);
     }
