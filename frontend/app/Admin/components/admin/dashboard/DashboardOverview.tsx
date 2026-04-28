@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Link from "next/link";
@@ -120,12 +121,6 @@ export default function DashboardOverview() {
             <h3 className="text-lg font-semibold">Recent Campaigns</h3>
             <p className="text-sm text-slate-500">Latest activity across the platform.</p>
           </div>
-          <Link
-            href="/Admin/campaigns"
-            className="text-sm font-semibold text-blue-600 hover:text-blue-700"
-          >
-            View all
-          </Link>
         </div>
 
         <div className="overflow-x-auto">

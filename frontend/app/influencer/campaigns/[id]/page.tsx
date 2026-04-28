@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useParams, useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { useCampaignStore } from "@/lib/useCampaignStore";
 import { useState, useEffect } from "react";
 
@@ -130,7 +131,7 @@ export default function CampaignDetail() {
             <button
               onClick={() => {
                 if (!postLinks.instagram && !postLinks.youtube) {
-                  alert("Please enter at least one link.");
+                  toast.error("Please enter at least one link.");
                   return;
                 }
 

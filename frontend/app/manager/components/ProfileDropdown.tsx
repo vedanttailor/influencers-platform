@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { LogOut, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function ProfileDropdown() {
 
@@ -27,7 +28,7 @@ export default function ProfileDropdown() {
   };
 
   const handleSave = () => {
-    alert("Profile updated successfully");
+    toast.success("Profile updated successfully");
   };
 
   const handleLogout = () => {

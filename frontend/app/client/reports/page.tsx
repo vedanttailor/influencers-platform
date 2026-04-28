@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { api } from "@/lib/api";
 import {
   BarChart,
@@ -56,7 +57,7 @@ export default function ReportsPage() {
 
   // ⚠️ OPTIONAL: remove or keep (backend not implemented yet)
   const handleDownload = () => {
-    alert("Download API not implemented yet");
+    toast("Download API not implemented yet");
   };
 
   if (loading) {

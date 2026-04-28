@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { useUser } from "../campaigns/components/UserContext";
 
 export default function ProfilePage() {
@@ -69,10 +70,10 @@ export default function ProfilePage() {
         avatar: imageUrl || "/avatar.png",
       });
 
-      alert("Profile updated successfully ");
+      toast.success("Profile updated successfully");
     } catch (err) {
       console.error("Save failed", err);
-      alert("Something went wrong ");
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }

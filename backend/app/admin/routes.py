@@ -346,3 +346,72 @@ def campaign_action(
             "status": campaign.status,
         },
     }
+
+
+@router.get("/client/{client_id}")
+def get_client_detail(
+    client_id: str,
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin")),
+):
+    # Get client user
+    client_user = db.query(User).filter(User.id == client_id).first()
+    if not client_user or client_user.role != UserRole.client:
+        raise HTTPException(404, "Client not found")
+    
+    # Client profile
+    client_profile = db.query(Client).filter(Client.user_id == client_id).first()
+    
+    # Campaigns
+    campaigns = db.query(Campaign).filter(Campaign.client_id == client_id).order_by(Campaign.created_at.desc()).all()
+    
+    # Financial stats
+    total_spend = db.query(Campaign.budget).filter(Campaign.client_id == client_id).all()
+    total_spend = sum([float(b[0] or 0) for b in total_spend])
+    active_campaigns = db.query(Campaign).filter(Campaign.client_id == client_id, Campaign.status == "active").count()
+    
+    # Risk metrics (example calculations)
+    cancellations = len([c for c in campaigns if c.status == "cancelled"])
+    late_approvals = len([c for c in campaigns if c.status == "late"])
+    
+    return {
+        "client": {
+            "id": str(client_user.id),
+            "user_id": str(client_user.id),
+            "name": client_user.full_name,
+            "company_name": getattr(client_profile, "company_name", None),
+            "email": client_user.email,
+            "status": client_user.status,
+            "phone": client_user.phone,
+        },
+        "stats": {
+            "total_campaigns": len(campaigns),
+            "active_campaigns": active_campaigns,
+            "total_spend": float(total_spend),
+            "avg_budget": float(total_spend / max(len(campaigns), 1)),
+        },
+        "campaigns": [
+            {
+                "id": str(c.id),
+                "campaign_name": c.campaign_name,
+                "platforms": c.platforms,
+                "budget": float(c.budget or 0),
+                "reach": getattr(c, "reach", "N/A"),
+                "status": c.status,
+                "start_date": c.start_date.isoformat() if c.start_date else None,
+                "end_date": c.end_date.isoformat() if c.end_date else None,
+            }
+            for c in campaigns
+        ],
+        "financial": {
+            "total_spend": float(total_spend),
+            "failed_payments": 0,  # TODO: track
+            "last_payment": None,  # TODO: from payments table
+        },
+        "risk": {
+            "cancellations": cancellations,
+            "late_approvals": late_approvals,
+            "violations": 0,
+            "risk_score": "medium",  # calculate based metrics
+        },
+    }

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { api } from "@/lib/api";
 
 type ResponseType = {
@@ -59,7 +60,7 @@ export default function InfluencerResponsesPage() {
       );
     } catch (err) {
       console.error("Approve failed", err);
-      alert("Failed to approve influencer");
+      toast.error("Failed to approve influencer");
     }
   };
 
@@ -76,7 +77,7 @@ export default function InfluencerResponsesPage() {
     );
   } catch (err) {
     console.error("Reject failed", err);
-    alert("Failed to reject influencer");
+    toast.error("Failed to reject influencer");
   }
 };
 
