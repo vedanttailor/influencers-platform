@@ -40,14 +40,15 @@ export default function ReportsPage() {
       ]);
 
       // ✅ FIX PERFORMANCE
-      setCampaignPerformance(Array.isArray(data.performance) ? data.performance : []);
+      setCampaignPerformance(
+        Array.isArray(data.performance) ? data.performance : [],
+      );
 
       // ✅ FIX BUDGET (convert object → array)
       setBudgetData([
-        { name: "Spent", value: data.budget?.spent || 0 },
-        { name: "Remaining", value: data.budget?.remaining || 0 },
+        { name: "Spent", value: Number(data.budget?.spent || 0) },
+        { name: "Remaining", value: Number(data.budget?.remaining || 0) },
       ]);
-
     } catch (err) {
       console.error("Failed to load reports", err);
     } finally {
@@ -71,12 +72,6 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Reports & Analytics</h1>
-        <button
-          onClick={handleDownload}
-          className="px-4 py-2 bg-black text-white rounded-lg"
-        >
-          Download Report
-        </button>
       </div>
 
       {/* Summary */}

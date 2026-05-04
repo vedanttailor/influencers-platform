@@ -89,18 +89,32 @@ def get_stats(db: Session = Depends(get_db), user=Depends(get_current_user)):
 def get_reports(db: Session = Depends(get_db), user=Depends(get_current_user)):
     campaigns = db.query(Campaign).filter(Campaign.client_id == user["sub"]).all()
 
+    total_budget = sum(float(c.budget or 0) for c in campaigns)
+
+    # 👉 TEMP LOGIC (until payment system)
+    total_spent = total_budget
+    remaining = total_budget - total_spent
+
     return {
         "summary": {
             "total": len(campaigns),
             "active": len([c for c in campaigns if c.status == "active"]),
             "completed": len([c for c in campaigns if c.status == "completed"]),
-            "spend": sum([float(c.budget or 0) for c in campaigns]),
+            "spend": total_spent,
         },
         "performance": [
-            {"name": c.campaign_name, "engagement": 1000 + i * 200}
+            {
+                "name": c.campaign_name,
+                "engagement": 1000 + i * 200,
+                "status": c.status,
+                "spend": float(c.budget or 0),
+            }
             for i, c in enumerate(campaigns)
         ],
-        "budget": {"spent": 65, "remaining": 35},
+        "budget": {
+            "spent": total_spent,
+            "remaining": remaining,
+        },
     }
 
 

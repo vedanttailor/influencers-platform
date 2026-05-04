@@ -9,7 +9,6 @@ export default function ClientsPage() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -17,6 +16,7 @@ export default function ClientsPage() {
     setLoading(true);
     try {
       const data = await api.get("/manager/clients");
+      console.log("CLIENT DATA:", data); 
       setClients(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error("Failed to load clients", e);
@@ -59,7 +59,7 @@ export default function ClientsPage() {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">Clients</h2>
-
+      {loading && <p className="text-sm text-gray-500">Loading...</p>}
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <table className="w-full text-sm">
 
@@ -112,7 +112,6 @@ export default function ClientsPage() {
 
                 <td className="p-4 text-center space-x-2">
 
-                  
                   <button
                     onClick={() => {
                       setSelectedClient(client);
@@ -178,13 +177,13 @@ export default function ClientsPage() {
             </button>
 
             <div className="text-center mb-4">
-              {selectedClient.logo ? (
+              {selectedClient.logo && (
                 <img
                   src={selectedClient.logo}
                   alt={selectedClient.name}
                   className="w-16 h-16 mx-auto mb-2 object-contain"
                 />
-              ) : null}
+              )}
               <h2 className="font-bold text-lg">{selectedClient.name}</h2>
             </div>
 
