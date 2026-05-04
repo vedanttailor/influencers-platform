@@ -160,7 +160,7 @@ export default function CreateCampaignForm() {
               name="brand"
               value={formData.brand}
               onChange={handleChange}
-              placeholder="Brand / Client Name"
+              placeholder="Company / Client Name"
               className="input"
               required
             />

@@ -114,7 +114,13 @@ def get_manager_clients(db: Session = Depends(get_db), user=Depends(require_role
         )
         spend = db.query(Campaign.budget).filter(Campaign.client_id == user_row.id).all()
         total_spend = float(sum([float(s[0] or 0) for s in spend]))
-
+        
+        latest_campaign = (
+            db.query(Campaign)
+            .filter(Campaign.client_id == user_row.id)
+            .order_by(Campaign.created_at.desc())
+            .first()
+        )
         items.append(
             {
                 "id": str(client_profile.id) if client_profile else str(user_row.id),
@@ -124,7 +130,11 @@ def get_manager_clients(db: Session = Depends(get_db), user=Depends(require_role
                     if client_profile and client_profile.client_name
                     else user_row.full_name
                 ),
-                "company_name": client_profile.company_name if client_profile else None,
+                "company_name": (
+                    latest_campaign.brand_name
+                    if latest_campaign and latest_campaign.brand_name
+                    else None
+                ),
                 "logo": (
                     client_profile.product_logo
                     if client_profile and client_profile.product_logo
@@ -180,7 +190,7 @@ def get_manager_influencers(db: Session = Depends(get_db), user=Depends(require_
                     influencer_profile.name
                     if influencer_profile and influencer_profile.name
                     else user_row.full_name
-                ),
+                ),       
                 "email": user_row.email,
                 "category": influencer_profile.category if influencer_profile else None,
                 "status": user_row.status,
