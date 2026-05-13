@@ -5,6 +5,7 @@ import { useState } from "react";
 import { redirectByRole } from "@/app/utils/redirectByRole";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function SignupPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -13,6 +14,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignup = async (e: any) => {
     e.preventDefault();
@@ -92,10 +94,12 @@ export default function SignupPage() {
       <div className="auth-brand">
         <div className="auth-brand-inner">
           <p className="auth-brand-badge">Influencer CRM</p>
-          <h1 className="auth-brand-title">Join your creator marketing workspace</h1>
+          <h1 className="auth-brand-title">
+            Join your creator marketing workspace
+          </h1>
           <p className="auth-brand-sub">
-            Onboard as a client or influencer and keep every campaign, asset, and payout in
-            sync.
+            Onboard as a client or influencer and keep every campaign, asset,
+            and payout in sync.
           </p>
         </div>
       </div>
@@ -120,7 +124,6 @@ export default function SignupPage() {
             autoCorrect="off"
             spellCheck={false}
           >
-
             <input type="text" style={{ display: "none" }} />
             <input type="password" style={{ display: "none" }} />
 
@@ -139,14 +142,35 @@ export default function SignupPage() {
               className="input"
               required
             />
-            <input
-              name="fpass"
-              autoComplete="new-password"
-              type="password"
-              placeholder="Password"
-              className="input"
-              required
-            />
+            <div style={{ position: "relative" }}>
+              <input
+                name="fpass"
+                autoComplete="new-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className="input"
+                required
+                style={{ paddingRight: "40px" }}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                  color: "#6b7280",
+                }}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
             <input
               name="fphone"
               autoComplete="new-tel"
@@ -166,7 +190,9 @@ export default function SignupPage() {
             </select>
 
             <div>
-              <label className="text-sm font-medium text-slate-700">Profile photo</label>
+              <label className="text-sm font-medium text-slate-700">
+                Profile photo
+              </label>
               <input
                 type="file"
                 accept="image/*"
@@ -190,7 +216,11 @@ export default function SignupPage() {
               )}
             </div>
 
-            <button type="submit" disabled={loading} className="auth-btn-primary">
+            <button
+              type="submit"
+              disabled={loading}
+              className="auth-btn-primary"
+            >
               {loading ? "Creating..." : "Create account"}
             </button>
           </form>
