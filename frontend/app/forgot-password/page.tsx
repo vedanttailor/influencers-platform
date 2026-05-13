@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1);
@@ -8,6 +9,8 @@ export default function ForgotPasswordPage() {
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -46,7 +49,7 @@ export default function ForgotPasswordPage() {
 
       setMessage("Verification code sent to your email");
       setStep(2);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("SEND CODE ERROR:", err);
       setError(true);
@@ -102,7 +105,7 @@ export default function ForgotPasswordPage() {
 
       setMessage("Password updated successfully.");
       setStep(3);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("RESET ERROR:", err);
       setError(true);
@@ -127,9 +130,7 @@ export default function ForgotPasswordPage() {
       <div className="auth-form-area">
         <div className="auth-card-wide">
           <h2 className="auth-heading">Forgot password</h2>
-          <p className="auth-sub">
-            Step {step} of 3
-          </p>
+          <p className="auth-sub">Step {step} of 3</p>
 
           {message && (
             <div
@@ -176,27 +177,69 @@ export default function ForgotPasswordPage() {
                   required
                 />
 
-                <input
-                  name="new-password"
-                  className="input"
-                  type="password"
-                  placeholder="New password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  autoComplete="new-password"
-                  required
-                />
+                <div style={{ position: "relative" }}>
+                  <input
+                    name="new-password"
+                    className="input"
+                    type={showNewPassword ? "text" : "password"}
+                    placeholder="New password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    autoComplete="new-password"
+                    required
+                    style={{ paddingRight: "40px" }}
+                  />
 
-                <input
-                  name="confirm-password"
-                  className="input"
-                  type="password"
-                  placeholder="Confirm password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  autoComplete="new-password"
-                  required
-                />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    style={{
+                      position: "absolute",
+                      right: "10px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "18px",
+                      color: "#6b7280",
+                    }}
+                  >
+                    {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+
+                <div style={{ position: "relative" }}>
+                  <input
+                    name="confirm-password"
+                    className="input"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
+                    required
+                    style={{ paddingRight: "40px" }}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{
+                      position: "absolute",
+                      right: "10px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "18px",
+                      color: "#6b7280",
+                    }}
+                  >
+                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
 
                 <button
                   type="button"
@@ -215,7 +258,10 @@ export default function ForgotPasswordPage() {
                   Password updated successfully
                 </p>
 
-                <Link href="/login" className="auth-btn-primary block text-center">
+                <Link
+                  href="/login"
+                  className="auth-btn-primary block text-center"
+                >
                   Back to sign in
                 </Link>
               </div>
