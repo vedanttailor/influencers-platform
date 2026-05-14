@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import PaymentButton from "@/components/PaymentButton";
 
 type CampaignStatus = "active" | "completed" | "pending";
 
@@ -146,18 +147,42 @@ export default function CampaignDetailsPage() {
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
+          {/* SHOW PAYMENT BUTTON ONLY FOR ACCEPTED CAMPAIGN */}
+
+          {campaign.status === "accepted" && (
+            <PaymentButton campaignId={campaign.id} />
+          )}
+
+          {/* COMPLETE BUTTON */}
+
           {campaign.status === "active" && (
             <button
               onClick={completeCampaign}
-              className="px-4 py-2 border border-green-500 text-green-600 rounded-lg"
+              className="
+        px-4
+        py-2
+        border
+        border-green-500
+        text-green-600
+        rounded-lg
+      "
             >
               Complete
             </button>
           )}
 
+          {/* DELETE BUTTON */}
+
           <button
             onClick={deleteCampaign}
-            className="px-4 py-2 border border-red-400 text-red-600 rounded-lg"
+            className="
+      px-4
+      py-2
+      border
+      border-red-400
+      text-red-600
+      rounded-lg
+    "
           >
             Delete
           </button>
