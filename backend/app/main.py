@@ -10,6 +10,7 @@ from app.influencer.routes import router as influencer_router
 from app.admin.routes import router as admin_router
 from app.manager.routes import router as manager_router
 from app.core.cloudinary import cloudinary
+from app.payment.routes import router as payment_router
 
 
 app = FastAPI()
@@ -21,6 +22,11 @@ app.include_router(responses_router)
 app.include_router(influencer_router)
 app.include_router(admin_router)
 app.include_router(manager_router)
+app.include_router(
+    payment_router,
+    prefix="/payment",
+    tags=["Payment"]
+)
 
 app.add_middleware(
     CORSMiddleware,

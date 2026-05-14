@@ -4,6 +4,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import Script from "next/script";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,10 +24,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body
-        className={`${inter.className} text-slate-900 antialiased`}
-      >
+      <body className={`${inter.className} text-slate-900 antialiased`}>
         {children}
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="beforeInteractive"
+        />
         <Toaster
           position="top-right"
           toastOptions={{

@@ -5,15 +5,11 @@ import { ClientProvider } from "./ClientContext";
 import OverviewTab from "./tabs/OverviewTab";
 import FinancialTab from "./tabs/FinancialTab";
 import CampaignsTab from "./tabs/CampaignsTab";
-import RiskTab from "./tabs/RiskTab";
-import AdminActionsTab from "./tabs/AdminActionsTab";
 
 const tabs = [
   "Overview",
   "Financials",
   "Campaigns",
-  "Risks",
-  "Admin Actions",
 ] as const;
 
 export default function ClientDetailPage() {
@@ -35,8 +31,6 @@ export default function ClientDetailPage() {
         {activeTab === "Overview" && <OverviewTab />}
         {activeTab === "Financials" && <FinancialTab />}
         {activeTab === "Campaigns" && <CampaignsTab />}
-        {activeTab === "Risks" && <RiskTab />}
-        {activeTab === "Admin Actions" && <AdminActionsTab />}
       </div>
     </ClientProvider>
   );

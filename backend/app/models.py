@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum, Text, Numeric, ARRAY # type: ignore
+from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, Enum, Text, Numeric, ARRAY # type: ignore
 from sqlalchemy.sql import func # type: ignore
 from sqlalchemy.dialects.postgresql import UUID, JSONB # type: ignore
 import uuid
@@ -195,3 +195,24 @@ class Response(Base):
     price = Column(String)
     status = Column(String, default="Pending")
     client_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    
+class Payment(Base):
+    __tablename__ = "payments"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    campaign_id = Column(UUID(as_uuid=True), ForeignKey("campaigns.id"))
+    client_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    influencer_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+
+    campaign_amount = Column(Float) # type: ignore
+    platform_fee = Column(Float) # type: ignore
+    total_amount = Column(Float) # type: ignore
+
+    razorpay_order_id = Column(String)
+    razorpay_payment_id = Column(String)
+    razorpay_signature = Column(String)
+
+    payment_status = Column(String, default="pending")
+
+    created_at = Column(DateTime, default=datetime.utcnow)
