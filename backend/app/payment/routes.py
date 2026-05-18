@@ -44,6 +44,21 @@ def create_order(
             detail="Campaign not found"
         )
 
+    # ======================================
+    # CHECK IF PAYMENT ALREADY DONE
+    # ======================================
+
+    existing_payment = db.query(Payment).filter(
+        Payment.campaign_id == campaign_id,
+        Payment.payment_status == "paid"
+    ).first()
+
+    if existing_payment:
+        raise HTTPException(
+            status_code=400,
+            detail="Payment already completed"
+        )
+
     campaign_amount = float(campaign.budget)
 
     platform_fee = (
@@ -132,7 +147,7 @@ def verify_payment(
     ).first()
 
     if campaign:
-        campaign.status = "active"
+        campaign.status = "completed"
 
     db.commit()
 

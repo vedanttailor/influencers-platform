@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session  # type: ignore
 from app.database import SessionLocal
 from app.models import Campaign, Response, User
 from app.auth.dependencies import get_current_user
+from app.auth.schemas import UpdateProfileSchema
 from pydantic import BaseModel  # type: ignore
 import uuid
 
@@ -196,4 +197,33 @@ def get_earnings(
             }
             for c in campaigns
         ],
+    }
+@router.put("/update-profile")
+def update_profile(
+    data: UpdateProfileSchema,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    user = db.query(User).filter(User.id == current_user["sub"]).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.full_name = data.full_name
+    user.email = data.email
+    user.profile_img = data.profile_img
+    user.upi_id = data.upi_id
+
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "message": "Profile updated successfully",
+        "user": {
+            "id": str(user.id),
+            "full_name": user.full_name,
+            "email": user.email,
+            "upi_id": user.upi_id,
+            "profile_img": user.profile_img
+        }
     }

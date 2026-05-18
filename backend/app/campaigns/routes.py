@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form # type: ignore
 from sqlalchemy.orm import Session # type: ignore
 from app.database import SessionLocal
-from app.models import Campaign
+from app.models import Campaign, Payment
 from app.auth.dependencies import get_current_user
 from pydantic import BaseModel # type: ignore
 from typing import List
@@ -120,17 +120,117 @@ def get_reports(db: Session = Depends(get_db), user=Depends(get_current_user)):
 
 
 @router.get("")
-def get_campaigns(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    return db.query(Campaign).filter(Campaign.client_id == user["sub"]).all()
+def get_campaigns(
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+
+    campaigns = db.query(Campaign).filter(
+        Campaign.client_id == user["sub"]
+    ).all()
+
+    campaigns_data = []
+
+    for campaign in campaigns:
+
+        payment = db.query(Payment).filter(
+            Payment.campaign_id == campaign.id,
+            Payment.payment_status == "paid"
+        ).first()
+
+        campaigns_data.append({
+
+            "id": str(campaign.id),
+
+            "campaign_name": campaign.campaign_name,
+
+            "brand_name": campaign.brand_name,
+
+            "campaign_type": campaign.campaign_type,
+
+            "campaign_category": campaign.campaign_category,
+
+            "campaign_objective": campaign.campaign_objective,
+
+            "company_url": campaign.company_url,
+
+            "description": campaign.description,
+
+            "budget": campaign.budget,
+
+            "platforms": campaign.platforms,
+
+            "logo": campaign.logo,
+
+            "status": campaign.status,
+
+            "client_id": str(campaign.client_id),
+
+            "start_date": campaign.start_date,
+
+            "end_date": campaign.end_date,
+
+            "is_paid": True if payment else False
+        })
+
+    return campaigns_data
 
 
 
 @router.get("/{id}")
 def get_campaign(id: uuid.UUID, db: Session = Depends(get_db)):
-    campaign = db.query(Campaign).filter(Campaign.id == id).first()
+
+    campaign = db.query(Campaign).filter(
+        Campaign.id == id
+    ).first()
+
     if not campaign:
         raise HTTPException(404, "Campaign not found")
-    return campaign
+
+    # CHECK PAYMENT STATUS
+
+    payment = db.query(Payment).filter(
+        Payment.campaign_id == campaign.id,
+        Payment.payment_status == "paid"
+    ).first()
+
+    return {
+
+        "id": str(campaign.id),
+
+        "campaign_name": campaign.campaign_name,
+
+        "brand_name": campaign.brand_name,
+
+        "campaign_type": campaign.campaign_type,
+
+        "campaign_category": campaign.campaign_category,
+
+        "campaign_objective": campaign.campaign_objective,
+
+        "company_url": campaign.company_url,
+
+        "description": campaign.description,
+
+        "budget": campaign.budget,
+
+        "platforms": campaign.platforms,
+
+        "logo": campaign.logo,
+
+        "status": campaign.status,
+
+        "client_id": str(campaign.client_id),
+
+        "start_date": campaign.start_date,
+
+        "end_date": campaign.end_date,
+
+        "post_url": campaign.post_url,
+
+        # IMPORTANT
+        "is_paid": True if payment else False
+    }
 
 
 

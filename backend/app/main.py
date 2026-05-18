@@ -11,6 +11,7 @@ from app.admin.routes import router as admin_router
 from app.manager.routes import router as manager_router
 from app.core.cloudinary import cloudinary
 from app.payment.routes import router as payment_router
+from app.payout.routes import router as payout_router
 
 
 app = FastAPI()
@@ -27,6 +28,7 @@ app.include_router(
     prefix="/payment",
     tags=["Payment"]
 )
+app.include_router(payout_router)
 
 app.add_middleware(
     CORSMiddleware,

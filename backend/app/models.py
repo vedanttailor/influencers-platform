@@ -29,6 +29,7 @@ class User(Base):
     profile_img = Column(String, nullable=True)
 
     status = Column(String, default="active")
+    upi_id = Column(String, nullable=True)
     is_deleted = Column(DateTime, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -215,4 +216,42 @@ class Payment(Base):
 
     payment_status = Column(String, default="pending")
 
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow) 
+class Payout(Base):
+    __tablename__ = "payouts"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    campaign_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("campaigns.id")
+    )
+
+    payment_id = Column(
+        Integer,
+        ForeignKey("payments.id")
+    )
+
+    influencer_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id")
+    )
+
+    payout_amount = Column(Float)
+
+    payout_method = Column(String)
+
+    transaction_id = Column(
+        String,
+        nullable=True
+    )
+
+    payout_status = Column(
+        String,
+        default="pending"
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )

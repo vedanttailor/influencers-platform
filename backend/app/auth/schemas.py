@@ -25,3 +25,9 @@ class ResetPasswordSchema(BaseModel):
     email: EmailStr
     code: str
     new_password: str
+
+class UpdateProfileSchema(BaseModel):
+    full_name: str
+    email: EmailStr
+    profile_img: Optional[str] = None
+    upi_id: Optional[str] = None

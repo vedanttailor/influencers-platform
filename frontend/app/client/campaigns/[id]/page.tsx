@@ -147,9 +147,9 @@ export default function CampaignDetailsPage() {
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
-          {/* SHOW PAYMENT BUTTON ONLY FOR ACCEPTED CAMPAIGN */}
+          {/* SHOW PAYMENT BUTTON ONLY IF PAYMENT NOT DONE */}
 
-          {campaign.status === "accepted" && (
+          {campaign.status === "completed" && !campaign.is_paid && (
             <PaymentButton campaignId={campaign.id} />
           )}
 
