@@ -6,6 +6,7 @@ import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",

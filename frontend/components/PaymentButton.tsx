@@ -2,6 +2,7 @@
 "use client";
 
 import { api } from "@/lib/api";
+import toast from "react-hot-toast";
 
 interface Props {
   campaignId: string;
@@ -70,18 +71,14 @@ export default function PaymentButton({
 
             if (verifyData.success) {
 
-              alert(
-                "Payment Successful"
-              );
+              toast.success("Payment Successful");
 
               window.location.href =
                 "/client/campaigns";
 
             } else {
 
-              alert(
-                "Payment Verification Failed"
-              );
+             toast.error("Payment Verification Failed");
             }
 
           } catch (verifyError) {
@@ -91,9 +88,7 @@ export default function PaymentButton({
               verifyError
             );
 
-            alert(
-              "Payment Verification Failed"
-            );
+           toast.error("Razorpay SDK failed to load");
           }
         },
 
@@ -117,9 +112,7 @@ export default function PaymentButton({
 
       if (!(window as any).Razorpay) {
 
-        alert(
-          "Razorpay SDK failed to load"
-        );
+        toast.error("Razorpay SDK failed to load");
 
         return;
       }
@@ -140,9 +133,7 @@ export default function PaymentButton({
         error
       );
 
-      alert(
-        error?.message || "Payment Failed"
-      );
+      toast.error("Payment Failed");
     }
   };
 
