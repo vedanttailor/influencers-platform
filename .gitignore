@@ -36,7 +36,7 @@ env/
 # Python env files
 .env
 .env.*
-
+backend/app/.env
 
 *.sqlite3
 *.db

@@ -1,11 +1,11 @@
 import os
 import hmac
 import hashlib
-import razorpay
+import razorpay # type: ignore
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from dotenv import load_dotenv
+from fastapi import APIRouter, Depends, HTTPException # type: ignore
+from sqlalchemy.orm import Session # type: ignore
+from dotenv import load_dotenv # type: ignore
 
 from app.database import get_db
 from app.models import Campaign, Payment

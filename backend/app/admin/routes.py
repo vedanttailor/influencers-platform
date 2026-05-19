@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException  # type: ignore
 from sqlalchemy.orm import Session  # type: ignore
 from pydantic import BaseModel, EmailStr  # type: ignore
 from typing import Optional
+from sqlalchemy import func # type: ignore
+from app.models import Payment, Payout
 
 from app.database import SessionLocal
 from app.models import User, Influencer, Client, Campaign, Manager, UserRole
@@ -415,3 +417,229 @@ def get_client_detail(
             "risk_score": "medium",  # calculate based metrics
         },
     }
+    
+@router.get("/client/{client_id}/campaigns")
+def get_client_campaigns(
+    client_id: str,
+    db: Session = Depends(get_db)
+):
+
+    campaigns = db.query(Campaign).filter(
+        Campaign.client_id == client_id
+    ).all()
+
+    data = []
+
+    for c in campaigns:
+
+        data.append({
+
+            "id": str(c.id),
+
+            "campaign_name": c.campaign_name,
+
+            "brand_name": c.brand_name,
+
+            "platforms": c.platforms,
+
+            "budget": float(c.budget),
+
+            "status": c.status,
+
+            "post_url": c.post_url,
+
+            "created_at": c.created_at
+        })
+
+    return data
+
+
+@router.get("/client/{client_id}/financials")
+def get_client_financials(
+    client_id: str,
+    db: Session = Depends(get_db)
+):
+
+    campaigns = db.query(Campaign).filter(
+        Campaign.client_id == client_id
+    ).all()
+
+    if not campaigns:
+
+        return {
+            "total_spend": 0,
+            "avg_budget": 0,
+            "highest_budget": 0,
+            "total_campaigns": 0,
+        }
+
+    total_spend = sum(
+        float(c.budget or 0)
+        for c in campaigns
+    )
+
+    highest_budget = max(
+        float(c.budget or 0)
+        for c in campaigns
+    )
+
+    avg_budget = total_spend / len(campaigns)
+
+    return {
+
+        "total_spend": total_spend,
+
+        "avg_budget": round(avg_budget, 2),
+
+        "highest_budget": highest_budget,
+
+        "total_campaigns": len(campaigns)
+    }
+    
+@router.get("/influencer/{influencer_id}/campaigns")
+def get_influencer_campaigns(
+    influencer_id: str,
+    db: Session = Depends(get_db)
+):
+
+    campaigns = db.query(Campaign).filter(
+        Campaign.influencer_id == influencer_id
+    ).all()
+
+    data = []
+
+    for c in campaigns:
+
+        payment = db.query(Payment).filter(
+            Payment.campaign_id == c.id
+        ).first()
+
+        payout = db.query(Payout).filter(
+            Payout.campaign_id == c.id
+        ).first()
+
+        client = db.query(User).filter(
+            User.id == c.client_id
+        ).first()
+
+        data.append({
+
+            "id": str(c.id),
+
+            "campaign_name": c.campaign_name,
+
+            "client_name":
+                client.full_name if client else None,
+
+            "budget":
+                float(c.budget or 0),
+
+            "status":
+                c.status,
+
+            "platforms":
+                c.platforms,
+
+            "post_url":
+                c.post_url,
+
+            "payment_status":
+                payment.payment_status if payment else "pending",
+
+            "payout_status":
+                payout.payout_status if payout else "unpaid",
+
+            "transaction_id":
+                payout.transaction_id if payout else None,
+        })
+
+    return data
+
+@router.get("/influencer/{influencer_id}/financials")
+def get_influencer_financials(
+    influencer_id: str,
+    db: Session = Depends(get_db)
+):
+
+    campaigns = db.query(Campaign).filter(
+        Campaign.influencer_id == influencer_id
+    ).all()
+
+    total_earned = 0
+    pending_amount = 0
+    paid_campaigns = 0
+
+    for c in campaigns:
+
+        payout = db.query(Payout).filter(
+            Payout.campaign_id == c.id
+        ).first()
+
+        if payout and payout.payout_status == "paid":
+
+            total_earned += float(
+                payout.payout_amount
+            )
+
+            paid_campaigns += 1
+
+        else:
+
+            pending_amount += float(
+                c.budget or 0
+            )
+
+    return {
+
+        "total_earned":
+            total_earned,
+
+        "pending_amount":
+            pending_amount,
+
+        "paid_campaigns":
+            paid_campaigns,
+
+        "total_campaigns":
+            len(campaigns)
+    }
+    
+@router.get("/influencer-campaigns/{influencer_id}")
+def get_influencer_campaigns(
+    influencer_id: str,
+    db: Session = Depends(get_db)
+):
+
+    campaigns = db.query(Campaign).filter(
+        Campaign.influencer_id == influencer_id
+    ).all()
+
+    data = []
+
+    for campaign in campaigns:
+
+        client = db.query(User).filter(
+            User.id == campaign.client_id
+        ).first()
+
+        data.append({
+
+            "id": str(campaign.id),
+
+            "campaign_name":
+                campaign.campaign_name,
+
+            "client_name":
+                client.full_name if client else "Unknown",
+
+            "budget":
+                campaign.budget,
+
+            "status":
+                campaign.status,
+
+            "post_url":
+                campaign.post_url
+        })
+
+    return data

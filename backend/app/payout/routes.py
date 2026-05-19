@@ -38,10 +38,6 @@ RAZORPAY_KEY_SECRET = os.getenv(
     "RAZORPAY_KEY_SECRET"
 )
 
-RAZORPAYX_ACCOUNT_NUMBER = os.getenv(
-    "RAZORPAYX_ACCOUNT_NUMBER"
-)
-
 # =========================================
 # ADMIN PAY TO INFLUENCER
 # =========================================
@@ -135,7 +131,8 @@ def pay_influencer(
         )
 
     # =========================================
-    # CREATE CONTACT
+    # OPTIONAL:
+    # CREATE CONTACT (FOR DEMO PURPOSE)
     # =========================================
 
     contact_payload = {
@@ -156,152 +153,97 @@ def pay_influencer(
     print("\nCONTACT PAYLOAD:")
     print(contact_payload)
 
-    contact_response = requests.post(
+    try:
 
-        "https://api.razorpay.com/v1/contacts",
+        contact_response = requests.post(
 
-        auth=(
-            RAZORPAY_KEY_ID,
-            RAZORPAY_KEY_SECRET
-        ),
+            "https://api.razorpay.com/v1/contacts",
 
-        json=contact_payload
-    )
+            auth=(
+                RAZORPAY_KEY_ID,
+                RAZORPAY_KEY_SECRET
+            ),
 
-    print("\nCONTACT STATUS:")
-    print(contact_response.status_code)
-
-    contact_data = contact_response.json()
-
-    print("\nCONTACT RESPONSE:")
-    print(contact_data)
-
-    if "id" not in contact_data:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(contact_data)
+            json=contact_payload
         )
 
-    contact_id = contact_data["id"]
+        print("\nCONTACT STATUS:")
+        print(contact_response.status_code)
+
+        print("\nCONTACT RESPONSE:")
+        print(contact_response.json())
+
+    except Exception as e:
+
+        print("\nCONTACT ERROR:")
+        print(str(e))
 
     # =========================================
-    # CREATE FUND ACCOUNT
+    # OPTIONAL:
+    # CREATE FUND ACCOUNT (FOR DEMO PURPOSE)
     # =========================================
 
-    fund_payload = {
+    try:
 
-        "contact_id":
-            contact_id,
+        fund_payload = {
 
-        "account_type":
-            "vpa",
+            "contact_id":
+                "demo_contact",
 
-        "vpa": {
-            "address":
-                influencer.upi_id
+            "account_type":
+                "vpa",
+
+            "vpa": {
+                "address":
+                    influencer.upi_id
+            }
         }
-    }
 
-    print("\nFUND ACCOUNT PAYLOAD:")
-    print(fund_payload)
+        print("\nFUND ACCOUNT PAYLOAD:")
+        print(fund_payload)
 
-    fund_response = requests.post(
+        fund_response = requests.post(
 
-        "https://api.razorpay.com/v1/fund_accounts",
+            "https://api.razorpay.com/v1/fund_accounts",
 
-        auth=(
-            RAZORPAY_KEY_ID,
-            RAZORPAY_KEY_SECRET
-        ),
+            auth=(
+                RAZORPAY_KEY_ID,
+                RAZORPAY_KEY_SECRET
+            ),
 
-        json=fund_payload
-    )
-
-    print("\nFUND STATUS:")
-    print(fund_response.status_code)
-
-    fund_data = fund_response.json()
-
-    print("\nFUND RESPONSE:")
-    print(fund_data)
-
-    if "id" not in fund_data:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(fund_data)
+            json=fund_payload
         )
 
-    fund_account_id = fund_data["id"]
+        print("\nFUND STATUS:")
+        print(fund_response.status_code)
+
+        print("\nFUND RESPONSE:")
+        print(fund_response.json())
+
+    except Exception as e:
+
+        print("\nFUND ACCOUNT ERROR:")
+        print(str(e))
 
     # =========================================
-    # CREATE PAYOUT
+    # SIMULATED PAYOUT
     # =========================================
 
-    payout_amount = int(
-        payment.campaign_amount * 100
-    )
+    payout_amount = payment.campaign_amount
 
-    payout_payload = {
+    print("\n========== SIMULATED PAYOUT ==========\n")
 
-        "account_number":
-            RAZORPAYX_ACCOUNT_NUMBER,
+    payout_data = {
 
-        "fund_account_id":
-            fund_account_id,
+        "id":
+            f"payout_{uuid.uuid4()}",
 
-        "amount":
-            payout_amount,
-
-        "currency":
-            "INR",
-
-        "mode":
-            "UPI",
-
-        "purpose":
-            "payout",
-
-        "queue_if_low_balance":
-            True,
-
-        "reference_id":
-            str(uuid.uuid4()),
-
-        "narration":
-            "Influencer payout"
+        "status":
+            "processed"
     }
 
-    print("\nPAYOUT PAYLOAD:")
-    print(payout_payload)
-
-    payout_response = requests.post(
-
-        "https://api.razorpay.com/v1/payouts",
-
-        auth=(
-            RAZORPAY_KEY_ID,
-            RAZORPAY_KEY_SECRET
-        ),
-
-        json=payout_payload
-    )
-
-    print("\nPAYOUT STATUS:")
-    print(payout_response.status_code)
-
-    payout_data = payout_response.json()
-
-    print("\nPAYOUT RESPONSE:")
+    print("SIMULATED PAYOUT RESPONSE:")
     print(payout_data)
-
-    if "id" not in payout_data:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(payout_data)
-        )
 
     # =========================================
     # SAVE PAYOUT IN DATABASE
@@ -319,7 +261,7 @@ def pay_influencer(
             campaign.influencer_id,
 
         payout_amount=
-            payment.campaign_amount,
+            payout_amount,
 
         payout_method=
             "UPI",
@@ -332,6 +274,12 @@ def pay_influencer(
     )
 
     db.add(payout)
+
+    # =========================================
+    # UPDATE CAMPAIGN STATUS
+    # =========================================
+
+    campaign.status = "completed"
 
     db.commit()
 
@@ -346,7 +294,7 @@ def pay_influencer(
         "success": True,
 
         "message":
-            "Influencer paid successfully",
+            "Influencer paid successfully (Simulated)",
 
         "campaign_amount":
             payment.campaign_amount,

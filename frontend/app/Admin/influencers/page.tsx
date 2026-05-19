@@ -75,7 +75,10 @@ export default function InfluencersPage() {
   }, []);
 
   const total = rows.length;
-  const active = useMemo(() => rows.filter((r) => r.status === "active").length, [rows]);
+  const active = useMemo(
+    () => rows.filter((r) => r.status === "active").length,
+    [rows],
+  );
   const suspended = useMemo(
     () => rows.filter((r) => r.status === "suspended").length,
     [rows],
@@ -83,14 +86,17 @@ export default function InfluencersPage() {
   const avgEngagement = useMemo(() => {
     if (rows.length === 0) return 0;
     return (
-      rows.reduce((sum, row) => sum + Number(row.engagement_rate || 0), 0) / rows.length
+      rows.reduce((sum, row) => sum + Number(row.engagement_rate || 0), 0) /
+      rows.length
     );
   }, [rows]);
 
   const topInstagram = useMemo(
     () =>
       [...rows]
-        .filter((r) => (r.platforms || []).map((p) => p.toLowerCase()).includes("instagram"))
+        .filter((r) =>
+          (r.platforms || []).map((p) => p.toLowerCase()).includes("instagram"),
+        )
         .sort((a, b) => b.followers - a.followers)
         .slice(0, 5)
         .map((r) => ({ name: r.name, followers: r.followers })),
@@ -120,10 +126,13 @@ export default function InfluencersPage() {
   const workflowRows = useMemo(() => {
     const items = rows.flatMap((influencer) => {
       const assigned = campaigns
-        .filter((c) => String(c.influencer_id || "") === String(influencer.user_id))
+        .filter(
+          (c) => String(c.influencer_id || "") === String(influencer.user_id),
+        )
         .sort(
           (a, b) =>
-            new Date(b.start_date || 0).getTime() - new Date(a.start_date || 0).getTime(),
+            new Date(b.start_date || 0).getTime() -
+            new Date(a.start_date || 0).getTime(),
         );
 
       if (assigned.length === 0) {
@@ -157,7 +166,10 @@ export default function InfluencersPage() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi title="Total Influencers" value={loading ? "..." : String(total)} />
+        <Kpi
+          title="Total Influencers"
+          value={loading ? "..." : String(total)}
+        />
         <Kpi title="Active" value={loading ? "..." : String(active)} />
         <Kpi title="Suspended" value={loading ? "..." : String(suspended)} />
         <Kpi
@@ -173,7 +185,7 @@ export default function InfluencersPage() {
               <XAxis dataKey="name" stroke="#86efac" />
               <YAxis stroke="#86efac" />
               <Tooltip />
-              <Bar dataKey="followers" fill="#86efac" radius={[6,6,0,0]} />
+              <Bar dataKey="followers" fill="#86efac" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -184,7 +196,7 @@ export default function InfluencersPage() {
               <XAxis dataKey="name" stroke="#93c5fd" />
               <YAxis stroke="#93c5fd" />
               <Tooltip />
-              <Bar dataKey="views" fill="#93c5fd" radius={[6,6,0,0]} />
+              <Bar dataKey="views" fill="#93c5fd" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -223,7 +235,7 @@ export default function InfluencersPage() {
                 <td>{Number(inf.engagement_rate || 0).toFixed(2)}%</td>
                 <td className="text-right pr-4">
                   <Link
-                    href={`/Admin/influencers/${inf.id}`}
+                    href={`/Admin/influencers/${inf.user_id}`}
                     className="text-blue-600 text-sm"
                   >
                     View
@@ -267,17 +279,26 @@ export default function InfluencersPage() {
             <tbody>
               {workflowRows.map((row) => (
                 <tr key={row.key} className="border-t border-slate-200/70">
-                  <td className="px-4 py-3 font-medium text-slate-900">{row.influencerName}</td>
-                  <td className="px-4 py-3 text-slate-700">{row.campaignName}</td>
+                  <td className="px-4 py-3 font-medium text-slate-900">
+                    {row.influencerName}
+                  </td>
+                  <td className="px-4 py-3 text-slate-700">
+                    {row.campaignName}
+                  </td>
                   <td className="px-4 py-3 text-slate-700">{row.clientName}</td>
-                  <td className="px-4 py-3 capitalize text-slate-700">{row.status}</td>
+                  <td className="px-4 py-3 capitalize text-slate-700">
+                    {row.status}
+                  </td>
                   <td className="px-4 py-3 text-slate-600">{row.start}</td>
                   <td className="px-4 py-3 text-slate-600">{row.end}</td>
                 </tr>
               ))}
               {!loading && workflowRows.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-6 text-center text-slate-500">
+                  <td
+                    colSpan={6}
+                    className="px-4 py-6 text-center text-slate-500"
+                  >
                     No influencer workflow records found.
                   </td>
                 </tr>
@@ -289,7 +310,6 @@ export default function InfluencersPage() {
     </div>
   );
 }
-
 
 function Kpi({ title, value }: any) {
   return (
