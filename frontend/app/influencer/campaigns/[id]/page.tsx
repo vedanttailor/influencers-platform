@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
@@ -5,301 +6,107 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useCampaignStore } from "@/lib/useCampaignStore";
+import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 
 export default function CampaignDetail() {
-
-  const params = useParams();
-
-const id =
-  typeof params?.id === "string"
-    ? params.id
-    : Array.isArray(params?.id)
-    ? params.id[0]
-    : "";
+  const { id }: any = useParams();
 
   const router = useRouter();
 
-  const [campaign, setCampaign] =
-    useState<any>(null);
+  const { campaigns, apply, submitLink, fetchCampaigns } =
+    useCampaignStore() as {
+      campaigns: any[];
+      apply: (id: string) => void;
+      submitLink: (id: string, link: any) => void;
+      fetchCampaigns: () => void;
+    };
 
-  const [loading, setLoading] =
-    useState(true);
+  const [postLinks, setPostLinks] = useState({
+    instagram: [""],
+    youtube: [""],
+  });
 
-  const [previewImage, setPreviewImage] =
-    useState<string | null>(null);
+  const [localStatus, setLocalStatus] = useState<string | null>(null);
 
-  const [localStatus, setLocalStatus] =
-    useState<string | null>(null);
-
-  const [postLinks, setPostLinks] =
-    useState({
-      instagram: [""],
-      youtube: [""],
-    });
-
-  // =========================
-  // FETCH CAMPAIGN
-  // =========================
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
-
-    if (id && id !== "undefined") {
-  fetchCampaign();
-}
-
-  }, [id]);
-
-  const fetchCampaign = async () => {
-
-    try {
-
-      setLoading(true);
-
-      const res = await api.get(
-  `/campaigns/${String(id).trim()}`
-);
-
-      console.log("CAMPAIGN RESPONSE:", res.data);
-
-      setCampaign(res.data);
-
-    } catch (error: any) {
-
-      console.error(error);
-
-      toast.error(
-        error?.response?.data?.detail ||
-        "Failed to load campaign"
-      );
-
-      setCampaign(null);
-
-    } finally {
-
-      setLoading(false);
+    if (!campaigns.length) {
+      fetchCampaigns();
     }
-  };
+  }, []);
 
-  // =========================
-  // APPLY CAMPAIGN
-  // =========================
+  const campaign = campaigns.find((c: any) => String(c.id) === String(id));
 
-  const applyCampaign = async () => {
+  const status = String(localStatus || campaign?.status || "").toLowerCase();
 
-    try {
+  const canSubmitLink = ["accepted", "assigned", "applied", "active"].includes(
+    status,
+  );
 
-      await api.post(
-        "/influencer/apply",
-        {
-          campaign_id: id,
-        }
-      );
-
-      setLocalStatus("applied");
-
-      toast.success(
-        "Applied Successfully"
-      );
-
-      fetchCampaign();
-
-    } catch (error: any) {
-
-      console.error(error);
-
-      toast.error(
-        error?.response?.data?.detail ||
-        "Apply failed"
-      );
-    }
-  };
-
-  // =========================
-  // SUBMIT LINKS
-  // =========================
-
-  const submitLinks = async () => {
-
-    try {
-
-      const instagramLink =
-        postLinks.instagram
-          .filter(
-            (link) =>
-              link.trim() !== ""
-          )
-          .join(",");
-
-      const youtubeLink =
-        postLinks.youtube
-          .filter(
-            (link) =>
-              link.trim() !== ""
-          )
-          .join(",");
-
-      if (
-        !instagramLink &&
-        !youtubeLink
-      ) {
-
-        toast.error(
-          "Please enter at least one link"
-        );
-
-        return;
-      }
-
-      await api.patch(
-        `/influencer/submit/${id}`,
-        {
-          instagram_url:
-            instagramLink,
-
-          youtube_url:
-            youtubeLink,
-        }
-      );
-
-      toast.success(
-        "Links submitted successfully"
-      );
-
-      setLocalStatus("completed");
-
-      fetchCampaign();
-
-    } catch (error: any) {
-
-      console.error(error);
-
-      toast.error(
-        error?.response?.data?.detail ||
-        "Submit failed"
-      );
-    }
-  };
-
-  // =========================
-  // FORMAT DATE
-  // =========================
-
-  const formatDate = (
-    value: any
-  ) => {
-
+  const formatDate = (value: any) => {
     if (!value) return "-";
 
     const d = new Date(value);
 
-    if (isNaN(d.getTime()))
+    if (Number.isNaN(d.getTime())) {
       return "-";
+    }
 
-    return d.toLocaleDateString(
-      "en-IN",
-      {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      }
-    );
+    return d.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
   };
 
-  const status = String(
-    localStatus ||
-    campaign?.status ||
-    ""
-  ).toLowerCase();
-
-  // =========================
-  // LOADING
-  // =========================
-
-  if (loading) {
-
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-lg font-semibold">
-          Loading...
-        </p>
-      </div>
-    );
-  }
-
-  // =========================
-  // NOT FOUND
-  // =========================
-
   if (!campaign) {
-
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-red-500 text-xl font-semibold">
-          Campaign not found
-        </p>
+        <p className="text-lg font-semibold">Loading...</p>
       </div>
     );
   }
 
   return (
-
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-
-      <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
-
+      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
         {/* HEADER */}
-
         <div className="relative bg-gradient-to-r from-black to-gray-800 h-44">
-
           <button
-            onClick={() =>
-              router.push(
-                "/Influencer/campaigns"
-              )
-            }
-            className="absolute top-4 left-4 text-white"
+            onClick={() => router.push("/Influencer/campaigns")}
+            className="absolute top-4 left-4 text-white hover:underline"
           >
             ← Back
           </button>
 
+          {/* LOGO */}
           <div className="absolute -bottom-14 left-8">
-
             <img
-              src={
-                campaign.logo ||
-                "/avatar.png"
-              }
+              src={campaign.logo || "/avatar.png"}
               alt="brand"
-              onClick={() =>
-                setPreviewImage(
-                  campaign.logo ||
-                  "/avatar.png"
-                )
-              }
-              className="w-28 h-28 rounded-full border-4 border-white object-cover shadow-lg cursor-pointer"
+              onClick={() => setPreviewImage(campaign.logo || "/avatar.png")}
+              className="w-28 h-28 rounded-full border-4 border-white object-cover shadow-lg cursor-pointer hover:scale-105 transition"
             />
           </div>
         </div>
 
         {/* CONTENT */}
-
         <div className="pt-20 px-8 pb-8">
-
           {/* TITLE */}
-
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-
               <h1 className="text-3xl font-bold">
-                {campaign.campaign_name}
+                {campaign.title ||
+                  campaign.campaign_name ||
+                  "Untitled Campaign"}
               </h1>
 
               <p className="text-gray-500 mt-1">
-                {campaign.brand_name}
+                {campaign.client || campaign.brand_name || "Brand"}
               </p>
             </div>
 
@@ -308,283 +115,339 @@ const id =
                 status === "completed"
                   ? "bg-green-100 text-green-700"
                   : status === "applied"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : status === "accepted"
-                  ? "bg-blue-100 text-blue-700"
-                  : "bg-gray-100 text-gray-700"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : status === "accepted"
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-700"
               }`}
             >
-              {status || "active"}
+              {status || "-"}
             </span>
           </div>
 
           {/* DETAILS */}
-
           <div className="grid md:grid-cols-2 gap-5 mt-8">
-
             {/* LEFT */}
-
             <div className="border rounded-2xl p-5">
+              <h2 className="font-bold text-lg mb-4">Campaign Details</h2>
 
-              <h2 className="font-bold text-lg mb-4">
-                Campaign Details
-              </h2>
-
-              <div className="space-y-4">
-
+              <div className="space-y-3 text-sm">
                 <div className="flex justify-between border-b pb-2">
+                  <span className="font-semibold">Platform</span>
 
-                  <span className="font-semibold">
-                    Platform
-                  </span>
-
-                  <span className="text-right">
-                    {Array.isArray(
-                      campaign.platforms
-                    )
+                  <span>
+                    {Array.isArray(campaign.platforms)
                       ? campaign.platforms.join(", ")
-                      : "-"}
+                      : campaign.platform || "-"}
                   </span>
                 </div>
 
                 <div className="flex justify-between border-b pb-2">
+                  <span className="font-semibold">Budget</span>
 
-                  <span className="font-semibold">
-                    Budget
-                  </span>
+                  <span>₹{Number(campaign.budget || 0).toLocaleString()}</span>
+                </div>
+
+                <div className="flex justify-between border-b pb-2">
+                  <span className="font-semibold">Deadline</span>
 
                   <span>
-                    ₹
-                    {Number(
-                      campaign.budget || 0
-                    ).toLocaleString()}
+                    {formatDate(campaign.endDate || campaign.end_date)}
                   </span>
                 </div>
 
                 <div className="flex justify-between border-b pb-2">
+                  <span className="font-semibold">Followers</span>
 
-                  <span className="font-semibold">
-                    Deadline
-                  </span>
+                  <span>{campaign.followers || "N/A"}</span>
+                </div>
 
-                  <span>
-                    {formatDate(
-                      campaign.end_date
-                    )}
-                  </span>
+                <div className="flex justify-between border-b pb-2">
+                  <span className="font-semibold">Category</span>
+
+                  <span>{campaign.category || "General"}</span>
                 </div>
               </div>
             </div>
 
             {/* RIGHT */}
-
             <div className="border rounded-2xl p-5">
+              <h2 className="font-bold text-lg mb-4">Brand Information</h2>
 
-              <h2 className="font-bold text-lg mb-4">
-                Brand Information
-              </h2>
-
-              <div className="space-y-4">
-
+              <div className="space-y-3 text-sm">
                 <div className="border-b pb-2">
+                  <span className="font-semibold">Description</span>
 
-                  <span className="font-semibold">
-                    Description
-                  </span>
-
-                  <p className="mt-1 text-gray-600">
-                    {campaign.description}
+                  <p className="text-gray-600 mt-1">
+                    {campaign.description || "-"}
                   </p>
                 </div>
 
                 <div className="border-b pb-2">
-
-                  <span className="font-semibold">
-                    Website
-                  </span>
+                  <span className="font-semibold">Website</span>
 
                   <a
                     href={
-                      campaign.company_url?.startsWith("http")
-                        ? campaign.company_url
-                        : `https://${campaign.company_url}`
+                      campaign.company_url
+                        ? campaign.company_url.startsWith("http")
+                          ? campaign.company_url
+                          : `https://${campaign.company_url}`
+                        : "#"
                     }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block text-blue-600 underline mt-1 break-all"
+                    className="block text-blue-600 underline mt-1"
                   >
-                    {campaign.company_url}
+                    {campaign.company_url || "N/A"}
                   </a>
                 </div>
+
+                {campaign.client_email && (
+                  <div className="border-b pb-2">
+                    <span className="font-semibold">Client Email</span>
+
+                    <p className="mt-1">{campaign.client_email}</p>
+                  </div>
+                )}
+
+                {campaign.client_phone && (
+                  <div className="border-b pb-2">
+                    <span className="font-semibold">Client Mobile</span>
+
+                    <p className="mt-1">{campaign.client_phone}</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* APPLY BUTTON */}
-
-          {status === "active" && (
-
-            <button
-              onClick={applyCampaign}
-              className="mt-8 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl"
-            >
-              Apply Now
-            </button>
-          )}
-
-          {/* APPLIED */}
-
-          {status === "applied" && (
-
-            <div className="mt-8 bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-xl">
-              Waiting for client approval
-            </div>
-          )}
-
-          {/* ACCEPTED */}
-
-          {status === "accepted" && (
-
-            <div className="space-y-6 mt-8">
-
-              {campaign.platforms?.includes(
-                "Instagram"
-              ) && (
-
-                <div>
-
-                  <h3 className="font-semibold mb-3">
-                    Instagram Reel Links
-                  </h3>
-
-                  {postLinks.instagram.map(
-                    (link, index) => (
-
-                      <input
-                        key={index}
-                        type="text"
-                        placeholder={`Instagram Reel URL ${index + 1}`}
-                        value={link}
-                        onChange={(e) => {
-
-                          const updated = [
-                            ...postLinks.instagram,
-                          ];
-
-                          updated[index] =
-                            e.target.value;
-
-                          setPostLinks(
-                            (prev) => ({
-                              ...prev,
-                              instagram:
-                                updated,
-                            })
-                          );
-                        }}
-                        className="border w-full p-3 rounded-xl mb-3"
-                      />
-                    )
-                  )}
-
-                  <button
-                    onClick={() =>
-                      setPostLinks(
-                        (prev) => ({
-                          ...prev,
-                          instagram: [
-                            ...prev.instagram,
-                            "",
-                          ],
-                        })
-                      )
-                    }
-                    className="bg-pink-100 text-pink-700 px-4 py-2 rounded-lg"
-                  >
-                    + Add Instagram Link
-                  </button>
-                </div>
-              )}
-
-              {campaign.platforms?.includes(
-                "YouTube"
-              ) && (
-
-                <div>
-
-                  <h3 className="font-semibold mb-3">
-                    YouTube Video Links
-                  </h3>
-
-                  {postLinks.youtube.map(
-                    (link, index) => (
-
-                      <input
-                        key={index}
-                        type="text"
-                        placeholder={`YouTube URL ${index + 1}`}
-                        value={link}
-                        onChange={(e) => {
-
-                          const updated = [
-                            ...postLinks.youtube,
-                          ];
-
-                          updated[index] =
-                            e.target.value;
-
-                          setPostLinks(
-                            (prev) => ({
-                              ...prev,
-                              youtube:
-                                updated,
-                            })
-                          );
-                        }}
-                        className="border w-full p-3 rounded-xl mb-3"
-                      />
-                    )
-                  )}
-
-                  <button
-                    onClick={() =>
-                      setPostLinks(
-                        (prev) => ({
-                          ...prev,
-                          youtube: [
-                            ...prev.youtube,
-                            "",
-                          ],
-                        })
-                      )
-                    }
-                    className="bg-red-100 text-red-700 px-4 py-2 rounded-lg"
-                  >
-                    + Add YouTube Link
-                  </button>
-                </div>
-              )}
-
+          {/* ACTIONS */}
+          <div className="mt-8">
+            {status === "active" && (
               <button
-                onClick={submitLinks}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl"
+                onClick={() => {
+                  apply(campaign.id);
+
+                  setLocalStatus("applied");
+
+                  toast.success("Applied Successfully");
+                }}
+                className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800"
               >
-                Submit Video URLs
+                Apply Now
               </button>
-            </div>
-          )}
+            )}
+
+            {status === "applied" && (
+              <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-xl">
+                Waiting for client approval
+              </div>
+            )}
+
+            {canSubmitLink && (
+              <div className="space-y-6 mt-4">
+                {/* INSTAGRAM URLS */}
+                {(Array.isArray(campaign.platforms)
+                  ? campaign.platforms
+                  : [campaign.platform]
+                ).includes("Instagram") && (
+                  <div>
+                    <h3 className="font-semibold mb-3 text-lg">
+                      Instagram Reel URLs
+                    </h3>
+
+                    {postLinks.instagram.map((link: string, index: number) => (
+                      <div key={index} className="flex gap-2 mb-3">
+                        <input
+                          type="text"
+                          placeholder={`Instagram URL ${index + 1}`}
+                          value={link}
+                          onChange={(e) => {
+                            const updated = [...postLinks.instagram];
+
+                            updated[index] = e.target.value;
+
+                            setPostLinks((prev: any) => ({
+                              ...prev,
+                              instagram: updated,
+                            }));
+                          }}
+                          className="border w-full p-3 rounded-xl"
+                        />
+
+                        {index > 0 && (
+                          <button
+                            onClick={() => {
+                              const updated = postLinks.instagram.filter(
+                                (_: any, i: number) => i !== index,
+                              );
+
+                              setPostLinks((prev: any) => ({
+                                ...prev,
+                                instagram: updated,
+                              }));
+                            }}
+                            className="bg-red-500 text-white px-4 rounded-xl"
+                          >
+                            X
+                          </button>
+                        )}
+                      </div>
+                    ))}
+
+                    <button
+                      onClick={() =>
+                        setPostLinks((prev: any) => ({
+                          ...prev,
+                          instagram: [...prev.instagram, ""],
+                        }))
+                      }
+                      className="bg-pink-100 text-pink-700 px-4 py-2 rounded-xl"
+                    >
+                      + Add Instagram URL
+                    </button>
+                  </div>
+                )}
+
+                {/* YOUTUBE URLS */}
+                {(Array.isArray(campaign.platforms)
+                  ? campaign.platforms
+                  : [campaign.platform]
+                ).includes("YouTube") && (
+                  <div>
+                    <h3 className="font-semibold mb-3 text-lg">
+                      YouTube Video URLs
+                    </h3>
+
+                    {postLinks.youtube.map((link: string, index: number) => (
+                      <div key={index} className="flex gap-2 mb-3">
+                        <input
+                          type="text"
+                          placeholder={`YouTube URL ${index + 1}`}
+                          value={link}
+                          onChange={(e) => {
+                            const updated = [...postLinks.youtube];
+
+                            updated[index] = e.target.value;
+
+                            setPostLinks((prev: any) => ({
+                              ...prev,
+                              youtube: updated,
+                            }));
+                          }}
+                          className="border w-full p-3 rounded-xl"
+                        />
+
+                        {index > 0 && (
+                          <button
+                            onClick={() => {
+                              const updated = postLinks.youtube.filter(
+                                (_: any, i: number) => i !== index,
+                              );
+
+                              setPostLinks((prev: any) => ({
+                                ...prev,
+                                youtube: updated,
+                              }));
+                            }}
+                            className="bg-red-500 text-white px-4 rounded-xl"
+                          >
+                            X
+                          </button>
+                        )}
+                      </div>
+                    ))}
+
+                    <button
+                      onClick={() =>
+                        setPostLinks((prev: any) => ({
+                          ...prev,
+                          youtube: [...prev.youtube, ""],
+                        }))
+                      }
+                      className="bg-red-100 text-red-700 px-4 py-2 rounded-xl"
+                    >
+                      + Add YouTube URL
+                    </button>
+                  </div>
+                )}
+
+                {/* SUBMIT BUTTON */}
+                <button
+                  onClick={() => {
+                    const instagramLinks = postLinks.instagram.filter(
+                      (link: string) => link.trim() !== "",
+                    );
+
+                    const youtubeLinks = postLinks.youtube.filter(
+                      (link: string) => link.trim() !== "",
+                    );
+
+                    if (
+                      instagramLinks.length === 0 &&
+                      youtubeLinks.length === 0
+                    ) {
+                      toast.error("Please enter at least one URL");
+
+                      return;
+                    }
+
+                    const submitLinks = async () => {
+                      try {
+                        const instagramLinks = postLinks.instagram.filter(
+                          (link) => link.trim() !== "",
+                        );
+
+                        const youtubeLinks = postLinks.youtube.filter(
+                          (link) => link.trim() !== "",
+                        );
+
+                        if (
+                          instagramLinks.length === 0 &&
+                          youtubeLinks.length === 0
+                        ) {
+                          toast.error("Please enter at least one link");
+
+                          return;
+                        }
+
+                        await api.patch(`/influencer/submit/${id}`, {
+                          instagram_url: instagramLinks,
+
+                          youtube_url: youtubeLinks,
+                        });
+
+                        toast.success("Links submitted successfully");
+
+                        setLocalStatus("completed");
+
+                        fetchCampaigns();
+                      } catch (error: any) {
+                        console.error(error);
+
+                        toast.error(error.message || "Submit failed");
+                      }
+                    };
+
+                    setLocalStatus("completed");
+
+                    toast.success("Links submitted successfully");
+                  }}
+                  className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700"
+                >
+                  Submit Video URLs
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* IMAGE PREVIEW */}
-
       {previewImage && (
-
         <div
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
-          onClick={() =>
-            setPreviewImage(null)
-          }
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+          onClick={() => setPreviewImage(null)}
         >
           <img
             src={previewImage}
