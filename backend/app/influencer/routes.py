@@ -5,9 +5,13 @@ from app.models import Campaign, Response, User
 from app.auth.dependencies import get_current_user
 from app.auth.schemas import UpdateProfileSchema
 from pydantic import BaseModel  # type: ignore
+from datetime import datetime, timedelta
 import uuid
 
-router = APIRouter(prefix="/influencer", tags=["Influencer"])
+router = APIRouter(
+    prefix="/influencer",
+    tags=["Influencer"]
+)
 
 
 def get_db():
@@ -19,7 +23,7 @@ def get_db():
 
 
 # =========================
-# Schemas
+# SCHEMAS
 # =========================
 
 class ApplyCampaign(BaseModel):
@@ -32,7 +36,7 @@ class SubmitLink(BaseModel):
 
 
 # =========================
-# Get Available Campaigns
+# AVAILABLE CAMPAIGNS
 # =========================
 
 @router.get("/campaigns")
@@ -40,7 +44,7 @@ def get_available_campaigns(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
-    # ✅ Only campaigns NOT assigned to anyone
+
     campaigns = db.query(Campaign).filter(
         Campaign.influencer_id == None
     ).all()
@@ -63,7 +67,7 @@ def get_available_campaigns(
 
 
 # =========================
-# Apply Campaign
+# APPLY CAMPAIGN
 # =========================
 
 @router.post("/apply")
@@ -72,22 +76,37 @@ def apply_campaign(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
-    campaign = db.query(Campaign).filter(Campaign.id == data.campaign_id).first()
+
+    campaign = db.query(Campaign).filter(
+        Campaign.id == data.campaign_id
+    ).first()
 
     if not campaign:
-        raise HTTPException(404, "Campaign not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Campaign not found"
+        )
 
     if campaign.influencer_id:
-        raise HTTPException(400, "Already assigned")
+        raise HTTPException(
+            status_code=400,
+            detail="Already assigned"
+        )
 
     campaign.influencer_id = user["sub"]
     campaign.status = "applied"
 
-    influencer_user = db.query(User).filter(User.id == user["sub"]).first()
+    influencer_user = db.query(User).filter(
+        User.id == user["sub"]
+    ).first()
 
     new_response = Response(
         campaign_id=campaign.id,
-        influencer_name=influencer_user.full_name if influencer_user else "Unknown",
+        influencer_name=(
+            influencer_user.full_name
+            if influencer_user
+            else "Unknown"
+        ),
         platforms=campaign.platforms,
         campaign_name=campaign.campaign_name,
         deliverables=campaign.description or "No deliverables",
@@ -99,11 +118,13 @@ def apply_campaign(
     db.add(new_response)
     db.commit()
 
-    return {"message": "Applied successfully"}
+    return {
+        "message": "Applied successfully"
+    }
 
 
 # =========================
-# My Campaigns (ONLY USER DATA)
+# MY CAMPAIGNS
 # =========================
 
 @router.get("/my-campaigns")
@@ -111,6 +132,7 @@ def my_campaigns(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
+
     campaigns = db.query(Campaign).filter(
         Campaign.influencer_id == user["sub"]
     ).all()
@@ -134,7 +156,7 @@ def my_campaigns(
 
 
 # =========================
-# Submit Post Links
+# SUBMIT LINKS
 # =========================
 
 @router.patch("/submit/{id}")
@@ -144,13 +166,17 @@ def submit_link(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
+
     campaign = db.query(Campaign).filter(
         Campaign.id == id,
         Campaign.influencer_id == user["sub"]
     ).first()
 
     if not campaign:
-        raise HTTPException(404, "Campaign not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Campaign not found"
+        )
 
     campaign.post_url = {
         "instagram": data.instagram_url,
@@ -161,11 +187,13 @@ def submit_link(
 
     db.commit()
 
-    return {"message": "Link submitted successfully"}
+    return {
+        "message": "Link submitted successfully"
+    }
 
 
 # =========================
-# Earnings
+# EARNINGS
 # =========================
 
 @router.get("/earnings")
@@ -173,15 +201,30 @@ def get_earnings(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
+
     campaigns = db.query(Campaign).filter(
         Campaign.influencer_id == user["sub"]
     ).all()
 
-    completed = [c for c in campaigns if c.status == "completed"]
-    pending = [c for c in campaigns if c.status in ["applied", "accepted"]]
+    completed = [
+        c for c in campaigns
+        if c.status == "completed"
+    ]
 
-    total_earning = sum(float(c.budget or 0) for c in completed)
-    pending_earning = sum(float(c.budget or 0) for c in pending)
+    pending = [
+        c for c in campaigns
+        if c.status in ["applied", "accepted"]
+    ]
+
+    total_earning = sum(
+        float(c.budget or 0)
+        for c in completed
+    )
+
+    pending_earning = sum(
+        float(c.budget or 0)
+        for c in pending
+    )
 
     return {
         "total_earning": total_earning,
@@ -198,21 +241,54 @@ def get_earnings(
             for c in campaigns
         ],
     }
+
+
+# =========================
+# UPDATE PROFILE
+# =========================
+
 @router.put("/update-profile")
 def update_profile(
     data: UpdateProfileSchema,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user=Depends(get_current_user)
 ):
-    user = db.query(User).filter(User.id == current_user["sub"]).first()
+
+    user = db.query(User).filter(
+        User.id == current_user["sub"]
+    ).first()
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    if user.last_profile_update:
+
+        next_update_date = (
+            user.last_profile_update +
+            timedelta(days=15)
+        )
+
+        if datetime.utcnow() < next_update_date:
+
+            remaining_days = (
+                next_update_date -
+                datetime.utcnow()
+            ).days
+
+            raise HTTPException(
+                status_code=400,
+                detail=f"You can update profile after {remaining_days} days"
+            )
 
     user.full_name = data.full_name
     user.email = data.email
     user.profile_img = data.profile_img
     user.upi_id = data.upi_id
+
+    user.last_profile_update = datetime.utcnow()
 
     db.commit()
     db.refresh(user)

@@ -75,4 +75,18 @@ export const api = {
 
     return res.json();
   },
+
+  put: async (url: string, body: any) => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${BASE_URL}${url}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body,
+  });
+
+  return res.json();
+},
 };
