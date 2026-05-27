@@ -18,8 +18,7 @@ export default function InfluencerDashboard() {
 }
 
 function DashboardContent() {
-  const { campaigns, fetchCampaigns } = useCampaignStore() as {
-    campaigns: any[];
+  const { fetchCampaigns } = useCampaignStore() as {
     fetchCampaigns: () => void;
   };
 
@@ -29,66 +28,67 @@ function DashboardContent() {
     fetchCampaigns();
 
     const fetchUser = async () => {
-      const token = localStorage.getItem("token");
+      try {
+        const token = localStorage.getItem("token");
 
-      const res = await fetch("http://127.0.0.1:8000/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        const res = await fetch("http://127.0.0.1:8000/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      const data = await res.json();
-      setFullName(data.full_name);
+        const data = await res.json();
+
+        setFullName(data.full_name || "Influencer");
+      } catch (error) {
+        console.error("Failed to fetch user", error);
+      }
     };
 
     fetchUser();
   }, []);
 
-  const active = campaigns.filter((c: any) => c.status === "accepted");
-  const applied = campaigns.filter((c: any) => c.status === "applied");
-
   return (
     <div className="space-y-8">
-      {/* 🔥 HEADER */}
-      <h1 className="text-3xl font-bold text-gray-900">
-        Welcome, {fullName}
-      </h1>
+      {/* HEADER */}
+      <div className="bg-gradient-to-r  text-black">
 
-      <p className="mt-2 text-sm text-gray-600">
-        Manage your campaigns and track your performance in one place.
-      </p>
-
-      {/* 🔥 STATS CARDS */}
-      <StatsCards />
-
-      {/* 🔥 QUICK SUMMARY */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition">
-          <p className="text-sm text-gray-500">Active Campaigns</p>
-          <h2 className="text-3xl font-bold text-green-600 mt-2">
-            {active.length}
-          </h2>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition">
-          <p className="text-sm text-gray-500">Applied Campaigns</p>
-          <h2 className="text-3xl font-bold text-blue-600 mt-2">
-            {applied.length}
-          </h2>
-        </div>
+        <p className="mt-3 text-back">
+          Manage collaborations, track earnings, and grow your influencer career.
+        </p>
       </div>
 
-      {/* 🔥 CAMPAIGN SECTIONS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl shadow p-5">
-          <h3 className="text-lg font-semibold mb-4">Available Campaigns</h3>
-          <AvailableCampaigns />
+      {/* STATS */}
+      <StatsCards />
+
+      {/* AVAILABLE CAMPAIGNS */}
+      <div className="bg-white rounded-3xl shadow-sm border p-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Available Campaigns
+          </h2>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Discover campaigns that match your audience and niche.
+          </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow p-5">
-          <h3 className="text-lg font-semibold mb-4">Active Campaigns</h3>
-          <ActiveCampaigns />
+        <AvailableCampaigns />
+      </div>
+
+      {/* ACTIVE CAMPAIGNS */}
+      <div className="bg-white rounded-3xl shadow-sm border p-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">
+            My Active Campaigns
+          </h2>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Monitor your accepted and ongoing brand collaborations.
+          </p>
         </div>
+
+        <ActiveCampaigns />
       </div>
     </div>
   );

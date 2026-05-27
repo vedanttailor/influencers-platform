@@ -15,7 +15,7 @@ import {
 const items: { href: string; icon: typeof LayoutDashboard; label: string }[] = [
   { href: "/client/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/client/campaigns", icon: Megaphone, label: "Campaigns" },
-  { href: "/client/create-campaign", icon: PlusCircle, label: "Create Campaign" },
+  // { href: "/client/create-campaign", icon: PlusCircle, label: "Create Campaign" },
   { href: "/client/influencer-response", icon: Reply, label: "Influencer Response" },
   { href: "/client/reports", icon: PieChart, label: "Reports" },
   { href: "/client/profile", icon: User, label: "Profile" },

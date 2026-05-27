@@ -57,8 +57,6 @@ export default function ClientCampaignsPage() {
   const filteredCampaigns =
     filter === "all" ? campaigns : campaigns.filter((c) => c.status === filter);
 
-
-
   // ✅ DELETE
   const deleteCampaign = async (id: string) => {
     if (!confirm("Are you sure you want to delete this campaign?")) return;
@@ -163,6 +161,13 @@ export default function ClientCampaignsPage() {
             </div>
 
             <div className="flex justify-end gap-3 mt-4">
+              <Link
+                href={`/client/edit-campaign/${campaign.id}`}
+                className="text-sm px-4 py-1 border border-blue-400 text-blue-600 rounded-lg"
+              >
+                Edit
+              </Link>
+
               <Link
                 href={`/client/campaigns/${campaign.id}`}
                 className="text-sm px-4 py-1 border rounded-lg"

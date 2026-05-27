@@ -68,19 +68,29 @@ export default function ProfilePage() {
         imageUrl = data.image_url;
       }
 
-      await fetch("http://127.0.0.1:8000/influencer/update-profile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      const res = await fetch(
+        "http://127.0.0.1:8000/influencer/update-profile",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            full_name: form.full_name,
+            email: form.email,
+            upi_id: form.upi_id,
+            profile_img: imageUrl,
+          }),
         },
-        body: JSON.stringify({
-          full_name: form.full_name,
-          email: form.email,
-          upi_id: form.upi_id,
-          profile_img: imageUrl,
-        }),
-      });
+      );
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        toast.error(result.detail || "Update failed");
+        return;
+      }
 
       setUser({
         ...user,
