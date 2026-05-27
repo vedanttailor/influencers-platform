@@ -6,6 +6,7 @@ from app.auth.dependencies import get_current_user
 from app.auth.schemas import UpdateProfileSchema
 from pydantic import BaseModel  # type: ignore
 from datetime import datetime, timedelta
+from typing import List, Optional
 import uuid
 
 router = APIRouter(
@@ -30,9 +31,10 @@ class ApplyCampaign(BaseModel):
     campaign_id: uuid.UUID
 
 
+
 class SubmitLink(BaseModel):
-    instagram_url: str | None = None
-    youtube_url: str | None = None
+    instagram_url: Optional[List[str]] = []
+    youtube_url: Optional[List[str]] = []
 
 
 # =========================
@@ -178,20 +180,52 @@ def submit_link(
             detail="Campaign not found"
         )
 
+    # =========================
+    # INSTAGRAM LINKS
+    # =========================
+
+    instagram_links = []
+
+    if data.instagram_url:
+
+        instagram_links = [
+            link.strip()
+            for link in data.instagram_url.split(",")
+            if link.strip()
+        ]
+
+    # =========================
+    # YOUTUBE LINKS
+    # =========================
+
+    youtube_links = []
+
+    if data.youtube_url:
+
+        youtube_links = [
+            link.strip()
+            for link in data.youtube_url.split(",")
+            if link.strip()
+        ]
+
+    # =========================
+    # SAVE JSON DATA
+    # =========================
+
     campaign.post_url = {
-        "instagram": data.instagram_url,
-        "youtube": data.youtube_url
-    }
+    "instagram": data.instagram_url or [],
+    "youtube": data.youtube_url or []
+}
 
     campaign.status = "completed"
 
     db.commit()
+    db.refresh(campaign)
 
     return {
-        "message": "Link submitted successfully"
+        "message": "Links submitted successfully",
+        "post_url": campaign.post_url
     }
-
-
 # =========================
 # EARNINGS
 # =========================
