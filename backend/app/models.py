@@ -34,6 +34,7 @@ class User(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     last_login = Column(DateTime)
+    last_profile_update = Column(DateTime, nullable=True)
 
 
 class ResetToken(Base):

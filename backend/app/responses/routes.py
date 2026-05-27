@@ -20,50 +20,71 @@ def get_db():
 
 # GET RESPONSES
 @router.get("/responses")
-def get_responses(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    responses = db.query(Response).filter(Response.client_id == user["sub"]).all()
+def get_responses(
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+
+    # NEWEST RESPONSES FIRST
+    responses = db.query(Response).filter(
+        Response.client_id == user["sub"]
+    ).order_by(Response.id.desc()).all()
 
     result = []
+
     for r in responses:
+
         campaign = db.query(Campaign).filter(
-        Campaign.id == r.campaign_id   
+            Campaign.id == r.campaign_id
         ).first()
+
         item = {
             "id": r.id,
             "influencer": r.influencer_name,
             "platforms": r.platforms,
             "campaign": r.campaign_name,
-            "deliverables": r.deliverables,
             "price": r.price,
             "status": r.status,
             "campaign_status": "pending",
             "post_url": None,
-            "influencer_email": None,
-            "influencer_phone": None,
-            "profile_url": None,
+            "influencer_email": "",
+            "influencer_phone": "",
+            "profile_url": "",
             "followers_count": None
         }
 
         if campaign:
+
             item["campaign_status"] = campaign.status
             item["post_url"] = campaign.post_url
-            
+
             if campaign.influencer_id:
-                influencer_user = db.query(User).filter(User.id == campaign.influencer_id).first()
+
+                influencer_user = db.query(User).filter(
+                    User.id == campaign.influencer_id
+                ).first()
+
                 if influencer_user:
                     item["influencer_email"] = influencer_user.email
                     item["influencer_phone"] = influencer_user.phone
-                
-                influencer_profile = db.query(Influencer).filter(Influencer.user_id == campaign.influencer_id).first()
+
+                influencer_profile = db.query(Influencer).filter(
+                    Influencer.user_id == campaign.influencer_id
+                ).first()
+
                 if influencer_profile and influencer_profile.profile:
-                    item["profile_url"] = influencer_profile.profile.get("profile_url")
-                    item["followers_count"] = influencer_profile.profile.get("followers_count")
+
+                    item["profile_url"] = influencer_profile.profile.get(
+                        "profile_url"
+                    )
+
+                    item["followers_count"] = influencer_profile.profile.get(
+                        "followers_count"
+                    )
 
         result.append(item)
 
     return result
-
-
 class StatusUpdate(BaseModel):
     status: str
 
