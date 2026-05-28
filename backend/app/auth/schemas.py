@@ -31,3 +31,5 @@ class UpdateProfileSchema(BaseModel):
     email: EmailStr
     profile_img: Optional[str] = None
     upi_id: Optional[str] = None
+    instagram_url: Optional[str] = None
+    youtube_url: Optional[str] = None

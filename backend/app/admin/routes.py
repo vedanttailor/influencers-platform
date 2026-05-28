@@ -137,61 +137,96 @@ def get_admin_clients(db: Session = Depends(get_db), user=Depends(require_role("
 
 @router.get("/influencers")
 def get_admin_influencers(
-    db: Session = Depends(get_db), user=Depends(require_role("admin"))
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin"))
 ):
+
     users = (
         db.query(User)
         .filter(User.role == UserRole.influencer)
-        .filter(User.is_deleted == None)  # noqa: E711
+        .filter(User.is_deleted == None)
         .order_by(User.created_at.desc())
         .all()
     )
 
     items = []
+
     for user_row in users:
+
         influencer_profile = (
-            db.query(Influencer).filter(Influencer.user_id == user_row.id).first()
+            db.query(Influencer)
+            .filter(Influencer.user_id == user_row.id)
+            .first()
         )
-        profile = (
-            influencer_profile.profile
-            if influencer_profile and isinstance(influencer_profile.profile, dict)
-            else {}
-        )
-        followers = int(profile.get("followers_count") or 0)
-        engagement = float(profile.get("engagement_rate") or 0)
-        platforms = profile.get("platforms") or []
-        if not isinstance(platforms, list):
-            platforms = []
+
+        platforms = []
+
+        if user_row.instagram_url:
+            platforms.append("Instagram")
+
+        if user_row.youtube_url:
+            platforms.append("YouTube")
 
         active_campaigns = (
             db.query(Campaign)
-            .filter(Campaign.influencer_id == user_row.id, Campaign.status == "active")
+            .filter(
+                Campaign.influencer_id == user_row.id,
+                Campaign.status == "active"
+            )
             .count()
         )
 
-        items.append(
-            {
-                "id": (
-                    str(influencer_profile.id)
-                    if influencer_profile
-                    else str(user_row.id)
-                ),
-                "user_id": str(user_row.id),
-                "name": (
-                    influencer_profile.name
-                    if influencer_profile and influencer_profile.name
-                    else user_row.full_name
-                ),
-                "email": user_row.email,
-                "category": influencer_profile.category if influencer_profile else None,
-                "status": user_row.status,
-                "followers": followers,
-                "engagement_rate": engagement,
-                "platforms": platforms,
-                "active_campaigns": active_campaigns,
-                "created_at": user_row.created_at,
-            }
-        )
+        items.append({
+
+            "id": (
+                str(influencer_profile.id)
+                if influencer_profile
+                else str(user_row.id)
+            ),
+
+            "user_id": str(user_row.id),
+
+            "name": (
+                influencer_profile.name
+                if influencer_profile and influencer_profile.name
+                else user_row.full_name
+            ),
+
+            "email": user_row.email,
+
+            "category": (
+                influencer_profile.category
+                if influencer_profile
+                else None
+            ),
+
+            "status": user_row.status,
+
+            # DYNAMIC DATA FROM USER TABLE
+            "followers": user_row.followers_count or 0,
+
+            "engagement_rate": (
+                user_row.engagement_rate or 0
+            ),
+
+            "youtube_subscribers": (
+                user_row.youtube_subscribers or 0
+            ),
+
+            "youtube_views": (
+                user_row.youtube_views or 0
+            ),
+
+            "youtube_videos": (
+                user_row.youtube_videos or 0
+            ),
+
+            "platforms": platforms,
+
+            "active_campaigns": active_campaigns,
+
+            "created_at": user_row.created_at,
+        })
 
     return items
 
