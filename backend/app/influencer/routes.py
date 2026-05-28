@@ -203,7 +203,6 @@ def submit_link(
         "post_url": campaign.post_url
     }
 
-
 @router.get("/earnings")
 def get_earnings(
     db: Session = Depends(get_db),
@@ -287,7 +286,6 @@ def update_profile(
                 status_code=400,
                 detail=f"You can update profile after {remaining_days} days"
             )
-
 
     user.full_name = data.full_name
 

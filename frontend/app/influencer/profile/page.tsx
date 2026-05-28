@@ -104,12 +104,10 @@ export default function ProfilePage() {
         "http://127.0.0.1:8000/influencer/update-profile",
         {
           method: "PUT",
-
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-
           body: JSON.stringify({
             full_name: form.full_name,
             email: form.email,
