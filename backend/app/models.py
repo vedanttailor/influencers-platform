@@ -35,6 +35,26 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     last_login = Column(DateTime)
     last_profile_update = Column(DateTime, nullable=True)
+    
+    instagram_url = Column(String, nullable=True)
+
+    youtube_url = Column(String, nullable=True)
+    instagram_username = Column(String, nullable=True)
+
+    youtube_channel_id = Column(String, nullable=True)
+
+    youtube_channel_name = Column(String, nullable=True)
+
+    followers_count = Column(Integer, default=0)
+
+    engagement_rate = Column(Float, default=0)
+
+    youtube_subscribers = Column(Integer, default=0)
+
+    youtube_views = Column(Integer, default=0)
+
+    youtube_videos = Column(Integer, default=0)
+
 
 
 class ResetToken(Base):

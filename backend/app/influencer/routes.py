@@ -8,6 +8,11 @@ from pydantic import BaseModel  # type: ignore
 from datetime import datetime, timedelta
 from typing import List, Optional
 import uuid
+import requests
+import os
+import instaloader
+
+
 
 router = APIRouter(
     prefix="/influencer",
@@ -23,10 +28,6 @@ def get_db():
         db.close()
 
 
-# =========================
-# SCHEMAS
-# =========================
-
 class ApplyCampaign(BaseModel):
     campaign_id: uuid.UUID
 
@@ -37,9 +38,6 @@ class SubmitLink(BaseModel):
     youtube_url: Optional[List[str]] = []
 
 
-# =========================
-# AVAILABLE CAMPAIGNS
-# =========================
 
 @router.get("/campaigns")
 def get_available_campaigns(
@@ -67,10 +65,6 @@ def get_available_campaigns(
         for c in campaigns
     ]
 
-
-# =========================
-# APPLY CAMPAIGN
-# =========================
 
 @router.post("/apply")
 def apply_campaign(
@@ -125,9 +119,6 @@ def apply_campaign(
     }
 
 
-# =========================
-# MY CAMPAIGNS
-# =========================
 
 @router.get("/my-campaigns")
 def my_campaigns(
@@ -157,10 +148,6 @@ def my_campaigns(
     ]
 
 
-# =========================
-# SUBMIT LINKS
-# =========================
-
 @router.patch("/submit/{id}")
 def submit_link(
     id: uuid.UUID,
@@ -180,9 +167,6 @@ def submit_link(
             detail="Campaign not found"
         )
 
-    # =========================
-    # INSTAGRAM LINKS
-    # =========================
 
     instagram_links = []
 
@@ -194,10 +178,6 @@ def submit_link(
             if link.strip()
         ]
 
-    # =========================
-    # YOUTUBE LINKS
-    # =========================
-
     youtube_links = []
 
     if data.youtube_url:
@@ -207,10 +187,6 @@ def submit_link(
             for link in data.youtube_url.split(",")
             if link.strip()
         ]
-
-    # =========================
-    # SAVE JSON DATA
-    # =========================
 
     campaign.post_url = {
     "instagram": data.instagram_url or [],
@@ -226,9 +202,7 @@ def submit_link(
         "message": "Links submitted successfully",
         "post_url": campaign.post_url
     }
-# =========================
-# EARNINGS
-# =========================
+
 
 @router.get("/earnings")
 def get_earnings(
@@ -276,11 +250,6 @@ def get_earnings(
         ],
     }
 
-
-# =========================
-# UPDATE PROFILE
-# =========================
-
 @router.put("/update-profile")
 def update_profile(
     data: UpdateProfileSchema,
@@ -298,6 +267,9 @@ def update_profile(
             detail="User not found"
         )
 
+
+    now = datetime.utcnow()
+
     if user.last_profile_update:
 
         next_update_date = (
@@ -305,11 +277,10 @@ def update_profile(
             timedelta(days=15)
         )
 
-        if datetime.utcnow() < next_update_date:
+        if now < next_update_date:
 
             remaining_days = (
-                next_update_date -
-                datetime.utcnow()
+                next_update_date - now
             ).days
 
             raise HTTPException(
@@ -317,23 +288,220 @@ def update_profile(
                 detail=f"You can update profile after {remaining_days} days"
             )
 
+
     user.full_name = data.full_name
+
     user.email = data.email
+
     user.profile_img = data.profile_img
+
     user.upi_id = data.upi_id
 
-    user.last_profile_update = datetime.utcnow()
+
+    user.instagram_url = data.instagram_url
+
+    user.youtube_url = data.youtube_url
+
+    user.last_profile_update = now
 
     db.commit()
+
+    db.refresh(user)
+
+
+    return {
+
+        "message":
+            "Profile updated successfully",
+
+        "user": {
+
+            "id":
+                str(user.id),
+
+            "full_name":
+                user.full_name,
+
+            "email":
+                user.email,
+
+            "upi_id":
+                user.upi_id,
+
+            "profile_img":
+                user.profile_img,
+
+            "instagram_url":
+                user.instagram_url,
+
+            "youtube_url":
+                user.youtube_url,
+
+            "last_profile_update":
+                user.last_profile_update
+        }
+    }
+    
+
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
+
+
+@router.post("/sync-social-analytics")
+def sync_social_analytics(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    user = db.query(User).filter(
+        User.id == current_user["sub"]
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+
+    if user.instagram_url:
+
+        instagram_username = (
+            user.instagram_url
+            .rstrip("/")
+            .split("/")[-1]
+            .split("?")[0]
+    )
+
+    user.instagram_username = instagram_username
+
+    # Temporary mock values
+
+    user.followers_count = 5000
+    user.engagement_rate = 4.5
+
+
+    if user.youtube_url:
+
+        youtube_handle = (
+            user.youtube_url
+            .split("@")[-1]
+            .split("?")[0]
+            .replace("/", "")
+        )
+
+        user.youtube_channel_name = youtube_handle
+
+        # SEARCH CHANNEL
+
+        search_url = (
+            "https://www.googleapis.com/youtube/v3/search"
+        )
+
+        search_params = {
+            "part": "snippet",
+            "q": youtube_handle,
+            "type": "channel",
+            "key": YOUTUBE_API_KEY
+        }
+
+        search_response = requests.get(
+            search_url,
+            params=search_params
+        )
+
+        search_data = search_response.json()
+
+        items = search_data.get("items", [])
+
+        if items:
+
+            channel_id = (
+                items[0]["snippet"]["channelId"]
+            )
+
+            user.youtube_channel_id = channel_id
+
+            # GET CHANNEL STATS
+
+            stats_url = (
+                "https://www.googleapis.com/youtube/v3/channels"
+            )
+
+            stats_params = {
+                "part": "statistics,snippet",
+                "id": channel_id,
+                "key": YOUTUBE_API_KEY
+            }
+
+            stats_response = requests.get(
+                stats_url,
+                params=stats_params
+            )
+
+            stats_data = stats_response.json()
+
+            channel_items = stats_data.get(
+                "items",
+                []
+            )
+
+            if channel_items:
+
+                stats = (
+                    channel_items[0]["statistics"]
+                )
+
+                user.youtube_subscribers = int(
+                    stats.get(
+                        "subscriberCount",
+                        0
+                    )
+                )
+
+                user.youtube_views = int(
+                    stats.get(
+                        "viewCount",
+                        0
+                    )
+                )
+
+                user.youtube_videos = int(
+                    stats.get(
+                        "videoCount",
+                        0
+                    )
+                )
+
+    db.commit()
+
     db.refresh(user)
 
     return {
-        "message": "Profile updated successfully",
-        "user": {
-            "id": str(user.id),
-            "full_name": user.full_name,
-            "email": user.email,
-            "upi_id": user.upi_id,
-            "profile_img": user.profile_img
+
+        "message":
+            "Social analytics synced",
+
+        "data": {
+
+            "instagram_username":
+                user.instagram_username,
+
+            "youtube_channel_name":
+                user.youtube_channel_name,
+
+            "followers_count":
+                user.followers_count,
+
+            "engagement_rate":
+                user.engagement_rate,
+
+            "youtube_subscribers":
+                user.youtube_subscribers,
+
+            "youtube_views":
+                user.youtube_views,
+
+            "youtube_videos":
+                user.youtube_videos
         }
     }
