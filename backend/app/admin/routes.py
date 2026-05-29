@@ -4,7 +4,7 @@ from pydantic import BaseModel, EmailStr  # type: ignore
 from typing import Optional
 from sqlalchemy import func # type: ignore
 from app.models import Payment, Payout
-
+from app.auth.service import send_welcome_email
 from app.database import SessionLocal
 from app.models import User, Influencer, Client, Campaign, Manager, UserRole
 from app.auth.permissions import require_role
@@ -279,6 +279,7 @@ def create_manager(
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    send_welcome_email(new_user)
 
     manager = Manager(
         user_id=new_user.id,

@@ -1,16 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException  # type: ignore
 from sqlalchemy.orm import Session  # type: ignore
 from app.database import SessionLocal
-from app.models import Campaign, Response, User
+from app.models import Campaign, Response, User, UserRole
 from app.auth.dependencies import get_current_user
 from app.auth.schemas import UpdateProfileSchema
 from pydantic import BaseModel  # type: ignore
 from datetime import datetime, timedelta
 from typing import List, Optional
+from app.helpers.notification import create_notification # type: ignore
 import uuid
 import requests
 import os
-import instaloader
+import instaloader # type: ignore
 
 
 
@@ -167,14 +168,13 @@ def submit_link(
             detail="Campaign not found"
         )
 
-
     instagram_links = []
 
     if data.instagram_url:
 
         instagram_links = [
             link.strip()
-            for link in data.instagram_url.split(",")
+            for link in data.instagram_url
             if link.strip()
         ]
 
@@ -184,16 +184,55 @@ def submit_link(
 
         youtube_links = [
             link.strip()
-            for link in data.youtube_url.split(",")
+            for link in data.youtube_url
             if link.strip()
         ]
 
     campaign.post_url = {
-    "instagram": data.instagram_url or [],
-    "youtube": data.youtube_url or []
-}
+        "instagram": instagram_links,
+        "youtube": youtube_links
+    }
 
     campaign.status = "completed"
+
+    client = db.query(User).filter(
+        User.id == campaign.client_id
+    ).first()
+
+    if client:
+
+        create_notification(
+            db,
+            client.id,
+            "Campaign Completed",
+            f"Influencer completed {campaign.campaign_name}"
+        )
+
+    admins = db.query(User).filter(
+        User.role == UserRole.admin
+    ).all()
+
+    for admin in admins:
+
+        create_notification(
+            db,
+            admin.id,
+            "Campaign Completed",
+            f"Influencer completed {campaign.campaign_name}"
+        )
+
+    managers = db.query(User).filter(
+        User.role == UserRole.manager
+    ).all()
+
+    for manager in managers:
+
+        create_notification(
+            db,
+            manager.id,
+            "Campaign Completed",
+            f"Influencer completed {campaign.campaign_name}"
+        )
 
     db.commit()
     db.refresh(campaign)
@@ -202,7 +241,6 @@ def submit_link(
         "message": "Links submitted successfully",
         "post_url": campaign.post_url
     }
-
 @router.get("/earnings")
 def get_earnings(
     db: Session = Depends(get_db),

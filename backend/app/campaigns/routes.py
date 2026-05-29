@@ -1,7 +1,8 @@
+from app.helpers.notification import create_notification # type: ignore
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form  # type: ignore
 from sqlalchemy.orm import Session  # type: ignore
 from app.database import SessionLocal
-from app.models import Campaign, Payment, User
+from app.models import Campaign, Payment, User, UserRole
 from app.auth.dependencies import get_current_user
 from pydantic import BaseModel  # type: ignore
 from typing import List
@@ -99,7 +100,53 @@ async def create_campaign(
     db.commit()
     db.refresh(campaign)
 
-    return campaign
+
+    admins = db.query(User).filter(
+        User.role == UserRole.admin
+    ).all()
+
+    managers = db.query(User).filter(
+        User.role == UserRole.manager
+    ).all()
+
+    influencers = db.query(User).filter(
+        User.role == UserRole.influencer
+    ).all()
+
+    # Notify Admins
+    for admin in admins:
+
+        create_notification(
+            db,
+            admin.id,
+            "New Campaign",
+            f"{campaign.campaign_name} campaign created"
+        )
+
+    # Notify Managers
+    for manager in managers:
+
+        create_notification(
+            db,
+            manager.id,
+            "New Campaign",
+            f"{campaign.campaign_name} campaign created"
+        )
+
+    # Notify Influencers
+    for influencer in influencers:
+
+        create_notification(
+            db,
+            influencer.id,
+            "New Campaign Available",
+            f"New campaign {campaign.campaign_name} is available"
+        )
+
+    return {
+        "message": "Campaign created successfully",
+        "campaign_id": str(campaign.id)
+    }
 
 
 # =========================

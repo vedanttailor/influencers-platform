@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, Enum, Text, Numeric, ARRAY # type: ignore
+from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, Enum, Text, Numeric, Boolean, ForeignKey, ARRAY # type: ignore
 from sqlalchemy.sql import func # type: ignore
 from sqlalchemy.dialects.postgresql import UUID, JSONB # type: ignore
 import uuid
@@ -271,6 +271,29 @@ class Payout(Base):
         String,
         default="pending"
     )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+    
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id")
+    )
+
+    title = Column(String)
+
+    message = Column(String)
+
+    type = Column(String)
+
+    is_read = Column(Boolean, default=False)
 
     created_at = Column(
         DateTime,

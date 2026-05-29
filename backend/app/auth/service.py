@@ -1,10 +1,10 @@
 import random
 from datetime import datetime, timedelta
 from app.core.security import hash_password
+from app.utils import send_email
 from fastapi import HTTPException  # type: ignore
 from sqlalchemy.orm import Session  # type: ignore
 from app.models import User, ResetToken
-from app.utils import send_email
 
 
 def forgot_password(email: str, db: Session):
@@ -74,3 +74,41 @@ def reset_password(email: str, code: str, new_password: str, db: Session):
     db.commit()
 
     return {"message": "Password updated successfully"}
+
+def send_welcome_email(user):
+
+    send_email(
+        to=user.email,
+
+        subject="🎉 Welcome to Influencer CRM",
+
+        body=f"""
+           Hello {user.full_name},
+
+            Welcome to Influencer CRM 
+
+            We’re excited to have you join our platform.
+
+            Your account has been successfully created, and you can now access powerful tools to manage 
+            campaigns, collaborate with influencers and brands, track performance, and monitor payments
+            seamlessly.
+            
+            Your account has been created successfully and is currently pending admin approval.
+            
+            Here’s what you can do next:
+
+            Complete your profile
+            Explore campaigns
+            Connect with brands and influencers
+            Track analytics and engagement
+            Manage payouts and performance
+
+            If you ever need assistance, our support team is always here to help.
+
+            Thank you for being part of Influencer CRM.
+
+            Best regards,
+            Influencer CRM Team
+
+            """
+    )

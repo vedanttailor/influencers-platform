@@ -13,6 +13,7 @@ from app.core.cloudinary import cloudinary
 from app.payment.routes import router as payment_router
 from app.payout.routes import router as payout_router
 from app.youtube.routes import router as youtube_router
+from app.notification.routes import router as notification_router
 
 
 
@@ -26,6 +27,7 @@ app.include_router(influencer_router)
 app.include_router(admin_router)
 app.include_router(manager_router)
 app.include_router(youtube_router)
+app.include_router(notification_router)
 app.include_router(
     payment_router,
     prefix="/payment",

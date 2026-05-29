@@ -1,5 +1,5 @@
 from app.auth.schemas import ForgotPasswordSchema, ResetPasswordSchema
-from app.auth.service import forgot_password, reset_password
+from app.auth.service import forgot_password, reset_password, send_welcome_email
 from app.auth.dependencies import get_current_user
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile  # type: ignore
 from sqlalchemy.orm import Session  # type: ignore
@@ -34,9 +34,30 @@ def get_db():
 
 @router.post("/signup")
 def signup(data: SignupSchema, db: Session = Depends(get_db)):
-    if get_user_by_email(db, data.email):
-        raise HTTPException(400, "Email already exists")
 
+    # CHECK EMAIL
+    existing_email = db.query(User).filter(
+        User.email == data.email
+    ).first()
+
+    if existing_email:
+        raise HTTPException(
+            status_code=400,
+            detail="This email is already in use"
+        )
+
+    # CHECK PHONE
+    existing_phone = db.query(User).filter(
+        User.phone == data.phone
+    ).first()
+
+    if existing_phone:
+        raise HTTPException(
+            status_code=400,
+            detail="This phone number is already in use"
+        )
+
+    # CREATE USER
     user = User(
         full_name=data.full_name,
         email=data.email,
@@ -44,23 +65,23 @@ def signup(data: SignupSchema, db: Session = Depends(get_db)):
         role=data.role,
         phone=data.phone,
         profile_img=data.profile_img,
-        status="pending"  # 🔥 NEW USERS NEED APPROVAL
+        status="pending"
     )
 
     db.add(user)
     db.commit()
     db.refresh(user)
+    
+    send_welcome_email(user)
 
     token = create_token(user.id, user.role)
 
     return {
         "message": "Signup successful. Waiting for admin approval.",
-        "data": {
-            "token": token,
-            "role": user.role
-        }
+        "token": token,
+        "role": user.role
     }
-
+    
 @router.post("/login")
 def login(data: LoginSchema, db: Session = Depends(get_db)):
     user = get_user_by_email(db, data.email)
@@ -182,10 +203,37 @@ def get_influencer(id: str, db: Session = Depends(get_db)):
 
 @router.post("/upload-profile-image")
 def upload_profile_image(file: UploadFile = File(...)):
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(400, "Only image files allowed")
+
+    # ALLOWED IMAGE TYPES
+    allowed_types = [
+        "image/png",
+        "image/jpeg",
+        "image/jpg"
+    ]
+
+    # CHECK FILE TYPE
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail="Only PNG, JPG and JPEG images are allowed"
+        )
+
+    # CHECK FILE SIZE (2MB)
+    contents = file.file.read()
+
+    max_size = 2 * 1024 * 1024  # 2MB
+
+    if len(contents) > max_size:
+        raise HTTPException(
+            status_code=400,
+            detail="Image size must be less than 2MB"
+        )
 
     try:
+        # RESET POINTER
+        file.file.seek(0)
+
+        # UPLOAD TO CLOUDINARY
         result = cloudinary.uploader.upload(file.file)
 
         return {
@@ -193,4 +241,7 @@ def upload_profile_image(file: UploadFile = File(...)):
         }
 
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
