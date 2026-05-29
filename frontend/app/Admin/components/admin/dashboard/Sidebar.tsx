@@ -8,7 +8,6 @@ import {
   Users,
   Activity,
   Briefcase,
-  User,
 } from "lucide-react";
 
 const menu = [
@@ -16,7 +15,7 @@ const menu = [
   { name: "Clients", path: "/Admin/client", icon: Users },
   { name: "Influencers", path: "/Admin/influencers", icon: Activity },
   { name: "Manager", path: "/Admin/manager", icon: Briefcase },
-  { name: "Profile", path: "/Admin/profile", icon: User },
+
 ];
 
 export default function Sidebar() {

@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   Megaphone,
   IndianRupee,
-  User,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -41,12 +40,6 @@ export default function Sidebar() {
           active={pathname === "/Influencer/earnings"}
         />
 
-        <SidebarItem
-          href="/Influencer/profile"
-          icon={<User size={18} />}
-          label="Profile"
-          active={pathname === "/Influencer/profile"}
-        />
       </nav>
     </aside>
   );

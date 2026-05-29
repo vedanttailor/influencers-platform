@@ -1,14 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- "use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Megaphone,
-  PlusCircle,
   Reply,
-  User,
   PieChart,
 } from "lucide-react";
 
@@ -18,7 +15,6 @@ const items: { href: string; icon: typeof LayoutDashboard; label: string }[] = [
   // { href: "/client/create-campaign", icon: PlusCircle, label: "Create Campaign" },
   { href: "/client/influencer-response", icon: Reply, label: "Influencer Response" },
   { href: "/client/reports", icon: PieChart, label: "Reports" },
-  { href: "/client/profile", icon: User, label: "Profile" },
 ];
 
 export default function Sidebar() {

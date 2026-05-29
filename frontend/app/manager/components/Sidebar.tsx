@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Link from "next/link";
@@ -10,7 +9,6 @@ import {
   Users,
   UserCheck,
   Megaphone,
-  User,
 } from "lucide-react";
 
 const menu = [
@@ -18,7 +16,6 @@ const menu = [
   { name: "Clients", path: "/manager/clients", icon: Users },
   { name: "Influencers", path: "/manager/influencers", icon: UserCheck },
   { name: "Campaigns", path: "/manager/campaigns", icon: Megaphone },
-  { name: "Profile", path: "/manager/profile", icon: User },
 ];
 
 export default function Sidebar() {
