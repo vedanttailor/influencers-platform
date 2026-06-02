@@ -59,7 +59,7 @@ def get_notifications(
     }
 
 
-@router.put("/{notification_id}/read")
+@router.patch("/{notification_id}/read")
 def mark_as_read(
     notification_id: str,
     db: Session = Depends(get_db),
