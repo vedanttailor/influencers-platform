@@ -9,42 +9,185 @@ import {
   PieChart,
 } from "lucide-react";
 
-const items: { href: string; icon: typeof LayoutDashboard; label: string }[] = [
-  { href: "/client/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/client/campaigns", icon: Megaphone, label: "Campaigns" },
-  // { href: "/client/create-campaign", icon: PlusCircle, label: "Create Campaign" },
-  { href: "/client/influencer-response", icon: Reply, label: "Influencer Response" },
-  { href: "/client/reports", icon: PieChart, label: "Reports" },
+const items = [
+  {
+    href: "/client/dashboard",
+    icon: LayoutDashboard,
+    label: "Dashboard",
+  },
+  {
+    href: "/client/campaigns",
+    icon: Megaphone,
+    label: "Campaigns",
+  },
+  {
+    href: "/client/influencer-response",
+    icon: Reply,
+    label: "Responses",
+  },
+  {
+    href: "/client/reports",
+    icon: PieChart,
+    label: "Reports",
+  },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="shell-sidebar flex h-screen w-full flex-col">
-      <div className="border-b border-white/10 px-5 py-6">
-        <p className="sidebar-label">Workspace</p>
-        <p className="sidebar-title">Client</p>
+    <aside
+      className="
+        group
+        fixed
+        left-0
+        top-0
+        z-50
+        flex
+        h-screen
+        w-20
+        hover:w-64
+        flex-col
+        overflow-hidden
+        bg-[#06153A]
+        transition-all
+        duration-300
+        shadow-xl
+      "
+    >
+      {/* HEADER */}
+      <div className="border-b border-white/10 h-20 flex items-center justify-center px-4">
+
+        <LayoutDashboard
+          size={24}
+          className="text-cyan-400 shrink-0"
+        />
+
+        <div
+          className="
+            ml-3
+            whitespace-nowrap
+            opacity-0
+            invisible
+            group-hover:visible
+            group-hover:opacity-100
+            transition-all
+            duration-300
+          "
+        >
+          <p className="text-[10px] uppercase tracking-[3px] text-slate-400">
+            Workspace
+          </p>
+
+          <p className="text-xl font-semibold text-white">
+            Client
+          </p>
+        </div>
       </div>
 
-      <nav className="flex-1 space-y-0.5 px-3 py-4">
+      {/* MENU */}
+      <nav className="flex-1 px-3 py-5 space-y-3">
+
         {items.map(({ href, icon: Icon, label }) => {
+
           const active =
             pathname === href ||
-            (href !== "/client/dashboard" && pathname.startsWith(href));
+            (href !== "/client/dashboard" &&
+              pathname.startsWith(href));
 
           return (
             <Link
               key={href}
               href={href}
-              className={`nav-item ${active ? "nav-item-active" : ""}`}
+              className={`
+                flex
+                items-center
+                h-12
+                rounded-xl
+                px-3
+                transition-all
+                duration-300
+                ${
+                  active
+                    ? "bg-cyan-900/40 text-cyan-400"
+                    : "text-slate-300 hover:bg-slate-800"
+                }
+              `}
             >
-              <Icon className="h-[18px] w-[18px] shrink-0 opacity-90" strokeWidth={2} />
-              <span>{label}</span>
+              <span
+                className="
+                  flex
+                  w-8
+                  justify-center
+                  shrink-0
+                "
+              >
+                <Icon
+                  size={20}
+                  strokeWidth={2}
+                />
+              </span>
+
+              <span
+                className="
+                  ml-4
+                  whitespace-nowrap
+                  opacity-0
+                  invisible
+                  group-hover:visible
+                  group-hover:opacity-100
+                  transition-all
+                  duration-300
+                "
+              >
+                {label}
+              </span>
             </Link>
           );
         })}
       </nav>
+
+      {/* FOOTER */}
+      <div className="border-t border-white/10 p-4">
+
+        <div className="flex items-center justify-center group-hover:justify-start transition-all duration-300">
+
+          <div
+            className="
+              h-10
+              w-10
+              rounded-full
+              bg-slate-900
+              text-white
+              flex
+              items-center
+              justify-center
+              font-semibold
+              shrink-0
+            "
+          >
+            C
+          </div>
+
+          <span
+            className="
+              ml-3
+              text-sm
+              text-white
+              whitespace-nowrap
+              opacity-0
+              invisible
+              group-hover:visible
+              group-hover:opacity-100
+              transition-all
+              duration-300
+            "
+          >
+            Client
+          </span>
+        </div>
+
+      </div>
     </aside>
   );
 }
