@@ -32,17 +32,24 @@ export default function ClientCampaignsPage() {
         const data = await api.get("/campaigns");
 
         const formatted = Array.isArray(data)
-          ? data.map((c: any) => ({
-              id: c.id,
-              name: c.campaign_name,
-              type: c.campaign_type,
-              category: c.campaign_category,
-              startDate: c.start_date,
-              endDate: c.end_date,
-              budget: Number(c.budget),
-              status: c.status,
-              logo: c.logo,
-            }))
+          ? data
+              .map((c: any) => ({
+                id: c.id,
+                name: c.campaign_name,
+                type: c.campaign_type,
+                category: c.campaign_category,
+                startDate: c.start_date,
+                endDate: c.end_date,
+                budget: Number(c.budget),
+                status: c.status,
+                logo: c.logo,
+                createdAt: c.created_at,
+              }))
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime(),
+              )
           : [];
 
         setCampaigns(formatted);

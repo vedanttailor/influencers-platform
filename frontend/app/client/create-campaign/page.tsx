@@ -34,6 +34,14 @@ export default function CreateCampaignForm() {
   const platformList = ["Instagram", "YouTube"];
 
   // =========================
+  // CALCULATE BUDGET AMOUNTS
+  // =========================
+
+  const budgetAmount = Number(formData.budget) || 0;
+  const platformFee = budgetAmount * 0.1; // 10% platform fee
+  const totalPayment = budgetAmount + platformFee;
+
+  // =========================
   // HANDLE INPUT CHANGE
   // =========================
 
@@ -137,8 +145,7 @@ export default function CreateCampaignForm() {
     if (!formData.name.trim()) {
       newErrors.name = "Campaign name is required";
     } else if (formData.name.length < 3) {
-      newErrors.name =
-        "Campaign name must be at least 3 characters";
+      newErrors.name = "Campaign name must be at least 3 characters";
     }
 
     // Brand Name
@@ -153,46 +160,38 @@ export default function CreateCampaignForm() {
 
     // Category
     if (!formData.category) {
-      newErrors.category =
-        "Please select campaign category";
+      newErrors.category = "Please select campaign category";
     }
 
     // Objective
     if (!formData.objective) {
-      newErrors.objective =
-        "Please select campaign objective";
+      newErrors.objective = "Please select campaign objective";
     }
 
     // Company URL
     if (formData.companyUrl) {
-      const urlPattern =
-        /^(https?:\/\/)?([\w\d-]+\.)+\w{2,}(\/.*)?$/;
+      const urlPattern = /^(https?:\/\/)?([\w\d-]+\.)+\w{2,}(\/.*)?$/;
 
       if (!urlPattern.test(formData.companyUrl)) {
-        newErrors.companyUrl =
-          "Enter valid website URL";
+        newErrors.companyUrl = "Enter valid website URL";
       }
     }
 
     // Description
     if (!formData.description.trim()) {
-      newErrors.description =
-        "Description is required";
+      newErrors.description = "Description is required";
     } else if (formData.description.length < 20) {
-      newErrors.description =
-        "Description must be at least 20 characters";
+      newErrors.description = "Description must be at least 20 characters";
     }
 
     // Start Date
     if (!formData.startDate) {
-      newErrors.startDate =
-        "Start date is required";
+      newErrors.startDate = "Start date is required";
     }
 
     // End Date
     if (!formData.endDate) {
-      newErrors.endDate =
-        "End date is required";
+      newErrors.endDate = "End date is required";
     }
 
     // Date Validation
@@ -201,22 +200,19 @@ export default function CreateCampaignForm() {
       formData.endDate &&
       formData.endDate < formData.startDate
     ) {
-      newErrors.endDate =
-        "End date cannot be before start date";
+      newErrors.endDate = "End date cannot be before start date";
     }
 
     // Budget
     if (!formData.budget) {
       newErrors.budget = "Budget is required";
     } else if (Number(formData.budget) < 1000) {
-      newErrors.budget =
-        "Minimum budget is ₹1000";
+      newErrors.budget = "Minimum budget is ₹1000";
     }
 
     // Platforms
     if (platforms.length === 0) {
-      newErrors.platforms =
-        "Please select at least one platform";
+      newErrors.platforms = "Please select at least one platform";
     }
 
     setErrors(newErrors);
@@ -242,10 +238,7 @@ export default function CreateCampaignForm() {
       form.append("brand_name", formData.brand);
       form.append("campaign_type", formData.type);
       form.append("campaign_category", formData.category);
-      form.append(
-        "campaign_objective",
-        formData.objective
-      );
+      form.append("campaign_objective", formData.objective);
       form.append("company_url", formData.companyUrl);
       form.append("description", formData.description);
       form.append("start_date", formData.startDate);
@@ -253,9 +246,7 @@ export default function CreateCampaignForm() {
 
       form.append("budget", String(formData.budget));
 
-      platforms.forEach((p) =>
-        form.append("platforms", p)
-      );
+      platforms.forEach((p) => form.append("platforms", p));
 
       if (logo) {
         form.append("logo", logo);
@@ -263,32 +254,25 @@ export default function CreateCampaignForm() {
 
       const token = localStorage.getItem("token");
 
-      const res = await fetch(
-        "http://127.0.0.1:8000/campaigns",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: form,
-        }
-      );
+      const res = await fetch("http://127.0.0.1:8000/campaigns", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: form,
+      });
 
       if (!res.ok) {
         const err = await res.json();
 
         console.error(err);
 
-        toast.error(
-          err.detail || "Failed to create campaign"
-        );
+        toast.error(err.detail || "Failed to create campaign");
 
         return;
       }
 
-      toast.success(
-        "Campaign created successfully"
-      );
+      toast.success("Campaign created successfully");
 
       handleCancel();
 
@@ -302,14 +286,9 @@ export default function CreateCampaignForm() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-6">
-        Create Campaign
-      </h1>
+      <h1 className="text-2xl font-semibold mb-6">Create Campaign</h1>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-8"
-      >
+      <form onSubmit={handleSubmit} className="space-y-8">
         {/* ========================= */}
         {/* BASIC INFO */}
         {/* ========================= */}
@@ -327,18 +306,10 @@ export default function CreateCampaignForm() {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Campaign Name"
-                className={`input ${
-                  errors.name
-                    ? "border-red-500"
-                    : ""
-                }`}
+                className={`input ${errors.name ? "border-red-500" : ""}`}
               />
 
-              {errors.name && (
-                <p className="error">
-                  {errors.name}
-                </p>
-              )}
+              {errors.name && <p className="error">{errors.name}</p>}
             </div>
 
             {/* Brand */}
@@ -348,18 +319,10 @@ export default function CreateCampaignForm() {
                 value={formData.brand}
                 onChange={handleChange}
                 placeholder="Company / Client Name"
-                className={`input ${
-                  errors.brand
-                    ? "border-red-500"
-                    : ""
-                }`}
+                className={`input ${errors.brand ? "border-red-500" : ""}`}
               />
 
-              {errors.brand && (
-                <p className="error">
-                  {errors.brand}
-                </p>
-              )}
+              {errors.brand && <p className="error">{errors.brand}</p>}
             </div>
 
             {/* Type */}
@@ -368,51 +331,23 @@ export default function CreateCampaignForm() {
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
-                className={`input ${
-                  errors.type
-                    ? "border-red-500"
-                    : ""
-                }`}
+                className={`input ${errors.type ? "border-red-500" : ""}`}
               >
-                <option value="">
-                  Campaign Type
-                </option>
+                <option value="">Campaign Type</option>
 
-                <option>
-                  Product Promotion
-                </option>
-                <option>
-                  Brand Awareness
-                </option>
+                <option>Product Promotion</option>
+                <option>Brand Awareness</option>
                 <option>App Install</option>
-                <option>
-                  Lead Generation
-                </option>
-                <option>
-                  Event Promotion
-                </option>
-                <option>
-                  Giveaway / Contest
-                </option>
-                <option>
-                  Affiliate Marketing
-                </option>
-                <option>
-                  Influencer Collaboration
-                </option>
-                <option>
-                  Content Creation
-                </option>
-                <option>
-                  Seasonal Campaign
-                </option>
+                <option>Lead Generation</option>
+                <option>Event Promotion</option>
+                <option>Giveaway / Contest</option>
+                <option>Affiliate Marketing</option>
+                <option>Influencer Collaboration</option>
+                <option>Content Creation</option>
+                <option>Seasonal Campaign</option>
               </select>
 
-              {errors.type && (
-                <p className="error">
-                  {errors.type}
-                </p>
-              )}
+              {errors.type && <p className="error">{errors.type}</p>}
             </div>
 
             {/* Category */}
@@ -421,51 +356,27 @@ export default function CreateCampaignForm() {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className={`input ${
-                  errors.category
-                    ? "border-red-500"
-                    : ""
-                }`}
+                className={`input ${errors.category ? "border-red-500" : ""}`}
               >
-                <option value="">
-                  Campaign Category
-                </option>
+                <option value="">Campaign Category</option>
 
                 <option>Fashion</option>
                 <option>Technology</option>
-                <option>
-                  Food & Beverage
-                </option>
-                <option>
-                  Health & Fitness
-                </option>
-                <option>
-                  Beauty & Skincare
-                </option>
-                <option>
-                  Travel & Tourism
-                </option>
+                <option>Food & Beverage</option>
+                <option>Health & Fitness</option>
+                <option>Beauty & Skincare</option>
+                <option>Travel & Tourism</option>
                 <option>Education</option>
-                <option>
-                  Finance & Investment
-                </option>
+                <option>Finance & Investment</option>
                 <option>Gaming</option>
-                <option>
-                  Entertainment
-                </option>
+                <option>Entertainment</option>
                 <option>Automobile</option>
                 <option>Real Estate</option>
                 <option>Sports</option>
-                <option>
-                  Parenting & Kids
-                </option>
+                <option>Parenting & Kids</option>
               </select>
 
-              {errors.category && (
-                <p className="error">
-                  {errors.category}
-                </p>
-              )}
+              {errors.category && <p className="error">{errors.category}</p>}
             </div>
 
             {/* Objective */}
@@ -474,49 +385,23 @@ export default function CreateCampaignForm() {
                 name="objective"
                 value={formData.objective}
                 onChange={handleChange}
-                className={`input ${
-                  errors.objective
-                    ? "border-red-500"
-                    : ""
-                }`}
+                className={`input ${errors.objective ? "border-red-500" : ""}`}
               >
-                <option value="">
-                  Campaign Objective
-                </option>
+                <option value="">Campaign Objective</option>
 
                 <option>Engagement</option>
                 <option>Sales</option>
-                <option>
-                  Brand Awareness
-                </option>
-                <option>
-                  Website Traffic
-                </option>
-                <option>
-                  App Downloads
-                </option>
-                <option>
-                  Lead Generation
-                </option>
-                <option>
-                  Followers Growth
-                </option>
-                <option>
-                  Video Views
-                </option>
-                <option>
-                  Product Reviews
-                </option>
-                <option>
-                  Content Reach
-                </option>
+                <option>Brand Awareness</option>
+                <option>Website Traffic</option>
+                <option>App Downloads</option>
+                <option>Lead Generation</option>
+                <option>Followers Growth</option>
+                <option>Video Views</option>
+                <option>Product Reviews</option>
+                <option>Content Reach</option>
               </select>
 
-              {errors.objective && (
-                <p className="error">
-                  {errors.objective}
-                </p>
-              )}
+              {errors.objective && <p className="error">{errors.objective}</p>}
             </div>
 
             {/* URL */}
@@ -526,17 +411,11 @@ export default function CreateCampaignForm() {
                 value={formData.companyUrl}
                 onChange={handleChange}
                 placeholder="Company Website URL"
-                className={`input ${
-                  errors.companyUrl
-                    ? "border-red-500"
-                    : ""
-                }`}
+                className={`input ${errors.companyUrl ? "border-red-500" : ""}`}
               />
 
               {errors.companyUrl && (
-                <p className="error">
-                  {errors.companyUrl}
-                </p>
+                <p className="error">{errors.companyUrl}</p>
               )}
             </div>
 
@@ -550,11 +429,7 @@ export default function CreateCampaignForm() {
                 {platformList.map((platform) => (
                   <div
                     key={platform}
-                    onClick={() =>
-                      handlePlatformChange(
-                        platform
-                      )
-                    }
+                    onClick={() => handlePlatformChange(platform)}
                     className={`flex items-center gap-2 p-2 border rounded cursor-pointer ${
                       platforms.includes(platform)
                         ? "bg-black text-white"
@@ -563,9 +438,7 @@ export default function CreateCampaignForm() {
                   >
                     <input
                       type="checkbox"
-                      checked={platforms.includes(
-                        platform
-                      )}
+                      checked={platforms.includes(platform)}
                       readOnly
                     />
 
@@ -574,11 +447,7 @@ export default function CreateCampaignForm() {
                 ))}
               </div>
 
-              {errors.platforms && (
-                <p className="error">
-                  {errors.platforms}
-                </p>
-              )}
+              {errors.platforms && <p className="error">{errors.platforms}</p>}
             </div>
 
             {/* Logo */}
@@ -591,23 +460,14 @@ export default function CreateCampaignForm() {
                 type="file"
                 accept="image/*"
                 onChange={handleLogoChange}
-                className={`input ${
-                  errors.logo
-                    ? "border-red-500"
-                    : ""
-                }`}
+                className={`input ${errors.logo ? "border-red-500" : ""}`}
               />
 
               <p className="text-xs text-gray-500 mt-1">
-                Upload PNG, JPG or JPEG image
-                (Max 2MB)
+                Upload PNG, JPG or JPEG image (Max 2MB)
               </p>
 
-              {errors.logo && (
-                <p className="error">
-                  {errors.logo}
-                </p>
-              )}
+              {errors.logo && <p className="error">{errors.logo}</p>}
 
               {preview && (
                 <img
@@ -627,16 +487,12 @@ export default function CreateCampaignForm() {
               placeholder="Campaign Description"
               rows={5}
               className={`input resize-none ${
-                errors.description
-                  ? "border-red-500"
-                  : ""
+                errors.description ? "border-red-500" : ""
               }`}
             />
 
             {errors.description && (
-              <p className="error">
-                {errors.description}
-              </p>
+              <p className="error">{errors.description}</p>
             )}
           </div>
         </section>
@@ -646,9 +502,7 @@ export default function CreateCampaignForm() {
         {/* ========================= */}
 
         <section className="bg-white p-6 rounded-xl shadow">
-          <h2 className="text-lg font-medium mb-4">
-            Campaign Timeline
-          </h2>
+          <h2 className="text-lg font-medium mb-4">Campaign Timeline</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Start Date */}
@@ -662,18 +516,10 @@ export default function CreateCampaignForm() {
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleChange}
-                className={`input ${
-                  errors.startDate
-                    ? "border-red-500"
-                    : ""
-                }`}
+                className={`input ${errors.startDate ? "border-red-500" : ""}`}
               />
 
-              {errors.startDate && (
-                <p className="error">
-                  {errors.startDate}
-                </p>
-              )}
+              {errors.startDate && <p className="error">{errors.startDate}</p>}
             </div>
 
             {/* End Date */}
@@ -687,18 +533,10 @@ export default function CreateCampaignForm() {
                 name="endDate"
                 value={formData.endDate}
                 onChange={handleChange}
-                className={`input ${
-                  errors.endDate
-                    ? "border-red-500"
-                    : ""
-                }`}
+                className={`input ${errors.endDate ? "border-red-500" : ""}`}
               />
 
-              {errors.endDate && (
-                <p className="error">
-                  {errors.endDate}
-                </p>
-              )}
+              {errors.endDate && <p className="error">{errors.endDate}</p>}
             </div>
           </div>
         </section>
@@ -719,20 +557,32 @@ export default function CreateCampaignForm() {
             value={formData.budget}
             onChange={handleChange}
             placeholder="Budget ₹"
-            className={`input ${
-              errors.budget
-                ? "border-red-500"
-                : ""
-            }`}
+            className={`input ${errors.budget ? "border-red-500" : ""}`}
           />
 
-          {errors.budget && (
-            <p className="error">
-              {errors.budget}
-            </p>
+          {errors.budget && <p className="error">{errors.budget}</p>}
+
+          {/* Payment Summary */}
+          {budgetAmount > 0 && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+              <p>
+                <strong>Campaign Amount:</strong> ₹
+                {budgetAmount.toLocaleString("en-IN")}
+              </p>
+
+              <p>
+                <strong>Platform Fee (10%):</strong> ₹
+                {platformFee.toLocaleString("en-IN")}
+              </p>
+
+              <hr className="my-2" />
+
+              <p className="text-lg font-semibold">
+                Total Payment: ₹{totalPayment.toLocaleString("en-IN")}
+              </p>
+            </div>
           )}
         </section>
-
         {/* BUTTONS */}
 
         <div className="flex justify-end gap-4">

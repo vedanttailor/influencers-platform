@@ -25,6 +25,7 @@ export const useCampaignStore = create((set) => ({
         description: c.description || "",
         post_url: c.post_url || {},
         logo: c.logo || "",
+        created_at: c.created_at,
       }));
 
       const mine = myData.map((c: any) => ({
@@ -40,6 +41,7 @@ export const useCampaignStore = create((set) => ({
        description: c.description || "",
         post_url: c.post_url || {},
         logo: c.logo || "",
+        created_at: c.created_at,
       }));
 
       const merged = new Map<string, any>();
@@ -55,6 +57,7 @@ export const useCampaignStore = create((set) => ({
         merged.set(key, {
           ...prev,
           ...c,
+          created_at: c.created_at || prev.created_at,
           platform: c.platform || prev.platform,
           platforms:
               Array.isArray(c.platforms) && c.platforms.length > 0
@@ -86,6 +89,7 @@ export const useCampaignStore = create((set) => ({
         status: c.status,
         endDate: c.end_date,
         post_url: c.post_url,
+        created_at: c.created_at,
       }));
 
       set((state: any) => ({
