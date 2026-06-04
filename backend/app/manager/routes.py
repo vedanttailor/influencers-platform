@@ -36,7 +36,7 @@ def get_manager_stats(db: Session = Depends(get_db), user=Depends(require_role("
     clients = db.query(User).filter(User.role == UserRole.client, User.is_deleted == None).count()  # noqa: E711
     influencers = db.query(User).filter(User.role == UserRole.influencer, User.is_deleted == None).count()  # noqa: E711
     campaigns = db.query(Campaign).count()
-    pending_approvals = db.query(User).filter(User.status == "pending", User.is_deleted == None).count()  # noqa: E711
+    pending_approvals = db.query(User).filter(User.status == "Pending", User.is_deleted == None).count()  # noqa: E711
 
     return {
         "clients": clients,
@@ -109,7 +109,7 @@ def get_manager_clients(db: Session = Depends(get_db), user=Depends(require_role
         total_campaigns = db.query(Campaign).filter(Campaign.client_id == user_row.id).count()
         active_campaigns = (
             db.query(Campaign)
-            .filter(Campaign.client_id == user_row.id, Campaign.status == "active")
+            .filter(Campaign.client_id == user_row.id, Campaign.status == "Active")
             .count()
         )
         spend = db.query(Campaign.budget).filter(Campaign.client_id == user_row.id).all()
@@ -135,6 +135,7 @@ def get_manager_clients(db: Session = Depends(get_db), user=Depends(require_role
                     if latest_campaign and latest_campaign.brand_name
                     else None
                 ),
+                "phone": user_row.phone,
                 "logo": (
                     client_profile.product_logo
                     if client_profile and client_profile.product_logo
@@ -192,6 +193,7 @@ def get_manager_influencers(db: Session = Depends(get_db), user=Depends(require_
                     else user_row.full_name
                 ),       
                 "email": user_row.email,
+                "phone": user_row.phone,
                 "category": influencer_profile.category if influencer_profile else None,
                 "status": user_row.status,
                 "profile_img": user_row.profile_img,
@@ -207,23 +209,58 @@ def get_manager_influencers(db: Session = Depends(get_db), user=Depends(require_
 
 
 @router.get("/campaigns")
-def get_manager_campaigns(db: Session = Depends(get_db), user=Depends(require_role("manager"))):
+def get_manager_campaigns(
+    db: Session = Depends(get_db),
+    user=Depends(require_role("manager"))
+):
     campaigns = db.query(Campaign).order_by(Campaign.created_at.desc()).all()
-    return [
-        {
-            "id": str(c.id),
-            "campaign_name": c.campaign_name,
-            "brand_name": c.brand_name,
-            "platforms": c.platforms or [],
-            "budget": float(c.budget or 0),
-            "end_date": c.end_date,
-            "status": c.status,
-            "client_id": str(c.client_id) if c.client_id else None,
-            "influencer_id": str(c.influencer_id) if c.influencer_id else None,
-            "manager_id": str(c.manager_id) if c.manager_id else None,
-        }
-        for c in campaigns
-    ]
+
+    items = []
+
+    for c in campaigns:
+        client = None
+        influencer = None
+
+        if c.client_id:
+            client = db.query(User).filter(User.id == c.client_id).first()
+
+        if c.influencer_id:
+            influencer = db.query(User).filter(User.id == c.influencer_id).first()
+
+        items.append(
+            {
+                "id": str(c.id),
+                "campaign_name": c.campaign_name,
+                "brand_name": c.brand_name,
+                "description": c.description,
+                "company_url": c.company_url,
+                "logo": c.logo,
+                "platforms": c.platforms or [],
+                "budget": float(c.budget or 0),
+                "start_date": c.start_date,
+                "end_date": c.end_date,
+                "status": c.status,
+
+                # Client Details
+                "client_id": str(c.client_id) if c.client_id else None,
+                "client_name": client.full_name if client else None,
+                "client_email": client.email if client else None,
+                "client_phone": client.phone if client else None,
+
+                # Influencer Details
+                "influencer_id": str(c.influencer_id) if c.influencer_id else None,
+                "influencer_name": influencer.full_name if influencer else None,
+                "influencer_email": influencer.email if influencer else None,
+                "influencer_phone": influencer.phone if influencer else None,
+
+                # Manager
+                "manager_id": str(c.manager_id) if c.manager_id else None,
+
+                "created_at": c.created_at,
+            }
+        )
+
+    return items
 
 
 @router.patch("/users/{user_id}/action")
@@ -246,14 +283,14 @@ def user_action(
     if user_row.role == UserRole.admin:
         raise HTTPException(403, "Admin accounts cannot be modified")
 
-    if action == "approve":
-        user_row.status = "active"
-    elif action == "reject":
-        user_row.status = "rejected"
-    elif action == "suspend":
-        user_row.status = "suspended"
-    elif action == "activate":
-        user_row.status = "active"
+    if action == "Approve":
+        user_row.status = "Active"
+    elif action == "Reject":
+        user_row.status = "Rejected"
+    elif action == "Suspend":
+        user_row.status = "Suspended"
+    elif action == "Activate":
+        user_row.status = "Active"
     else:
         raise HTTPException(400, "Invalid action")
 
@@ -276,16 +313,16 @@ def campaign_action(
     if not campaign:
         raise HTTPException(404, "Campaign not found")
 
-    if action == "approve":
-        campaign.status = "active"
-    elif action == "reject":
-        campaign.status = "rejected"
-    elif action == "suspend":
-        campaign.status = "suspended"
-    elif action == "complete":
-        campaign.status = "completed"
-    elif action == "activate":
-        campaign.status = "active"
+    if action == "Approve":
+        campaign.status = "Active"
+    elif action == "Reject":
+        campaign.status = "Rejected"
+    elif action == "Suspend":
+        campaign.status = "Suspended"
+    elif action == "Complete":
+        campaign.status = "Completed"
+    elif action == "Activate":
+        campaign.status = "Active"
     else:
         raise HTTPException(400, "Invalid action")
 
@@ -312,8 +349,8 @@ def assign_influencer(
 
     campaign.influencer_id = influencer_user.id
     campaign.manager_id = user["sub"]
-    if campaign.status in ["pending", "available"]:
-        campaign.status = "assigned"
+    if campaign.status in ["Pending", "Available"]:
+        campaign.status = "Assigned"
 
     db.commit()
     db.refresh(campaign)

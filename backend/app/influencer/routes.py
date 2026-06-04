@@ -62,6 +62,7 @@ def get_available_campaigns(
             "status": c.status,
             "description": c.description,
             "logo": c.logo,
+            "created_at": c.created_at,
         }
         for c in campaigns
     ]
@@ -91,7 +92,7 @@ def apply_campaign(
         )
 
     campaign.influencer_id = user["sub"]
-    campaign.status = "applied"
+    campaign.status = "Applied"
 
     influencer_user = db.query(User).filter(
         User.id == user["sub"]
@@ -144,6 +145,7 @@ def my_campaigns(
             "post_url": c.post_url,
             "description": c.description,
             "logo": c.logo,
+            "created_at": c.created_at,
         }
         for c in campaigns
     ]
@@ -193,7 +195,7 @@ def submit_link(
         "youtube": youtube_links
     }
 
-    campaign.status = "completed"
+    campaign.status = "Completed"
 
     client = db.query(User).filter(
         User.id == campaign.client_id
@@ -253,12 +255,12 @@ def get_earnings(
 
     completed = [
         c for c in campaigns
-        if c.status == "completed"
+        if c.status == "Completed"
     ]
 
     pending = [
         c for c in campaigns
-        if c.status in ["applied", "accepted"]
+        if c.status in ["Applied", "Accepted"]
     ]
 
     total_earning = sum(

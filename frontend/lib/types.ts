@@ -1,8 +1,8 @@
 export type CampaignStatus =
-  | "available"
-  | "applied"
-  | "accepted"
-  | "completed";
+  | "Available"
+  | "Applied"
+  | "Accepted"
+  | "Completed";
 
 export type Campaign = {
   id: number;
