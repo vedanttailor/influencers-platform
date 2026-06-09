@@ -41,11 +41,31 @@ export default function CampaignDetail() {
 
   const campaign = campaigns.find((c: any) => String(c.id) === String(id));
 
+  useEffect(() => {
+  if (campaign?.post_url) {
+    setPostLinks({
+      instagram:
+        campaign.post_url.instagram?.length > 0
+          ? campaign.post_url.instagram
+          : [""],
+
+      youtube:
+        campaign.post_url.youtube?.length > 0
+          ? campaign.post_url.youtube
+          : [""],
+    });
+  }
+}, [campaign]);
+
   const status = String(localStatus || campaign?.status || "").toLowerCase();
 
-  const canSubmitLink = ["accepted", "assigned", "applied", "active"].includes(
-    status,
-  );
+  const canSubmitLink = [
+    "accepted",
+    "assigned",
+    "applied",
+    "active",
+    "completed",
+  ].includes(status);
 
   const formatDate = (value: any) => {
     if (!value) return "-";
@@ -374,68 +394,47 @@ export default function CampaignDetail() {
 
                 {/* SUBMIT BUTTON */}
                 <button
-                  onClick={() => {
-                    const instagramLinks = postLinks.instagram.filter(
-                      (link: string) => link.trim() !== "",
-                    );
+                  onClick={async () => {
+                    try {
+                      const instagramLinks = postLinks.instagram.filter(
+                        (link) => link.trim() !== "",
+                      );
 
-                    const youtubeLinks = postLinks.youtube.filter(
-                      (link: string) => link.trim() !== "",
-                    );
+                      const youtubeLinks = postLinks.youtube.filter(
+                        (link) => link.trim() !== "",
+                      );
 
-                    if (
-                      instagramLinks.length === 0 &&
-                      youtubeLinks.length === 0
-                    ) {
-                      toast.error("Please enter at least one URL");
-
-                      return;
-                    }
-
-                    const submitLinks = async () => {
-                      try {
-                        const instagramLinks = postLinks.instagram.filter(
-                          (link) => link.trim() !== "",
-                        );
-
-                        const youtubeLinks = postLinks.youtube.filter(
-                          (link) => link.trim() !== "",
-                        );
-
-                        if (
-                          instagramLinks.length === 0 &&
-                          youtubeLinks.length === 0
-                        ) {
-                          toast.error("Please enter at least one link");
-
-                          return;
-                        }
-
-                        await api.patch(`/influencer/submit/${id}`, {
-                          instagram_url: instagramLinks,
-
-                          youtube_url: youtubeLinks,
-                        });
-
-                        toast.success("Links submitted successfully");
-
-                        setLocalStatus("completed");
-
-                        fetchCampaigns();
-                      } catch (error: any) {
-                        console.error(error);
-
-                        toast.error(error.message || "Submit failed");
+                      if (
+                        instagramLinks.length === 0 &&
+                        youtubeLinks.length === 0
+                      ) {
+                        toast.error("Please enter at least one URL");
+                        return;
                       }
-                    };
 
-                    setLocalStatus("completed");
+                      const response = await api.patch(
+                        `/influencer/submit/${id}`,
+                        {
+                          instagram_url: instagramLinks,
+                          youtube_url: youtubeLinks,
+                        },
+                      );
 
-                    toast.success("Links submitted successfully");
+                      console.log("Submit Response:", response);
+
+                      toast.success("Links updated successfully");
+
+                      await fetchCampaigns();
+                    } catch (error: any) {
+                      console.error(error);
+                      toast.error(error.message || "Submit failed");
+                    }
                   }}
                   className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700"
                 >
-                  Submit Video URLs
+                   {status === "completed"
+                    ? "Update Video URLs"
+                    : "Submit Video URLs"}
                 </button>
               </div>
             )}

@@ -235,7 +235,17 @@ def get_campaigns(
     user=Depends(get_current_user)
 ):
 
-    campaigns = db.query(Campaign).all()
+    # CLIENT CAN SEE ONLY OWN CAMPAIGNS
+    if user["role"] == "client":
+
+        campaigns = db.query(Campaign).filter(
+            Campaign.client_id == user["sub"]
+        ).all()
+
+    # ADMIN / MANAGER / INFLUENCER CAN SEE ALL
+    else:
+
+        campaigns = db.query(Campaign).all()
 
     campaigns_data = []
 
@@ -304,7 +314,6 @@ def get_campaigns(
 
     return campaigns_data
 
-
 # =========================
 # GET SINGLE CAMPAIGN
 # =========================
@@ -312,12 +321,24 @@ def get_campaigns(
 @router.get("/{id}")
 def get_single_campaign(
     id: uuid.UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
-    campaign = db.query(Campaign).filter(
-        Campaign.id == id
-    ).first()
+    # CLIENT CAN ACCESS ONLY OWN CAMPAIGNS
+    if user["role"] == "client":
+
+        campaign = db.query(Campaign).filter(
+            Campaign.id == id,
+            Campaign.client_id == user["sub"]
+        ).first()
+
+    # OTHERS CAN ACCESS ALL
+    else:
+
+        campaign = db.query(Campaign).filter(
+            Campaign.id == id
+        ).first()
 
     if not campaign:
         raise HTTPException(
@@ -335,43 +356,25 @@ def get_single_campaign(
     ).first()
 
     return {
-
         "id": str(campaign.id),
-
         "campaign_name": campaign.campaign_name,
-
         "brand_name": campaign.brand_name,
-
         "campaign_type": campaign.campaign_type,
-
         "campaign_category": campaign.campaign_category,
-
         "campaign_objective": campaign.campaign_objective,
-
         "company_url": campaign.company_url,
-
         "description": campaign.description,
-
         "budget": campaign.budget,
-
         "platforms": campaign.platforms,
-
         "logo": campaign.logo,
-
         "status": campaign.status,
-
         "start_date": campaign.start_date,
-
         "end_date": campaign.end_date,
-
         "created_at": campaign.created_at,
-
         "post_url": campaign.post_url,
-
         "client_email": (
             client.email if client else None
         ),
-
         "client_phone": (
             client.phone
             if client and campaign.status in [
@@ -380,10 +383,8 @@ def get_single_campaign(
             ]
             else None
         ),
-
         "is_paid": True if payment else False
     }
-
 
 # =========================
 # DELETE CAMPAIGN

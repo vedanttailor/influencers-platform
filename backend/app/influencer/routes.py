@@ -92,7 +92,7 @@ def apply_campaign(
         )
 
     campaign.influencer_id = user["sub"]
-    campaign.status = "Applied"
+    campaign.status = "applied"
 
     influencer_user = db.query(User).filter(
         User.id == user["sub"]
@@ -190,12 +190,17 @@ def submit_link(
             if link.strip()
         ]
 
-    campaign.post_url = {
-        "instagram": instagram_links,
-        "youtube": youtube_links
-    }
+    # Prepare post_url dictionary only if any links provided
+    if instagram_links or youtube_links:
+        campaign.post_url = {}
 
-    campaign.status = "Completed"
+        if instagram_links:
+            campaign.post_url["instagram"] = instagram_links
+
+        if youtube_links:
+            campaign.post_url["youtube"] = youtube_links
+
+    campaign.status = "completed"
 
     client = db.query(User).filter(
         User.id == campaign.client_id
@@ -206,7 +211,7 @@ def submit_link(
         create_notification(
             db,
             client.id,
-            "Campaign Completed",
+            "Campaign completed",
             f"Influencer completed {campaign.campaign_name}"
         )
 
@@ -219,7 +224,7 @@ def submit_link(
         create_notification(
             db,
             admin.id,
-            "Campaign Completed",
+            "Campaign completed",
             f"Influencer completed {campaign.campaign_name}"
         )
 
@@ -232,7 +237,7 @@ def submit_link(
         create_notification(
             db,
             manager.id,
-            "Campaign Completed",
+            "Campaign completed",
             f"Influencer completed {campaign.campaign_name}"
         )
 
@@ -260,7 +265,7 @@ def get_earnings(
 
     pending = [
         c for c in campaigns
-        if c.status in ["Applied", "Accepted"]
+        if c.status in ["applied", "accepted"]
     ]
 
     total_earning = sum(
