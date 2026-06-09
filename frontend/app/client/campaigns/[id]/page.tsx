@@ -116,28 +116,73 @@ export default function CampaignDetailsPage() {
             Influencer Submitted Video
           </p>
           {campaign.post_url && typeof campaign.post_url === "object" ? (
-            <div className="mt-2 space-y-2">
-              {campaign.post_url.instagram && (
-                <a
-                  href={campaign.post_url.instagram}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block text-sm text-blue-600 underline break-all"
-                >
-                  View Instagram Link
-                </a>
-              )}
+            <div className="mt-3 space-y-4">
+              {/* Instagram Links */}
 
-              {campaign.post_url.youtube && (
-                <a
-                  href={campaign.post_url.youtube}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block text-sm text-blue-600 underline break-all"
-                >
-                  View YouTube Link
-                </a>
-              )}
+              {Array.isArray(campaign.post_url.instagram) &&
+                campaign.post_url.instagram.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-pink-600 mb-2">
+                      Instagram Links
+                    </h4>
+
+                    {campaign.post_url.instagram.map(
+                      (link: string, index: number) => (
+                        <div key={index} className="mb-2">
+                          <p className="text-sm font-medium">
+                            Link {index + 1}
+                          </p>
+
+                          <a
+                            href={link}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 underline break-all text-sm"
+                          >
+                            {link}
+                          </a>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                )}
+
+              {/* YouTube Links */}
+
+              {Array.isArray(campaign.post_url.youtube) &&
+                campaign.post_url.youtube.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-red-600 mb-2">
+                      YouTube Links
+                    </h4>
+
+                    {campaign.post_url.youtube.map(
+                      (link: string, index: number) => (
+                        <div key={index} className="mb-2">
+                          <p className="text-sm font-medium">
+                            Link {index + 1}
+                          </p>
+
+                          <a
+                            href={link}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 underline break-all text-sm"
+                          >
+                            {link}
+                          </a>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                )}
+
+              {!campaign.post_url.instagram?.length &&
+                !campaign.post_url.youtube?.length && (
+                  <p className="text-sm text-slate-500">
+                    Not submitted yet by influencer.
+                  </p>
+                )}
             </div>
           ) : (
             <p className="mt-2 text-sm text-slate-500">
@@ -173,19 +218,6 @@ export default function CampaignDetailsPage() {
 
           {/* DELETE BUTTON */}
 
-          <button
-            onClick={deleteCampaign}
-            className="
-      px-4
-      py-2
-      border
-      border-red-400
-      text-red-600
-      rounded-lg
-    "
-          >
-            Delete
-          </button>
         </div>
       </div>
     </div>
