@@ -160,11 +160,41 @@ export default function ClientCampaignsPage() {
               </span>
             </div>
 
-            <div className="mt-4 text-sm text-gray-600 space-y-1">
-              <p>
-                {campaign.startDate} → {campaign.endDate}
-              </p>
-              <p> Budget: ₹{campaign.budget.toLocaleString()}</p>
+            <div className="mt-4 text-sm text-gray-600">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase">
+                    Start Date
+                  </p>
+                  <p className="font-medium text-gray-800">
+                    {new Date(campaign.startDate).toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase">
+                    End Date
+                  </p>
+                  <p className="font-medium text-gray-800">
+                    {new Date(campaign.endDate).toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3">
+                <p>
+                  <span className="font-semibold">Budget:</span> ₹
+                  {campaign.budget.toLocaleString()}
+                </p>
+              </div>
             </div>
 
             <div className="flex justify-end gap-3 mt-4">

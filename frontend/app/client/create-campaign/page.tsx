@@ -12,6 +12,12 @@ import toast from "react-hot-toast";
 export default function CreateCampaignForm() {
   const router = useRouter();
 
+  const today = new Date().toISOString().split("T")[0];
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const tomorrowDate = tomorrow.toISOString().split("T")[0];
   const [formData, setFormData] = useState({
     name: "",
     brand: "",
@@ -20,7 +26,7 @@ export default function CreateCampaignForm() {
     objective: "",
     companyUrl: "",
     description: "",
-    startDate: "",
+    startDate: today,
     endDate: "",
     budget: "",
   });
@@ -46,14 +52,17 @@ export default function CreateCampaignForm() {
   // =========================
 
   const handleChange = (e: any) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === "startDate" ? { endDate: "" } : {}),
+    }));
 
     setErrors({
       ...errors,
-      [e.target.name]: "",
+      [name]: "",
     });
   };
 
@@ -123,7 +132,7 @@ export default function CreateCampaignForm() {
       objective: "",
       companyUrl: "",
       description: "",
-      startDate: "",
+      startDate: today,
       endDate: "",
       budget: "",
     });
@@ -198,9 +207,9 @@ export default function CreateCampaignForm() {
     if (
       formData.startDate &&
       formData.endDate &&
-      formData.endDate < formData.startDate
+      new Date(formData.endDate) <= new Date(formData.startDate)
     ) {
-      newErrors.endDate = "End date cannot be before start date";
+      newErrors.endDate = "End date must be greater than start date";
     }
 
     // Budget
@@ -515,6 +524,7 @@ export default function CreateCampaignForm() {
                 type="date"
                 name="startDate"
                 value={formData.startDate}
+                min={today}
                 onChange={handleChange}
                 className={`input ${errors.startDate ? "border-red-500" : ""}`}
               />
@@ -532,6 +542,17 @@ export default function CreateCampaignForm() {
                 type="date"
                 name="endDate"
                 value={formData.endDate}
+                min={
+                  formData.startDate
+                    ? new Date(
+                        new Date(formData.startDate).setDate(
+                          new Date(formData.startDate).getDate() + 1,
+                        ),
+                      )
+                        .toISOString()
+                        .split("T")[0]
+                    : tomorrowDate
+                }
                 onChange={handleChange}
                 className={`input ${errors.endDate ? "border-red-500" : ""}`}
               />
