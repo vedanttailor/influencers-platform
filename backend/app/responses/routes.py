@@ -25,7 +25,6 @@ def get_responses(
     user=Depends(get_current_user)
 ):
 
-    # NEWEST RESPONSES FIRST
     responses = db.query(Response).filter(
         Response.client_id == user["sub"]
     ).order_by(Response.id.desc()).all()
@@ -50,7 +49,8 @@ def get_responses(
             "influencer_email": "",
             "influencer_phone": "",
             "profile_url": "",
-            "followers_count": None
+            "instagram_url": "",
+            "youtube_url": "",
         }
 
         if campaign:
@@ -72,15 +72,14 @@ def get_responses(
                     Influencer.user_id == campaign.influencer_id
                 ).first()
 
-                if influencer_profile and influencer_profile.profile:
+                if influencer_profile:
+                    item["instagram_url"] = influencer_profile.instagram_url or ""
+                    item["youtube_url"] = influencer_profile.youtube_url or ""
 
-                    item["profile_url"] = influencer_profile.profile.get(
-                        "profile_url"
-                    )
-
-                    item["followers_count"] = influencer_profile.profile.get(
-                        "followers_count"
-                    )
+                    if influencer_profile.profile:
+                        item["profile_url"] = influencer_profile.profile.get(
+                            "profile_url", ""
+                        )
 
         result.append(item)
 

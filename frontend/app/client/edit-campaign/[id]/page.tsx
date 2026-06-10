@@ -22,6 +22,9 @@ export default function EditCampaignPage() {
 
   const [file, setFile] = useState<File | null>(null);
   const [budget, setBudget] = useState<number>(0);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     fetchCampaign();
@@ -41,6 +44,8 @@ export default function EditCampaignPage() {
       const data = await api.get(`/campaigns/${id}`);
 
       setCampaign(data);
+      setStartDate(data.start_date?.split("T")[0] || "");
+      setEndDate(data.end_date?.split("T")[0] || "");
     } catch (err) {
       console.error(err);
     }
@@ -70,9 +75,13 @@ export default function EditCampaignPage() {
 
       formData.append("description", form.description.value);
 
-      formData.append("start_date", form.start_date.value);
-
-      formData.append("end_date", form.end_date.value);
+      if (new Date(endDate) <= new Date(startDate)) {
+        alert("End Date must be greater than Start Date");
+        setLoading(false);
+        return;
+      }
+      formData.append("start_date", startDate);
+      formData.append("end_date", endDate);
 
       formData.append("budget", form.budget.value);
 
@@ -111,7 +120,6 @@ export default function EditCampaignPage() {
         >
           ← Back to Campaigns
         </Link>
-        
       </div>
       <h1 className="text-2xl font-bold mb-6">Edit Campaign</h1>
 
@@ -217,7 +225,12 @@ export default function EditCampaignPage() {
           <input
             type="date"
             name="start_date"
-            defaultValue={campaign.start_date?.split("T")[0]}
+            value={startDate}
+            min={today}
+            onChange={(e) => {
+              setStartDate(e.target.value);
+              setEndDate("");
+            }}
             className="input"
             required
           />
@@ -231,7 +244,19 @@ export default function EditCampaignPage() {
           <input
             type="date"
             name="end_date"
-            defaultValue={campaign.end_date?.split("T")[0]}
+            value={endDate}
+            min={
+              startDate
+                ? new Date(
+                    new Date(startDate).setDate(
+                      new Date(startDate).getDate() + 1,
+                    ),
+                  )
+                    .toISOString()
+                    .split("T")[0]
+                : today
+            }
+            onChange={(e) => setEndDate(e.target.value)}
             className="input"
             required
           />

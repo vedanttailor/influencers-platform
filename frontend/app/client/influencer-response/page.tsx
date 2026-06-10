@@ -19,6 +19,8 @@ type ResponseType = {
   profile_url?: string;
   followers_count?: string;
   profile_img?: string;
+  instagram_url?: string;
+  youtube_url?: string;
 };
 
 export default function InfluencerResponsesPage() {
@@ -64,6 +66,8 @@ export default function InfluencerResponsesPage() {
         followers_count: item.followers_count || "",
 
         profile_img: item.profile_img || "",
+        instagram_url: item.instagram_url || "",
+        youtube_url: item.youtube_url || "",
       }));
 
       setResponses(formatted);
@@ -124,9 +128,7 @@ export default function InfluencerResponsesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">
-        Influencer Responses
-      </h1>
+      <h1 className="text-2xl font-bold">Influencer Responses</h1>
 
       <div className="bg-white rounded-lg shadow overflow-x-auto">
         <table className="w-full text-left">
@@ -149,19 +151,14 @@ export default function InfluencerResponsesPage() {
           <tbody>
             {responses.length === 0 ? (
               <tr>
-                <td
-                  colSpan={7}
-                  className="text-center p-6 text-gray-500"
-                >
+                <td colSpan={7} className="text-center p-6 text-gray-500">
                   No responses found
                 </td>
               </tr>
             ) : (
               responses.map((res) => (
                 <tr key={res.id} className="border-t">
-                  <td className="p-4 font-medium">
-                    {res.influencer}
-                  </td>
+                  <td className="p-4 font-medium">{res.influencer}</td>
 
                   <td className="p-4">
                     <div className="flex gap-2 flex-wrap">
@@ -176,13 +173,9 @@ export default function InfluencerResponsesPage() {
                     </div>
                   </td>
 
-                  <td className="p-4">
-                    {res.campaign}
-                  </td>
+                  <td className="p-4">{res.campaign}</td>
 
-                  <td className="p-4 font-medium">
-                    {res.price}
-                  </td>
+                  <td className="p-4 font-medium">{res.price}</td>
 
                   <td className="p-4">
                     <span
@@ -211,9 +204,7 @@ export default function InfluencerResponsesPage() {
 
                       <button
                         disabled={res.status === "Approved"}
-                        onClick={() =>
-                          approveInfluencer(res.id)
-                        }
+                        onClick={() => approveInfluencer(res.id)}
                         className={`px-3 py-1.5 text-sm rounded-md ${
                           res.status === "Approved"
                             ? "bg-gray-300 cursor-not-allowed"
@@ -225,9 +216,7 @@ export default function InfluencerResponsesPage() {
 
                       <button
                         disabled={res.status === "Rejected"}
-                        onClick={() =>
-                          rejectInfluencer(res.id)
-                        }
+                        onClick={() => rejectInfluencer(res.id)}
                         className={`px-3 py-1.5 text-sm rounded-md ${
                           res.status === "Rejected"
                             ? "border-gray-300 text-gray-400 cursor-not-allowed"
@@ -252,7 +241,6 @@ export default function InfluencerResponsesPage() {
       {selected && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-xl relative">
-
             {/* CLOSE BUTTON */}
             <button
               onClick={() => setSelected(null)}
@@ -264,16 +252,10 @@ export default function InfluencerResponsesPage() {
             {/* PROFILE IMAGE */}
             <div className="flex justify-center mb-4">
               <img
-                src={
-                  selected.profile_img ||
-                  "/avatar.png"
-                }
+                src={selected.profile_img || "/avatar.png"}
                 alt="profile"
                 onClick={() =>
-                  setPreviewImage(
-                    selected.profile_img ||
-                      "/avatar.png"
-                  )
+                  setPreviewImage(selected.profile_img || "/avatar.png")
                 }
                 className="w-28 h-28 rounded-full object-cover border-4 border-gray-200 cursor-pointer hover:scale-105 transition duration-300"
               />
@@ -281,22 +263,15 @@ export default function InfluencerResponsesPage() {
 
             {/* NAME */}
             <div className="text-center mb-5">
-              <h2 className="text-2xl font-bold">
-                {selected.influencer}
-              </h2>
+              <h2 className="text-2xl font-bold">{selected.influencer}</h2>
 
-              <p className="text-gray-500 text-sm">
-                Influencer Profile
-              </p>
+              <p className="text-gray-500 text-sm">Influencer Profile</p>
             </div>
 
             {/* DETAILS */}
             <div className="space-y-3 text-sm">
-
               <div className="flex justify-between border-b pb-2">
-                <span className="font-semibold">
-                  Email
-                </span>
+                <span className="font-semibold">Email</span>
 
                 <span className="text-gray-600 text-right">
                   {selected.influencer_email || "N/A"}
@@ -304,9 +279,7 @@ export default function InfluencerResponsesPage() {
               </div>
 
               <div className="flex justify-between border-b pb-2">
-                <span className="font-semibold">
-                  Phone
-                </span>
+                <span className="font-semibold">Phone</span>
 
                 <span className="text-gray-600">
                   {selected.influencer_phone || "N/A"}
@@ -314,9 +287,49 @@ export default function InfluencerResponsesPage() {
               </div>
 
               <div className="flex justify-between border-b pb-2">
-                <span className="font-semibold">
-                  Campaign
-                </span>
+                <span className="font-semibold">Instagram</span>
+
+                {selected.instagram_url ? (
+                  <a
+                    href={
+                      selected.instagram_url.startsWith("http")
+                        ? selected.instagram_url
+                        : `https://${selected.instagram_url}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    View Profile
+                  </a>
+                ) : (
+                  <span className="text-gray-400">Not Added</span>
+                )}
+              </div>
+
+              <div className="flex justify-between border-b pb-2">
+                <span className="font-semibold">YouTube</span>
+
+                {selected.youtube_url ? (
+                  <a
+                    href={
+                      selected.youtube_url.startsWith("http")
+                        ? selected.youtube_url
+                        : `https://${selected.youtube_url}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-red-600 underline"
+                  >
+                    View Channel
+                  </a>
+                ) : (
+                  <span className="text-gray-400">Not Added</span>
+                )}
+              </div>
+
+              <div className="flex justify-between border-b pb-2">
+                <span className="font-semibold">Campaign</span>
 
                 <span className="text-gray-600 text-right">
                   {selected.campaign}
@@ -324,9 +337,7 @@ export default function InfluencerResponsesPage() {
               </div>
 
               <div className="flex justify-between border-b pb-2">
-                <span className="font-semibold">
-                  Platforms
-                </span>
+                <span className="font-semibold">Platforms</span>
 
                 <span className="text-gray-600 text-right">
                   {selected.platforms.join(", ")}
@@ -334,29 +345,13 @@ export default function InfluencerResponsesPage() {
               </div>
 
               <div className="flex justify-between border-b pb-2">
-                <span className="font-semibold">
-                  Followers
-                </span>
+                <span className="font-semibold">Price</span>
 
-                <span className="text-gray-600">
-                  {selected.followers_count || "N/A"}
-                </span>
+                <span className="text-gray-600">{selected.price}</span>
               </div>
 
               <div className="flex justify-between border-b pb-2">
-                <span className="font-semibold">
-                  Price
-                </span>
-
-                <span className="text-gray-600">
-                  {selected.price}
-                </span>
-              </div>
-
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-semibold">
-                  Status
-                </span>
+                <span className="font-semibold">Status</span>
 
                 <span
                   className={`px-2 py-1 rounded-full text-xs ${

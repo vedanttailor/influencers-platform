@@ -176,17 +176,6 @@ export default function CampaignDetail() {
                   </span>
                 </div>
 
-                <div className="flex justify-between border-b pb-2">
-                  <span className="font-semibold">Followers</span>
-
-                  <span>{campaign.followers || "N/A"}</span>
-                </div>
-
-                <div className="flex justify-between border-b pb-2">
-                  <span className="font-semibold">Category</span>
-
-                  <span>{campaign.category || "General"}</span>
-                </div>
               </div>
             </div>
 
