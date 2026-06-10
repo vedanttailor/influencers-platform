@@ -148,7 +148,7 @@ export default function CampaignTable() {
     });
   }, [rows, query]);
 
-  const displayRows = useMemo(() => filtered.slice(0, 8), [filtered]);
+  const displayRows = filtered;
 
   return (
     <div className="card overflow-hidden">
@@ -172,7 +172,7 @@ export default function CampaignTable() {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="max-h-[600px] overflow-y-auto overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-left text-slate-500">
             <tr>

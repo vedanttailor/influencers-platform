@@ -23,6 +23,9 @@ type InfluencerRow = {
   category: string | null;
   followers: number;
   engagement_rate: number;
+  youtube_subscribers: number;
+  youtube_views: number;
+  youtube_videos: number;
   platforms: string[];
   active_campaigns: number;
 };
@@ -95,11 +98,14 @@ export default function InfluencersPage() {
     () =>
       [...rows]
         .filter((r) =>
-          (r.platforms || []).map((p) => p.toLowerCase()).includes("instagram"),
+          (r.platforms || []).some((p) => p.toLowerCase().includes("instagram")),
         )
-        .sort((a, b) => b.followers - a.followers)
+        .sort((a, b) => (b.followers || 0) - (a.followers || 0))
         .slice(0, 5)
-        .map((r) => ({ name: r.name, followers: r.followers })),
+        .map((r) => ({
+          name: r.name,
+          followers: r.followers || 0,
+        })),
     [rows],
   );
 
@@ -109,9 +115,14 @@ export default function InfluencersPage() {
         .filter((r) =>
           (r.platforms || []).some((p) => p.toLowerCase().includes("youtube")),
         )
-        .sort((a, b) => b.followers - a.followers)
+        .sort(
+          (a, b) => (b.youtube_subscribers || 0) - (a.youtube_subscribers || 0),
+        )
         .slice(0, 5)
-        .map((r) => ({ name: r.name, views: r.followers })),
+        .map((r) => ({
+          name: r.name,
+          views: r.youtube_subscribers || 0,
+        })),
     [rows],
   );
 

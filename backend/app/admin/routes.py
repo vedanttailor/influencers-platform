@@ -10,6 +10,10 @@ from app.models import User, Influencer, Client, Campaign, Manager, UserRole
 from app.auth.permissions import require_role
 from app.auth.utils import get_user_by_email
 from app.core.security import hash_password
+from uuid import UUID
+from app.database import get_db
+from app.models import User
+from app.auth.dependencies import get_current_user
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -225,7 +229,7 @@ def get_admin_influencers(
 
             "active_campaigns": active_campaigns,
 
-            "created_at": user_row.created_at,
+            "created_at": user_row.created_at,  
         })
 
     return items
@@ -679,3 +683,44 @@ def get_influencer_campaigns(
         })
 
     return data
+
+@router.get("/users/{user_id}")
+def get_user_details(
+    user_id: UUID,
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin"))
+):
+    user_data = (
+        db.query(User)
+        .filter(User.id == user_id)
+        .first()
+    )
+
+    if not user_data:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    return {
+        "id": str(user_data.id),
+        "full_name": user_data.full_name,
+        "email": user_data.email,
+        "phone": user_data.phone,
+        "role": user_data.role.value,
+        "status": user_data.status,
+        "profile_img": user_data.profile_img,
+        "upi_id": user_data.upi_id,
+        "instagram_url": user_data.instagram_url,
+        "instagram_username": user_data.instagram_username,
+        "followers_count": user_data.followers_count,
+        "engagement_rate": user_data.engagement_rate,
+        "youtube_url": user_data.youtube_url,
+        "youtube_channel_name": user_data.youtube_channel_name,
+        "youtube_channel_id": user_data.youtube_channel_id,
+        "youtube_subscribers": user_data.youtube_subscribers,
+        "youtube_views": user_data.youtube_views,
+        "youtube_videos": user_data.youtube_videos,
+        "created_at": user_data.created_at,
+        "last_login": user_data.last_login,
+    }

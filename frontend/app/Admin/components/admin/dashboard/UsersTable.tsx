@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import StatusBadge from "./StatusBadge";
 import { api } from "@/lib/api";
 
@@ -54,7 +55,9 @@ function ActionMenu({
           className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-800 hover:bg-slate-50"
           onClick={(e) => {
             onAction("approve");
-            (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open");
+            (
+              e.currentTarget.closest("details") as HTMLDetailsElement | null
+            )?.removeAttribute("open");
           }}
         >
           <span className="h-2 w-2 rounded-full bg-green-500" />
@@ -65,7 +68,9 @@ function ActionMenu({
           className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-800 hover:bg-slate-50"
           onClick={(e) => {
             onAction("reject");
-            (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open");
+            (
+              e.currentTarget.closest("details") as HTMLDetailsElement | null
+            )?.removeAttribute("open");
           }}
         >
           <span className="h-2 w-2 rounded-full bg-red-500" />
@@ -76,7 +81,9 @@ function ActionMenu({
           className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-800 hover:bg-slate-50"
           onClick={(e) => {
             onAction("suspend");
-            (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open");
+            (
+              e.currentTarget.closest("details") as HTMLDetailsElement | null
+            )?.removeAttribute("open");
           }}
         >
           <span className="h-2 w-2 rounded-full bg-amber-500" />
@@ -88,7 +95,9 @@ function ActionMenu({
           className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-800 hover:bg-slate-50"
           onClick={(e) => {
             onAction("activate");
-            (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open");
+            (
+              e.currentTarget.closest("details") as HTMLDetailsElement | null
+            )?.removeAttribute("open");
           }}
         >
           <span className="h-2 w-2 rounded-full bg-slate-900" />
@@ -100,6 +109,7 @@ function ActionMenu({
 }
 
 export default function UsersTable() {
+  const router = useRouter();
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -135,16 +145,23 @@ export default function UsersTable() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((u) => {
+
+    const nonAdminUsers = rows.filter(
+      (u) => String(u.role).toLowerCase() !== "admin",
+    );
+
+    if (!q) return nonAdminUsers;
+
+    return nonAdminUsers.filter((u) => {
       const name = String(u.full_name || "").toLowerCase();
       const email = String(u.email || "").toLowerCase();
       const role = String(u.role || "").toLowerCase();
+
       return name.includes(q) || email.includes(q) || role.includes(q);
     });
   }, [rows, query]);
 
-  const displayRows = useMemo(() => filtered.slice(0, 8), [filtered]);
+ const displayRows = filtered;
 
   return (
     <div className="card overflow-hidden">
@@ -152,7 +169,9 @@ export default function UsersTable() {
         <div>
           <h3 className="text-sm font-semibold text-slate-900">Users</h3>
           <p className="mt-0.5 text-xs text-slate-500">
-            {loading ? "Loading..." : `${filtered.length} shown · ${rows.length} total`}
+            {loading
+              ? "Loading..."
+              : `${filtered.length} shown · ${rows.length} total`}
           </p>
         </div>
 
@@ -168,7 +187,7 @@ export default function UsersTable() {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="max-h-[500px] overflow-y-auto overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-left text-slate-500">
             <tr>
@@ -179,8 +198,18 @@ export default function UsersTable() {
             </tr>
           </thead>
           <tbody>
-          {displayRows.map((u) => (
-              <tr key={u.id} className="border-t border-slate-200/70 hover:bg-slate-50/60 transition">
+            {displayRows.map((u) => (
+              <tr
+                key={u.id}
+                onClick={() => router.push(`/Admin/users/${u.id}`)}
+                className="
+                border-t
+                border-slate-200/70
+                hover:bg-slate-50/60
+                transition
+                cursor-pointer
+              "
+              >
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 rounded-xl bg-slate-900 text-white grid place-items-center text-xs font-bold">
@@ -190,30 +219,40 @@ export default function UsersTable() {
                       <p className="truncate font-semibold text-slate-900">
                         {u.full_name || "-"}
                       </p>
-                      <p className="truncate text-xs text-slate-500">{u.email || "-"}</p>
+                      <p className="truncate text-xs text-slate-500">
+                        {u.email || "-"}
+                      </p>
                     </div>
                   </div>
                 </td>
-                <td className="px-5 py-3 capitalize text-slate-700">{String(u.role || "-")}</td>
+                <td className="px-5 py-3 capitalize text-slate-700">
+                  {String(u.role || "-")}
+                </td>
                 <td className="px-5 py-3">
                   <StatusBadge status={(u.status || "active") as any} />
                 </td>
-                <td className="px-5 py-3 text-right">
+                <td
+                  className="px-5 py-3 text-right"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <ActionMenu
                     disabled={updatingId === u.id}
                     onAction={(action) => handleAction(u.id, action)}
                   />
                 </td>
               </tr>
-          ))}
+            ))}
 
-          {!loading && displayRows.length === 0 && (
-            <tr>
-              <td colSpan={4} className="px-5 py-10 text-center text-slate-500">
-                No users found.
-              </td>
-            </tr>
-          )}
+            {!loading && displayRows.length === 0 && (
+              <tr>
+                <td
+                  colSpan={4}
+                  className="px-5 py-10 text-center text-slate-500"
+                >
+                  No users found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

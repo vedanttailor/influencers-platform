@@ -3,7 +3,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
@@ -13,6 +14,7 @@ type CampaignStatus = "active" | "completed" | "pending";
 
 export default function CampaignDetailsPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
 
   const [campaign, setCampaign] = useState<any>(null);
@@ -31,18 +33,52 @@ export default function CampaignDetailsPage() {
   };
 
   const deleteCampaign = async () => {
-    if (!confirm("Are you sure you want to delete this campaign?")) return;
+    const result = await Swal.fire({
+      title: "Delete Campaign?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Delete",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       await api.delete(`/campaigns/${id}`);
-      window.location.href = "/client/campaigns";
+
+      await Swal.fire({
+        icon: "success",
+        title: "Deleted",
+        text: "Campaign deleted successfully.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      router.push("/client/campaigns");
     } catch (err) {
       console.error("Delete failed", err);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to delete campaign.",
+      });
     }
   };
 
   const completeCampaign = async () => {
-    if (!confirm("Mark this campaign as completed?")) return;
+    const result = await Swal.fire({
+      title: "Complete Campaign?",
+      text: "This will mark the campaign as completed.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Complete",
+      confirmButtonColor: "#16a34a",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       await api.patch(`/campaigns/${id}`, {
@@ -53,8 +89,22 @@ export default function CampaignDetailsPage() {
         ...prev,
         status: "completed",
       }));
+
+      await Swal.fire({
+        icon: "success",
+        title: "Campaign Completed",
+        text: "Campaign has been marked as completed.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (err) {
       console.error("Update failed", err);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to update campaign.",
+      });
     }
   };
 
@@ -106,9 +156,20 @@ export default function CampaignDetailsPage() {
           <p>Type: {campaign.campaign_type}</p>
           <p>Category: {campaign.campaign_category}</p>
           <p>Platforms: {campaign.platforms?.join(", ") || "-"}</p>
-          <p>Budget: ₹{campaign.budget}</p>
-          <p>Start: {campaign.start_date}</p>
-          <p>End: {campaign.end_date}</p>
+          <p>Budget: ₹{Number(campaign.budget || 0).toLocaleString("en-IN")}</p>
+          <p>
+            Start:{" "}
+            {campaign.start_date
+              ? new Date(campaign.start_date).toLocaleDateString("en-IN")
+              : "-"}
+          </p>
+
+          <p>
+            End:{" "}
+            {campaign.end_date
+              ? new Date(campaign.end_date).toLocaleDateString("en-IN")
+              : "-"}
+          </p>
         </div>
 
         <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
@@ -217,7 +278,20 @@ export default function CampaignDetailsPage() {
           )}
 
           {/* DELETE BUTTON */}
-
+          <button
+            onClick={deleteCampaign}
+            className="
+              px-4
+              py-2
+              border
+              border-red-500
+              text-red-600
+              rounded-lg
+              hover:bg-red-50
+            "
+          >
+            Delete
+          </button>
         </div>
       </div>
     </div>
