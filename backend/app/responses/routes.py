@@ -1,6 +1,7 @@
-from http.client import HTTPException
 
-from fastapi import APIRouter, Depends # type: ignore
+import profile
+
+from fastapi import APIRouter, Depends, HTTPException # type: ignore
 from sqlalchemy.orm import Session # type: ignore
 from app.database import SessionLocal
 from app.models import Response, Campaign, User, Influencer
@@ -48,7 +49,6 @@ def get_responses(
             "post_url": None,
             "influencer_email": "",
             "influencer_phone": "",
-            "profile_url": "",
             "instagram_url": "",
             "youtube_url": "",
         }
@@ -68,20 +68,14 @@ def get_responses(
                     item["influencer_email"] = influencer_user.email
                     item["influencer_phone"] = influencer_user.phone
 
-                influencer_profile = db.query(Influencer).filter(
-                    Influencer.user_id == campaign.influencer_id
-                ).first()
-
-                if influencer_profile:
-                    item["instagram_url"] = influencer_profile.instagram_url or ""
-                    item["youtube_url"] = influencer_profile.youtube_url or ""
-
-                    if influencer_profile.profile:
-                        item["profile_url"] = influencer_profile.profile.get(
-                            "profile_url", ""
-                        )
-
-        result.append(item)
+                item["instagram_url"] = (
+                influencer_user.instagram_url or ""
+                )
+                item["youtube_url"] = (
+                    influencer_user.youtube_url or ""
+                )
+                    
+    result.append(item)
 
     return result
 class StatusUpdate(BaseModel):
