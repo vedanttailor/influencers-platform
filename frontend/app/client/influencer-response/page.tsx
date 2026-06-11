@@ -16,7 +16,6 @@ type ResponseType = {
 
   influencer_email?: string;
   influencer_phone?: string;
-  profile_url?: string;
   followers_count?: string;
   profile_img?: string;
   instagram_url?: string;
@@ -60,8 +59,6 @@ export default function InfluencerResponsesPage() {
         influencer_email: item.influencer_email || "",
 
         influencer_phone: item.influencer_phone || "",
-
-        profile_url: item.profile_url || "",
 
         followers_count: item.followers_count || "",
 
@@ -365,17 +362,6 @@ export default function InfluencerResponsesPage() {
                   {selected.status}
                 </span>
               </div>
-
-              {/* PROFILE LINK */}
-              {selected.profile_url && (
-                <a
-                  href={selected.profile_url}
-                  target="_blank"
-                  className="block w-full text-center mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Open Social Profile
-                </a>
-              )}
             </div>
           </div>
         </div>

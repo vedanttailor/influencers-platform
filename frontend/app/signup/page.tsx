@@ -269,16 +269,11 @@ export default function SignupPage() {
     <div className="auth-shell">
       <div className="auth-brand">
         <div className="auth-brand-inner">
-          <p className="auth-brand-badge">Influencer CRM</p>
+          <p className="auth-brand-badge">Influencer Platform</p>
 
           <h1 className="auth-brand-title">
             Join your creator marketing workspace
           </h1>
-
-          <p className="auth-brand-sub">
-            Onboard as a client or influencer and keep every campaign, asset,
-            and payout in sync.
-          </p>
         </div>
       </div>
 

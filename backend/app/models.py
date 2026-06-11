@@ -73,36 +73,40 @@ class Influencer(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), unique=True)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        unique=True
+    )
 
     name = Column(String)
 
-    # profile details (better than separate fields)
+    # Social Links
+    instagram_url = Column(String, nullable=True)
+    youtube_url = Column(String, nullable=True)
+
+    # Analytics Data Only
     profile = Column(JSONB)
     """
     {
         followers_count,
         engagement_rate,
         avg_like,
-        avg_comment,
-        profile_url
+        avg_comment
     }
     """
 
     category = Column(String)
 
-    campaign_id = Column(UUID(as_uuid=True), ForeignKey("campaigns.id"), nullable=True)
+    campaign_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("campaigns.id"),
+        nullable=True
+    )
 
     campaign_details = Column(JSONB)
 
     earnings = Column(JSONB)
-    """
-    {
-        total_earning,
-        pending_earning,
-        per_campaign_earning
-    }
-    """
 
 
 class Client(Base):

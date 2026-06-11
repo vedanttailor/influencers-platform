@@ -724,3 +724,108 @@ def get_user_details(
         "created_at": user_data.created_at,
         "last_login": user_data.last_login,
     }
+@router.get("/campaigns")
+def get_admin_campaigns(
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin"))
+):
+    return db.query(Campaign).order_by(Campaign.created_at.desc()).all()
+
+@router.get("/campaigns/{campaign_id}")
+def get_campaign_details(
+    campaign_id: str,
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin"))
+):
+    campaign = (
+        db.query(Campaign)
+        .filter(Campaign.id == campaign_id)
+        .first()
+    )
+
+    if not campaign:
+        raise HTTPException(
+            status_code=404,
+            detail="Campaign not found"
+        )
+
+    client = None
+    if campaign.client_id:
+        client = (
+            db.query(User)
+            .filter(User.id == campaign.client_id)
+            .first()
+        )
+
+    influencer = None
+    if campaign.influencer_id:
+        influencer = (
+            db.query(User)
+            .filter(User.id == campaign.influencer_id)
+            .first()
+        )
+
+    manager = None
+    if campaign.manager_id:
+        manager = (
+            db.query(User)
+            .filter(User.id == campaign.manager_id)
+            .first()
+        )
+
+    return {
+        "id": str(campaign.id),
+
+        "campaign_name": campaign.campaign_name,
+        "brand_name": campaign.brand_name,
+
+        "campaign_type": campaign.campaign_type,
+        "campaign_category": campaign.campaign_category,
+        "campaign_objective": campaign.campaign_objective,
+
+        "company_url": campaign.company_url,
+
+        "platforms": campaign.platforms,
+
+        "logo": campaign.logo,
+
+        "description": campaign.description,
+
+        "budget": float(campaign.budget or 0),
+
+        "status": campaign.status,
+
+        "post_url": campaign.post_url,
+
+        "posted_video_data": campaign.posted_video_data,
+
+        "start_date": campaign.start_date,
+        "end_date": campaign.end_date,
+
+        "created_at": campaign.created_at,
+
+        "client_id": str(campaign.client_id) if campaign.client_id else None,
+        "influencer_id": str(campaign.influencer_id) if campaign.influencer_id else None,
+        "manager_id": str(campaign.manager_id) if campaign.manager_id else None,
+
+        "client": {
+            "id": str(client.id),
+            "name": client.full_name,
+            "email": client.email,
+            "phone": client.phone,
+        } if client else None,
+
+        "influencer": {
+            "id": str(influencer.id),
+            "name": influencer.full_name,
+            "email": influencer.email,
+            "phone": influencer.phone,
+        } if influencer else None,
+
+        "manager": {
+            "id": str(manager.id),
+            "name": manager.full_name,
+            "email": manager.email,
+            "phone": manager.phone,
+        } if manager else None,
+    }

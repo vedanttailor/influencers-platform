@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import StatusBadge from "./StatusBadge";
 import { api } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 function DotsIcon({ className }: { className?: string }) {
   return (
@@ -47,7 +48,9 @@ function ActionMenu({
           className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-800 hover:bg-slate-50"
           onClick={(e) => {
             onAction("approve");
-            (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open");
+            (
+              e.currentTarget.closest("details") as HTMLDetailsElement | null
+            )?.removeAttribute("open");
           }}
         >
           <span className="h-2 w-2 rounded-full bg-green-500" />
@@ -58,7 +61,9 @@ function ActionMenu({
           className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-800 hover:bg-slate-50"
           onClick={(e) => {
             onAction("reject");
-            (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open");
+            (
+              e.currentTarget.closest("details") as HTMLDetailsElement | null
+            )?.removeAttribute("open");
           }}
         >
           <span className="h-2 w-2 rounded-full bg-red-500" />
@@ -69,7 +74,9 @@ function ActionMenu({
           className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-800 hover:bg-slate-50"
           onClick={(e) => {
             onAction("suspend");
-            (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open");
+            (
+              e.currentTarget.closest("details") as HTMLDetailsElement | null
+            )?.removeAttribute("open");
           }}
         >
           <span className="h-2 w-2 rounded-full bg-amber-500" />
@@ -80,7 +87,9 @@ function ActionMenu({
           className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-800 hover:bg-slate-50"
           onClick={(e) => {
             onAction("complete");
-            (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open");
+            (
+              e.currentTarget.closest("details") as HTMLDetailsElement | null
+            )?.removeAttribute("open");
           }}
         >
           <span className="h-2 w-2 rounded-full bg-indigo-500" />
@@ -92,7 +101,9 @@ function ActionMenu({
           className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-800 hover:bg-slate-50"
           onClick={(e) => {
             onAction("activate");
-            (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open");
+            (
+              e.currentTarget.closest("details") as HTMLDetailsElement | null
+            )?.removeAttribute("open");
           }}
         >
           <span className="h-2 w-2 rounded-full bg-slate-900" />
@@ -108,6 +119,7 @@ export default function CampaignTable() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const router = useRouter();
 
   const fetchRows = async () => {
     try {
@@ -156,7 +168,9 @@ export default function CampaignTable() {
         <div>
           <h3 className="text-sm font-semibold text-slate-900">Campaigns</h3>
           <p className="mt-0.5 text-xs text-slate-500">
-            {loading ? "Loading..." : `${filtered.length} shown · ${rows.length} total`}
+            {loading
+              ? "Loading..."
+              : `${filtered.length} shown · ${rows.length} total`}
           </p>
         </div>
 
@@ -184,42 +198,54 @@ export default function CampaignTable() {
             </tr>
           </thead>
           <tbody>
-          {displayRows.map((c) => {
-            const name = c.campaign_name || c.name || "-";
-            const status = String(c.status || "active");
-            const start = c.start_date
-              ? new Date(c.start_date).toLocaleDateString()
-              : "-";
-            const brand = c.brand_name || "-";
+            {displayRows.map((c) => {
+              const name = c.campaign_name || c.name || "-";
+              const status = String(c.status || "active");
+              const start = c.start_date
+                ? new Date(c.start_date).toLocaleDateString()
+                : "-";
+              const brand = c.brand_name || "-";
 
-            return (
-              <tr key={c.id} className="border-t border-slate-200/70 hover:bg-slate-50/60 transition">
-                <td className="px-5 py-3">
-                  <p className="font-semibold text-slate-900">{name}</p>
-                  <p className="text-xs text-slate-500 truncate">{String(c.campaign_type || c.campaign_category || "")}</p>
-                </td>
-                <td className="px-5 py-3 text-slate-700">{brand}</td>
-                <td className="px-5 py-3">
-                  <StatusBadge status={status as any} />
-                </td>
-                <td className="px-5 py-3 text-slate-600">{start}</td>
-                <td className="px-5 py-3 text-right">
-                  <ActionMenu
-                    disabled={updatingId === c.id}
-                    onAction={(action) => handleAction(c.id, action)}
-                  />
+              return (
+                <tr
+                  key={c.id}
+                  onClick={() => router.push(`/Admin/campaigns/${c.id}`)}
+                  className="border-t border-slate-200/70 hover:bg-slate-50/60 transition cursor-pointer"
+                >
+                  <td className="px-5 py-3">
+                    <p className="font-semibold text-slate-900">{name}</p>
+                    <p className="text-xs text-slate-500 truncate">
+                      {String(c.campaign_type || c.campaign_category || "")}
+                    </p>
+                  </td>
+                  <td className="px-5 py-3 text-slate-700">{brand}</td>
+                  <td className="px-5 py-3">
+                    <StatusBadge status={status as any} />
+                  </td>
+                  <td className="px-5 py-3 text-slate-600">{start}</td>
+                  <td
+                    className="px-5 py-3 text-right"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ActionMenu
+                      disabled={updatingId === c.id}
+                      onAction={(action) => handleAction(c.id, action)}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
+
+            {!loading && displayRows.length === 0 && (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="px-5 py-10 text-center text-slate-500"
+                >
+                  No campaigns found.
                 </td>
               </tr>
-            );
-          })}
-
-          {!loading && displayRows.length === 0 && (
-            <tr>
-              <td colSpan={5} className="px-5 py-10 text-center text-slate-500">
-                No campaigns found.
-              </td>
-            </tr>
-          )}
+            )}
           </tbody>
         </table>
       </div>

@@ -68,14 +68,10 @@ export default function LoginPage() {
     <div className="auth-shell">
       <div className="auth-brand">
         <div className="auth-brand-inner">
-          <p className="auth-brand-badge">Influencer CRM</p>
+          <p className="auth-brand-badge">Influencer Platform</p>
           <h1 className="auth-brand-title">
             Run creator campaigns with clarity
           </h1>
-          <p className="auth-brand-sub">
-            Manage briefs, approvals, and performance in one professional
-            workspace—built for brands and influencers.
-          </p>
         </div>
       </div>
 
