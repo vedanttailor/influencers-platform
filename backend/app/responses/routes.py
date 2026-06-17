@@ -1,6 +1,4 @@
 
-import profile
-
 from fastapi import APIRouter, Depends, HTTPException # type: ignore
 from sqlalchemy.orm import Session # type: ignore
 from app.database import SessionLocal
@@ -75,7 +73,7 @@ def get_responses(
                     influencer_user.youtube_url or ""
                 )
                     
-    result.append(item)
+        result.append(item)
 
     return result
 class StatusUpdate(BaseModel):
