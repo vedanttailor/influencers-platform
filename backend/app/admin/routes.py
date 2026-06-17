@@ -1,0 +1,831 @@
+from fastapi import APIRouter, Depends, HTTPException  # type: ignore
+from sqlalchemy.orm import Session  # type: ignore
+from pydantic import BaseModel, EmailStr  # type: ignore
+from typing import Optional
+from sqlalchemy import func # type: ignore
+from app.models import Payment, Payout
+from app.auth.service import send_welcome_email
+from app.database import SessionLocal
+from app.models import User, Influencer, Client, Campaign, Manager, UserRole
+from app.auth.permissions import require_role
+from app.auth.utils import get_user_by_email
+from app.core.security import hash_password
+from uuid import UUID
+from app.database import get_db
+from app.models import User
+from app.auth.dependencies import get_current_user
+
+router = APIRouter(prefix="/admin", tags=["Admin"])
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+class AdminCreateManagerSchema(BaseModel):
+    full_name: str
+    email: EmailStr
+    password: str
+    phone: Optional[str] = None
+    profile_img: Optional[str] = None
+
+
+class AdminUserActionSchema(BaseModel):
+    action: str
+
+
+class AdminCampaignActionSchema(BaseModel):
+    action: str
+
+
+@router.get("/stats")
+def get_admin_stats(db: Session = Depends(get_db), user=Depends(require_role("admin"))):
+    users = db.query(User).count()
+    influencers = db.query(User).filter(User.role == UserRole.influencer).count()
+    clients = db.query(User).filter(User.role == UserRole.client).count()
+    managers = db.query(Manager).count()
+    campaigns = db.query(Campaign).count()
+
+    return {
+        "users": users,
+        "influencers": influencers,
+        "managers": managers,
+        "clients": clients,
+        "campaigns": campaigns,
+    }
+
+
+@router.get("/users")
+def get_admin_users(db: Session = Depends(get_db), user=Depends(require_role("admin"))):
+    users = (
+        db.query(User)
+        .filter(User.is_deleted == None)  # noqa: E711
+        .order_by(User.created_at.desc())
+        .all()
+    )
+
+    return [
+        {
+            "id": str(u.id),
+            "full_name": u.full_name,
+            "email": u.email,
+            "role": u.role,
+            "status": u.status,
+            "created_at": u.created_at,
+            "last_login": u.last_login,
+        }
+        for u in users
+    ]
+
+
+@router.get("/campaigns")
+def get_admin_campaigns(
+    db: Session = Depends(get_db), user=Depends(require_role("admin"))
+):
+    return db.query(Campaign).order_by(Campaign.created_at.desc()).all()
+
+
+@router.get("/clients")
+def get_admin_clients(db: Session = Depends(get_db), user=Depends(require_role("admin"))):
+    users = (
+        db.query(User)
+        .filter(User.role == UserRole.client)
+        .filter(User.is_deleted == None)  # noqa: E711
+        .order_by(User.created_at.desc())
+        .all()
+    )
+
+    items = []
+    for user_row in users:
+        client_profile = (
+            db.query(Client).filter(Client.user_id == user_row.id).first()
+        )
+        total_campaigns = (
+            db.query(Campaign).filter(Campaign.client_id == user_row.id).count()
+        )
+        active_campaigns = (
+            db.query(Campaign)
+            .filter(Campaign.client_id == user_row.id, Campaign.status == "active")
+            .count()
+        )
+        spend = (
+            db.query(Campaign.budget).filter(Campaign.client_id == user_row.id).all()
+        )
+        total_spend = float(sum([float(s[0] or 0) for s in spend]))
+
+        items.append(
+            {
+                "id": str(client_profile.id) if client_profile else str(user_row.id),
+                "user_id": str(user_row.id),
+                "name": (
+                    client_profile.client_name
+                    if client_profile and client_profile.client_name
+                    else user_row.full_name
+                ),
+                "company_name": client_profile.company_name if client_profile else None,
+                "email": user_row.email,
+                "status": user_row.status,
+                "active_campaigns": active_campaigns,
+                "total_campaigns": total_campaigns,
+                "total_spend": total_spend,
+                "created_at": user_row.created_at,
+            }
+        )
+
+    return items
+
+
+@router.get("/influencers")
+def get_admin_influencers(
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin"))
+):
+
+    users = (
+        db.query(User)
+        .filter(User.role == UserRole.influencer)
+        .filter(User.is_deleted == None)
+        .order_by(User.created_at.desc())
+        .all()
+    )
+
+    items = []
+
+    for user_row in users:
+
+        influencer_profile = (
+            db.query(Influencer)
+            .filter(Influencer.user_id == user_row.id)
+            .first()
+        )
+
+        platforms = []
+
+        if user_row.instagram_url:
+            platforms.append("Instagram")
+
+        if user_row.youtube_url:
+            platforms.append("YouTube")
+
+        active_campaigns = (
+            db.query(Campaign)
+            .filter(
+                Campaign.influencer_id == user_row.id,
+                Campaign.status == "active"
+            )
+            .count()
+        )
+
+        items.append({
+
+            "id": (
+                str(influencer_profile.id)
+                if influencer_profile
+                else str(user_row.id)
+            ),
+
+            "user_id": str(user_row.id),
+
+            "name": (
+                influencer_profile.name
+                if influencer_profile and influencer_profile.name
+                else user_row.full_name
+            ),
+
+            "email": user_row.email,
+
+            "category": (
+                influencer_profile.category
+                if influencer_profile
+                else None
+            ),
+
+            "status": user_row.status,
+
+            # DYNAMIC DATA FROM USER TABLE
+            "followers": user_row.followers_count or 0,
+
+            "engagement_rate": (
+                user_row.engagement_rate or 0
+            ),
+
+            "youtube_subscribers": (
+                user_row.youtube_subscribers or 0
+            ),
+
+            "youtube_views": (
+                user_row.youtube_views or 0
+            ),
+
+            "youtube_videos": (
+                user_row.youtube_videos or 0
+            ),
+
+            "platforms": platforms,
+
+            "active_campaigns": active_campaigns,
+
+            "created_at": user_row.created_at,  
+        })
+
+    return items
+
+
+@router.get("/managers")
+def get_admin_managers(
+    db: Session = Depends(get_db), user=Depends(require_role("admin"))
+):
+    managers = (
+        db.query(Manager, User)
+        .join(User, User.id == Manager.user_id)
+        .filter(User.is_deleted == None)  # noqa: E711
+        .order_by(Manager.created_at.desc())
+        .all()
+    )
+
+    return [
+        {
+            "id": str(m.id),
+            "user_id": str(u.id),
+            "full_name": u.full_name,
+            "email": u.email,
+            "phone": u.phone,
+            "profile_img": u.profile_img,
+            "status": m.status,
+            "approval_status": m.approval_status,
+            "created_at": m.created_at,
+        }
+        for (m, u) in managers
+    ]
+
+
+@router.post("/create-manager")
+def create_manager(
+    data: AdminCreateManagerSchema,
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin")),
+):
+    if get_user_by_email(db, data.email):
+        raise HTTPException(400, "Email already exists")
+
+    new_user = User(
+        full_name=data.full_name,
+        email=data.email,
+        password=hash_password(data.password),
+        role=UserRole.manager,
+        phone=data.phone,
+        profile_img=data.profile_img,
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    send_welcome_email(new_user)
+
+    manager = Manager(
+        user_id=new_user.id,
+        approval_status="approved",
+        status="active",
+        image=data.profile_img,
+        client_info=None,
+        influencer_info=None,
+    )
+    db.add(manager)
+    db.commit()
+    db.refresh(manager)
+
+    return {
+        "message": "Manager created",
+        "data": {
+            "id": str(new_user.id),
+            "full_name": new_user.full_name,
+            "email": new_user.email,
+            "role": new_user.role,
+            "phone": new_user.phone,
+            "profile_img": new_user.profile_img,
+            "manager_id": str(manager.id),
+            "status": manager.status,
+            "approval_status": manager.approval_status,
+        },
+    }
+
+
+@router.patch("/users/{user_id}/action")
+def user_action(
+    user_id: str,
+    data: AdminUserActionSchema,
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin")),
+):
+    action = (data.action or "").lower().strip()
+    user_row = db.query(User).filter(User.id == user_id, User.is_deleted == None).first()  # noqa: E711
+
+    if not user_row:
+        raise HTTPException(404, "User not found")
+
+    if user_row.role == UserRole.admin:
+        raise HTTPException(403, "Admin accounts cannot be modified")
+
+    if action == "approve":
+        user_row.status = "active"
+    elif action == "reject":
+        user_row.status = "rejected"
+    elif action == "suspend":
+        user_row.status = "suspended"
+    elif action == "activate":
+        user_row.status = "active"
+    else:
+        raise HTTPException(400, "Invalid action")
+
+    db.commit()
+    db.refresh(user_row)
+
+    return {
+        "message": "User updated",
+        "data": {
+            "id": str(user_row.id),
+            "status": user_row.status,
+        },
+    }
+
+
+@router.patch("/campaigns/{campaign_id}/action")
+def campaign_action(
+    campaign_id: str,
+    data: AdminCampaignActionSchema,
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin")),
+):
+    action = (data.action or "").lower().strip()
+    campaign = db.query(Campaign).filter(Campaign.id == campaign_id).first()
+
+    if not campaign:
+        raise HTTPException(404, "Campaign not found")
+
+    if action == "approve":
+        campaign.status = "active"
+    elif action == "reject":
+        campaign.status = "rejected"
+    elif action == "suspend":
+        campaign.status = "suspended"
+    elif action == "complete":
+        campaign.status = "completed"
+    elif action == "activate":
+        campaign.status = "active"
+    else:
+        raise HTTPException(400, "Invalid action")
+
+    db.commit()
+    db.refresh(campaign)
+
+    return {
+        "message": "Campaign updated",
+        "data": {
+            "id": str(campaign.id),
+            "status": campaign.status,
+        },
+    }
+
+
+@router.get("/client/{client_id}")
+def get_client_detail(
+    client_id: str,
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin")),
+):
+    # Get client user
+    client_user = db.query(User).filter(User.id == client_id).first()
+    if not client_user or client_user.role != UserRole.client:
+        raise HTTPException(404, "Client not found")
+    
+    # Client profile
+    client_profile = db.query(Client).filter(Client.user_id == client_id).first()
+    
+    # Campaigns
+    campaigns = db.query(Campaign).filter(Campaign.client_id == client_id).order_by(Campaign.created_at.desc()).all()
+    
+    # Financial stats
+    total_spend = db.query(Campaign.budget).filter(Campaign.client_id == client_id).all()
+    total_spend = sum([float(b[0] or 0) for b in total_spend])
+    active_campaigns = db.query(Campaign).filter(Campaign.client_id == client_id, Campaign.status == "active").count()
+    
+    # Risk metrics (example calculations)
+    cancellations = len([c for c in campaigns if c.status == "cancelled"])
+    late_approvals = len([c for c in campaigns if c.status == "late"])
+    
+    return {
+        "client": {
+            "id": str(client_user.id),
+            "user_id": str(client_user.id),
+            "name": client_user.full_name,
+            "company_name": getattr(client_profile, "company_name", None),
+            "email": client_user.email,
+            "status": client_user.status,
+            "phone": client_user.phone,
+        },
+        "stats": {
+            "total_campaigns": len(campaigns),
+            "active_campaigns": active_campaigns,
+            "total_spend": float(total_spend),
+            "avg_budget": float(total_spend / max(len(campaigns), 1)),
+        },
+        "campaigns": [
+            {
+                "id": str(c.id),
+                "campaign_name": c.campaign_name,
+                "platforms": c.platforms,
+                "budget": float(c.budget or 0),
+                "reach": getattr(c, "reach", "N/A"),
+                "status": c.status,
+                "start_date": c.start_date.isoformat() if c.start_date else None,
+                "end_date": c.end_date.isoformat() if c.end_date else None,
+            }
+            for c in campaigns
+        ],
+        "financial": {
+            "total_spend": float(total_spend),
+            "failed_payments": 0,  # TODO: track
+            "last_payment": None,  # TODO: from payments table
+        },
+        "risk": {
+            "cancellations": cancellations,
+            "late_approvals": late_approvals,
+            "violations": 0,
+            "risk_score": "medium",  # calculate based metrics
+        },
+    }
+    
+@router.get("/client/{client_id}/campaigns")
+def get_client_campaigns(
+    client_id: str,
+    db: Session = Depends(get_db)
+):
+
+    campaigns = db.query(Campaign).filter(
+        Campaign.client_id == client_id
+    ).all()
+
+    data = []
+
+    for c in campaigns:
+
+        data.append({
+
+            "id": str(c.id),
+
+            "campaign_name": c.campaign_name,
+
+            "brand_name": c.brand_name,
+
+            "platforms": c.platforms,
+
+            "budget": float(c.budget),
+
+            "status": c.status,
+
+            "post_url": c.post_url,
+
+            "created_at": c.created_at
+        })
+
+    return data
+
+
+@router.get("/client/{client_id}/financials")
+def get_client_financials(
+    client_id: str,
+    db: Session = Depends(get_db)
+):
+
+    campaigns = db.query(Campaign).filter(
+        Campaign.client_id == client_id
+    ).all()
+
+    if not campaigns:
+
+        return {
+            "total_spend": 0,
+            "avg_budget": 0,
+            "highest_budget": 0,
+            "total_campaigns": 0,
+        }
+
+    total_spend = sum(
+        float(c.budget or 0)
+        for c in campaigns
+    )
+
+    highest_budget = max(
+        float(c.budget or 0)
+        for c in campaigns
+    )
+
+    avg_budget = total_spend / len(campaigns)
+
+    return {
+
+        "total_spend": total_spend,
+
+        "avg_budget": round(avg_budget, 2),
+
+        "highest_budget": highest_budget,
+
+        "total_campaigns": len(campaigns)
+    }
+    
+@router.get("/influencer/{influencer_id}/campaigns")
+def get_influencer_campaigns(
+    influencer_id: str,
+    db: Session = Depends(get_db)
+):
+
+    campaigns = db.query(Campaign).filter(
+        Campaign.influencer_id == influencer_id
+    ).all()
+
+    data = []
+
+    for c in campaigns:
+
+        payment = db.query(Payment).filter(
+            Payment.campaign_id == c.id
+        ).first()
+
+        payout = db.query(Payout).filter(
+            Payout.campaign_id == c.id
+        ).first()
+
+        client = db.query(User).filter(
+            User.id == c.client_id
+        ).first()
+
+        data.append({
+
+            "id": str(c.id),
+
+            "campaign_name": c.campaign_name,
+
+            "client_name":
+                client.full_name if client else None,
+
+            "budget":
+                float(c.budget or 0),
+
+            "status":
+                c.status,
+
+            "platforms":
+                c.platforms,
+
+            "post_url":
+                c.post_url,
+
+            "payment_status":
+                payment.payment_status if payment else "pending",
+
+            "payout_status":
+                payout.payout_status if payout else "unpaid",
+
+            "transaction_id":
+                payout.transaction_id if payout else None,
+        })
+
+    return data
+
+@router.get("/influencer/{influencer_id}/financials")
+def get_influencer_financials(
+    influencer_id: str,
+    db: Session = Depends(get_db)
+):
+
+    campaigns = db.query(Campaign).filter(
+        Campaign.influencer_id == influencer_id
+    ).all()
+
+    total_earned = 0
+    pending_amount = 0
+    paid_campaigns = 0
+
+    for c in campaigns:
+
+        payout = db.query(Payout).filter(
+            Payout.campaign_id == c.id
+        ).first()
+
+        if payout and payout.payout_status == "paid":
+
+            total_earned += float(
+                payout.payout_amount
+            )
+
+            paid_campaigns += 1
+
+        else:
+
+            pending_amount += float(
+                c.budget or 0
+            )
+
+    return {
+
+        "total_earned":
+            total_earned,
+
+        "pending_amount":
+            pending_amount,
+
+        "paid_campaigns":
+            paid_campaigns,
+
+        "total_campaigns":
+            len(campaigns)
+    }
+    
+@router.get("/influencer-campaigns/{influencer_id}")
+def get_influencer_campaigns(
+    influencer_id: str,
+    db: Session = Depends(get_db)
+):
+
+    campaigns = db.query(Campaign).filter(
+        Campaign.influencer_id == influencer_id
+    ).all()
+
+    data = []
+
+    for campaign in campaigns:
+
+        client = db.query(User).filter(
+            User.id == campaign.client_id
+        ).first()
+
+        data.append({
+
+            "id": str(campaign.id),
+
+            "campaign_name":
+                campaign.campaign_name,
+
+            "client_name":
+                client.full_name if client else "Unknown",
+
+            "budget":
+                campaign.budget,
+
+            "status":
+                campaign.status,
+
+            "post_url":
+                campaign.post_url
+        })
+
+    return data
+
+@router.get("/users/{user_id}")
+def get_user_details(
+    user_id: UUID,
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin"))
+):
+    user_data = (
+        db.query(User)
+        .filter(User.id == user_id)
+        .first()
+    )
+
+    if not user_data:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    return {
+        "id": str(user_data.id),
+        "full_name": user_data.full_name,
+        "email": user_data.email,
+        "phone": user_data.phone,
+        "role": user_data.role.value,
+        "status": user_data.status,
+        "profile_img": user_data.profile_img,
+        "upi_id": user_data.upi_id,
+        "instagram_url": user_data.instagram_url,
+        "instagram_username": user_data.instagram_username,
+        "followers_count": user_data.followers_count,
+        "engagement_rate": user_data.engagement_rate,
+        "youtube_url": user_data.youtube_url,
+        "youtube_channel_name": user_data.youtube_channel_name,
+        "youtube_channel_id": user_data.youtube_channel_id,
+        "youtube_subscribers": user_data.youtube_subscribers,
+        "youtube_views": user_data.youtube_views,
+        "youtube_videos": user_data.youtube_videos,
+        "created_at": user_data.created_at,
+        "last_login": user_data.last_login,
+    }
+@router.get("/campaigns")
+def get_admin_campaigns(
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin"))
+):
+    return db.query(Campaign).order_by(Campaign.created_at.desc()).all()
+
+@router.get("/campaigns/{campaign_id}")
+def get_campaign_details(
+    campaign_id: str,
+    db: Session = Depends(get_db),
+    user=Depends(require_role("admin"))
+):
+    campaign = (
+        db.query(Campaign)
+        .filter(Campaign.id == campaign_id)
+        .first()
+    )
+
+    if not campaign:
+        raise HTTPException(
+            status_code=404,
+            detail="Campaign not found"
+        )
+
+    client = None
+    if campaign.client_id:
+        client = (
+            db.query(User)
+            .filter(User.id == campaign.client_id)
+            .first()
+        )
+
+    influencer = None
+    if campaign.influencer_id:
+        influencer = (
+            db.query(User)
+            .filter(User.id == campaign.influencer_id)
+            .first()
+        )
+
+    manager = None
+    if campaign.manager_id:
+        manager = (
+            db.query(User)
+            .filter(User.id == campaign.manager_id)
+            .first()
+        )
+
+    return {
+        "id": str(campaign.id),
+
+        "campaign_name": campaign.campaign_name,
+        "brand_name": campaign.brand_name,
+
+        "campaign_type": campaign.campaign_type,
+        "campaign_category": campaign.campaign_category,
+        "campaign_objective": campaign.campaign_objective,
+
+        "company_url": campaign.company_url,
+
+        "platforms": campaign.platforms,
+
+        "logo": campaign.logo,
+
+        "description": campaign.description,
+
+        "budget": float(campaign.budget or 0),
+
+        "status": campaign.status,
+
+        "post_url": campaign.post_url,
+
+        "posted_video_data": campaign.posted_video_data,
+
+        "start_date": campaign.start_date,
+        "end_date": campaign.end_date,
+
+        "created_at": campaign.created_at,
+
+        "client_id": str(campaign.client_id) if campaign.client_id else None,
+        "influencer_id": str(campaign.influencer_id) if campaign.influencer_id else None,
+        "manager_id": str(campaign.manager_id) if campaign.manager_id else None,
+
+        "client": {
+            "id": str(client.id),
+            "name": client.full_name,
+            "email": client.email,
+            "phone": client.phone,
+        } if client else None,
+
+        "influencer": {
+            "id": str(influencer.id),
+            "name": influencer.full_name,
+            "email": influencer.email,
+            "phone": influencer.phone,
+        } if influencer else None,
+
+        "manager": {
+            "id": str(manager.id),
+            "name": manager.full_name,
+            "email": manager.email,
+            "phone": manager.phone,
+        } if manager else None,
+    }

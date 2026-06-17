@@ -3,37 +3,195 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import {
+  LayoutDashboard,
+  Users,
+  UserCheck,
+  Megaphone,
+} from "lucide-react";
+
 const menu = [
-  { name: "Dashboard", path: "/dashboard" },
-  { name: "Clients", path: "/clients" },
-  { name: "Influencers", path: "/influencers" },
-  { name: "Campaigns", path: "/campaigns" },
+  {
+    name: "Dashboard",
+    path: "/manager/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    name: "Clients",
+    path: "/manager/clients",
+    icon: Users,
+  },
+  {
+    name: "Influencers",
+    path: "/manager/influencers",
+    icon: UserCheck,
+  },
+  {
+    name: "Campaigns",
+    path: "/manager/campaigns",
+    icon: Megaphone,
+  },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white shadow-md">
-      <h2 className="text-xl font-bold p-5">
-        Manager Panel
-      </h2>
+    <aside
+      className="
+        group
+        fixed
+        left-0
+        top-0
+        z-50
+        flex
+        h-screen
+        w-20
+        hover:w-64
+        flex-col
+        overflow-hidden
+        bg-[#06153A]
+        transition-all
+        duration-300
+        shadow-xl
+      "
+    >
+      {/* HEADER */}
+      <div className="border-b border-white/10 h-20 flex items-center justify-center px-4">
 
-      <nav className="p-4 space-y-2">
-        {menu.map((item) => (
-          <Link
-            key={item.path}
-            href={item.path}
-            className={`block px-4 py-2 rounded-md ${
-              pathname === item.path
-                ? "bg-blue-600 text-white"
-                : "hover:bg-gray-100"
-            }`}
-          >
-            {item.name}
-          </Link>
-        ))}
+        <LayoutDashboard
+          size={24}
+          className="text-cyan-400 shrink-0"
+        />
+
+        <div
+          className="
+            ml-3
+            whitespace-nowrap
+            opacity-0
+            invisible
+            group-hover:visible
+            group-hover:opacity-100
+            transition-all
+            duration-300
+          "
+        >
+          <p className="text-[10px] uppercase tracking-[3px] text-slate-400">
+            Workspace
+          </p>
+
+          <p className="text-xl font-semibold text-white">
+            Manager
+          </p>
+        </div>
+
+      </div>
+
+      {/* MENU */}
+      <nav className="flex-1 px-3 py-5 space-y-3">
+
+        {menu.map((item) => {
+
+          const active =
+            pathname === item.path ||
+            (item.path !== "/manager/dashboard" &&
+              pathname.startsWith(item.path));
+
+          return (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={`
+                flex
+                items-center
+                h-12
+                rounded-xl
+                px-3
+                transition-all
+                duration-300
+                ${
+                  active
+                    ? "bg-cyan-900/40 text-cyan-400"
+                    : "text-slate-300 hover:bg-slate-800"
+                }
+              `}
+            >
+              <span
+                className="
+                  flex
+                  w-8
+                  justify-center
+                  shrink-0
+                "
+              >
+                <item.icon
+                  size={20}
+                  strokeWidth={2}
+                />
+              </span>
+
+              <span
+                className="
+                  ml-4
+                  whitespace-nowrap
+                  opacity-0
+                  invisible
+                  group-hover:visible
+                  group-hover:opacity-100
+                  transition-all
+                  duration-300
+                "
+              >
+                {item.name}
+              </span>
+
+            </Link>
+          );
+        })}
       </nav>
+
+      {/* FOOTER */}
+      <div className="border-t border-white/10 p-4">
+
+        <div className="flex items-center justify-center group-hover:justify-start transition-all duration-300">
+
+          <div
+            className="
+              h-10
+              w-10
+              rounded-full
+              bg-slate-900
+              text-white
+              flex
+              items-center
+              justify-center
+              font-semibold
+              shrink-0
+            "
+          >
+            M
+          </div>
+
+          <span
+            className="
+              ml-3
+              text-sm
+              text-white
+              whitespace-nowrap
+              opacity-0
+              invisible
+              group-hover:visible
+              group-hover:opacity-100
+              transition-all
+              duration-300
+            "
+          >
+            Manager
+          </span>
+
+        </div>
+
+      </div>
     </aside>
   );
 }

@@ -1,10 +1,15 @@
-import hashlib
-from passlib.context import CryptContext # type: ignore
+import os
+from dotenv import load_dotenv # type: ignore
 from jose import jwt # type: ignore
 from datetime import datetime, timedelta
+import hashlib
+from passlib.context import CryptContext # type: ignore
 
-SECRET = "SUPER_SECRET_KEY"
+load_dotenv()
+
+SECRET = os.getenv("SECRET_KEY")
 ALGO = "HS256"
+TOKEN_EXPIRE_DAY = int(os.getenv("TOKEN_EXPIRE_DAY", "1"))
 
 pwd_ctx = CryptContext(schemes=["bcrypt"])
 
@@ -21,7 +26,7 @@ def create_token(user_id, role):
     payload = {
         "sub": str(user_id),
         "role": role,
-        "exp": datetime.utcnow() + timedelta(days=1)
+        "exp": datetime.utcnow() + timedelta(days=TOKEN_EXPIRE_DAY)
     }
     return jwt.encode(payload, SECRET, algorithm=ALGO)
 

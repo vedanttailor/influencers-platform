@@ -1,8 +1,8 @@
 "use client";
 
-import { UserProvider } from "./components/UserContext";
-import Sidebar from "./components/Sidebar";
-import Topbar from "./components/Topbar";
+import { UserProvider } from "./campaigns/components/UserContext";
+import Sidebar from "./campaigns/components/Sidebar";
+import Topbar from "./campaigns/components/Topbar";
 
 export default function ClientLayout({
   children,
@@ -11,23 +11,18 @@ export default function ClientLayout({
 }) {
   return (
     <UserProvider>
-      <div className="flex h-screen bg-slate-950 text-white">
+      <div className="flex min-h-screen bg-slate-50">
 
-        
         <Sidebar />
 
-        
-        <div className="flex flex-col flex-1">
-
-         
+        <div className="flex flex-1 flex-col overflow-hidden pl-20">
           <Topbar />
 
-          
-          <main className="flex-1 p-8 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto p-6 lg:p-8">
             {children}
           </main>
-
         </div>
+
       </div>
     </UserProvider>
   );

@@ -13,9 +13,7 @@ const COLORS = ["#2563eb", "#60a5fa", "#93c5fd"];
 export default function EngagementPieChart() {
   return (
     <div className="bg-white p-6 rounded-lg shadow">
-      <h3 className="font-semibold mb-4">
-        Active Campaign Engagement 
-      </h3>
+      <h3 className="font-semibold mb-4">Active Campaign Engagement</h3>
 
       <PieChart width={350} height={250}>
         <Pie

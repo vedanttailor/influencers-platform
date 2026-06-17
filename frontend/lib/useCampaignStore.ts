@@ -1,41 +1,137 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
-import { Campaign } from "./types";
+import { api } from "@/lib/api";
 
-type Store = {
-  campaigns: Campaign[];
-  apply: (id: number) => void;
-  submitLink: (id: number, link: string) => void;
-};
+export const useCampaignStore = create((set) => ({
+  campaigns: [],
 
-export const useCampaignStore = create<Store>((set) => ({
-  campaigns: [
-    {
-      id: 1,
-      title: "Instagram Reel Promo",
-      client: "Nike",
-      platform: "Instagram",
-      budget: 8000,
-      description: "Create 1 reel",
-      guidelines: "No music copyright",
-      hashtags: ["#nike", "#fitness"],
-      endDate: "2026-02-05",
-      status: "available",
-    },
-  ],
+  fetchCampaigns: async () => {
+    try {
+      const [availableData, myData] = await Promise.all([
+        api.get("/influencer/campaigns"),
+        api.get("/influencer/my-campaigns"),
+      ]);
 
-  apply: (id) =>
-    set((state) => ({
-      campaigns: state.campaigns.map((c) =>
-        c.id === id ? { ...c, status: "applied" } : c
+      const available = availableData.map((c: any) => ({
+        id: c.id,
+        title: c.campaign_name,
+        client: c.brand_name,
+        platforms: Array.isArray(c.platforms) ? c.platforms : [],
+        platform: Array.isArray(c.platforms) ? c.platforms.join(", ") : "",
+        company_url: c.company_url || "", 
+        budget: Number(c.budget),
+        endDate: c.end_date,
+        status: c.status || "available",
+        description: c.description || "",
+        post_url: c.post_url || {},
+        logo: c.logo || "",
+        created_at: c.created_at,
+      }));
+
+      const mine = myData.map((c: any) => ({
+        id: c.id,
+        title: c.campaign_name,
+        client: c.brand_name,
+        platforms: Array.isArray(c.platforms) ? c.platforms : [],
+        platform: Array.isArray(c.platforms) ? c.platforms.join(", ") : "",
+        company_url: c.company_url || "", 
+        budget: Number(c.budget),
+        endDate: c.end_date,
+        status: c.status || "applied",
+       description: c.description || "",
+        post_url: c.post_url || {},
+        logo: c.logo || "",
+        created_at: c.created_at,
+      }));
+
+      const merged = new Map<string, any>();
+      [...available, ...mine].forEach((c: any) => {
+        const key = String(c.id);
+        const prev = merged.get(key);
+        if (!prev) {
+          merged.set(key, c);
+          return;
+        }
+
+        // Merge sparsely populated records (my-campaigns) with richer campaign rows.
+        merged.set(key, {
+          ...prev,
+          ...c,
+          created_at: c.created_at || prev.created_at,
+          platform: c.platform || prev.platform,
+          platforms:
+              Array.isArray(c.platforms) && c.platforms.length > 0
+              ? c.platforms
+              : prev.platforms,
+          endDate: c.endDate || prev.endDate,
+          client: c.client || prev.client,
+          title: c.title || prev.title,
+          logo: c.logo || prev.logo,
+          company_url: c.company_url,
+          });
+      });
+
+      set({ campaigns: Array.from(merged.values()) });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
+  fetchMyCampaigns: async () => {
+    try {
+      const data = await api.get("/influencer/my-campaigns");
+
+      const formatted = data.map((c: any) => ({
+        id: c.id,
+        title: c.campaign_name,
+        client: c.brand_name,
+        budget: Number(c.budget),
+        status: c.status,
+        endDate: c.end_date,
+        post_url: c.post_url,
+        created_at: c.created_at,
+      }));
+
+      set((state: any) => ({
+        campaigns: [...state.campaigns, ...formatted],
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
+  apply: async (id: string) => {
+    await api.post("/influencer/apply", { campaign_id: id });
+
+    set((state: any) => ({
+      campaigns: state.campaigns.map((c: any) =>
+        c.id === id ? { ...c, status: "applied" } : c,
       ),
-    })),
+    }));
+  },
+  earnings: null,
 
-  submitLink: (id, link) =>
-    set((state) => ({
-      campaigns: state.campaigns.map((c) =>
-        c.id === id
-          ? { ...c, postLink: link, status: "completed" }
-          : c
-      ),
-    })),
+  fetchEarnings: async () => {
+    try {
+      const data = await api.get("/influencer/earnings");
+      set({ earnings: data });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
+  submitLink: async (id: string, links: any) => {
+  await api.patch(`/influencer/submit/${id}`, {
+    instagram_url: links.instagram || null,
+    youtube_url: links.youtube || null,
+  });
+
+  set((state: any) => ({
+    campaigns: state.campaigns.map((c: any) =>
+      c.id === id
+        ? { ...c, status: "completed", post_url: links }
+        : c,
+    ),
+  }));
+},
 }));

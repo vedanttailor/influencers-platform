@@ -1,9 +1,9 @@
-// export default function Reports() {
-//   return <h1 className="text-2xl font-bold">Reports</h1>;
-// }
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { api } from "@/lib/api";
 import {
   BarChart,
   Bar,
@@ -16,58 +16,79 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const summaryData = [
-  { title: "Total Campaigns", value: 12521 },
-  { title: "Active Campaigns", value: 10289 },
-  { title: "Completed Campaigns", value: 2232 },
-  { title: "Total Spend", value: "₹22,45,000" },
-];
-
-const campaignPerformance = [
-  { name: "Campaign A", engagement: 4200 },
-  { name: "Campaign B", engagement: 3100 },
-  { name: "Campaign C", engagement: 5400 },
-  { name: "Campaign D", engagement: 2900 },
-];
-
-const budgetData = [
-  { name: "Spent", value: 65 },
-  { name: "Remaining", value: 35 },
-];
-
-const COLORS = ["#2563eb", "#93c5fd"];
-
 export default function ReportsPage() {
+  const [summaryData, setSummaryData] = useState<any[]>([]);
+  const [campaignPerformance, setCampaignPerformance] = useState<any[]>([]);
+  const [budgetData, setBudgetData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const fetchReports = async () => {
+    try {
+      // ✅ FIXED API PATH
+      const data = await api.get("/campaigns/reports");
+
+      // ✅ FIX SUMMARY (convert object → array)
+      setSummaryData([
+        { title: "Total Campaigns", value: data.summary?.total || 0 },
+        { title: "Active Campaigns", value: data.summary?.active || 0 },
+        { title: "Completed Campaigns", value: data.summary?.completed || 0 },
+        { title: "Total Spend", value: `₹${data.summary?.spend || 0}` },
+      ]);
+
+      // ✅ FIX PERFORMANCE
+      setCampaignPerformance(
+        Array.isArray(data.performance) ? data.performance : [],
+      );
+
+      // ✅ FIX BUDGET (convert object → array)
+      setBudgetData([
+        { name: "Spent", value: Number(data.budget?.spent || 0) },
+        { name: "Remaining", value: Number(data.budget?.remaining || 0) },
+      ]);
+    } catch (err) {
+      console.error("Failed to load reports", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ⚠️ OPTIONAL: remove or keep (backend not implemented yet)
+  const handleDownload = () => {
+    toast("Download API not implemented yet");
+  };
+
+  if (loading) {
+    return <p className="text-center mt-10">Loading reports...</p>;
+  }
+
+  const COLORS = ["#2563eb", "#93c5fd"];
+
   return (
     <div className="space-y-8">
-      
+      {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Reports & Analytics</h1>
-        <button className="px-4 py-2 bg-black text-white rounded-lg">
-          Download Report
-        </button>
       </div>
 
-      
+      {/* Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {summaryData.map((item, index) => (
-          <div
-            key={index}
-            className="bg-white p-6 rounded-lg shadow"
-          >
+          <div key={index} className="bg-white p-6 rounded-lg shadow">
             <p className="text-gray-500">{item.title}</p>
             <h2 className="text-2xl font-bold mt-2">{item.value}</h2>
           </div>
         ))}
       </div>
 
-      
+      {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+        {/* Bar Chart */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="font-semibold mb-4">
-            Campaign Engagement
-          </h3>
+          <h3 className="font-semibold mb-4">Campaign Engagement</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={campaignPerformance}>
               <XAxis dataKey="name" />
@@ -78,27 +99,20 @@ export default function ReportsPage() {
           </ResponsiveContainer>
         </div>
 
-        
+        {/* Pie Chart */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="font-semibold mb-4">
-            Budget Utilization
-          </h3>
+          <h3 className="font-semibold mb-4">Budget Utilization</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
                 data={budgetData}
                 dataKey="value"
                 nameKey="name"
-                cx="50%"
-                cy="50%"
                 outerRadius={100}
                 label
               >
                 {budgetData.map((_, index) => (
-                  <Cell
-                    key={index}
-                    fill={COLORS[index]}
-                  />
+                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip />
@@ -107,7 +121,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      
+      {/* Table */}
       <div className="bg-white rounded-lg shadow overflow-x-auto">
         <table className="w-full text-left">
           <thead className="bg-gray-100">
@@ -119,18 +133,14 @@ export default function ReportsPage() {
             </tr>
           </thead>
           <tbody>
-            <tr className="border-t">
-              <td className="p-4">Campaign A</td>
-              <td className="p-4 text-green-600">Active</td>
-              <td className="p-4">4,200</td>
-              <td className="p-4">₹65,000</td>
-            </tr>
-            <tr className="border-t">
-              <td className="p-4">Campaign B</td>
-              <td className="p-4 text-gray-500">Completed</td>
-              <td className="p-4">3,100</td>
-              <td className="p-4">₹48,000</td>
-            </tr>
+            {campaignPerformance.map((c, i) => (
+              <tr key={i} className="border-t">
+                <td className="p-4">{c.name}</td>
+                <td className="p-4">{c.status || "-"}</td>
+                <td className="p-4">{c.engagement}</td>
+                <td className="p-4">₹{c.spend || 0}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
