@@ -26,9 +26,14 @@ export default function CampaignDetailsPage() {
   const fetchCampaign = async () => {
     try {
       const data = await api.get(`/campaigns/${id}`);
+
+      console.log("FULL DATA =", data);
+      console.log("POST_URL =", data.post_url);
+      console.log("TYPE =", typeof data.post_url);
+
       setCampaign(data);
     } catch (err) {
-      console.error("Failed to fetch campaign", err);
+      console.error(err);
     }
   };
 
@@ -173,83 +178,111 @@ export default function CampaignDetailsPage() {
         </div>
 
         <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm font-semibold text-slate-800">
-            Influencer Submitted Video
-          </p>
-          {campaign.post_url && typeof campaign.post_url === "object" ? (
-            <div className="mt-3 space-y-4">
-              {/* Instagram Links */}
+          {/* Normalize post_url */}
 
-              {Array.isArray(campaign.post_url.instagram) &&
-                campaign.post_url.instagram.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-pink-600 mb-2">
-                      Instagram Links
-                    </h4>
+          {(() => {
+            let postUrl: any = campaign.post_url;
 
-                    {campaign.post_url.instagram.map(
-                      (link: string, index: number) => (
-                        <div key={index} className="mb-2">
-                          <p className="text-sm font-medium">
-                            Link {index + 1}
-                          </p>
+            if (typeof postUrl === "string") {
+              try {
+                postUrl = JSON.parse(postUrl);
+              } catch {
+                postUrl = {};
+              }
+            }
 
-                          <a
-                            href={link}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600 underline break-all text-sm"
-                          >
-                            {link}
-                          </a>
-                        </div>
-                      ),
+            const youtubeLinks = Array.isArray(postUrl?.youtube)
+              ? postUrl.youtube
+              : postUrl?.youtube
+                ? [postUrl.youtube]
+                : [];
+
+            const instagramLinks = Array.isArray(postUrl?.instagram)
+              ? postUrl.instagram
+              : postUrl?.instagram
+                ? [postUrl.instagram]
+                : [];
+
+            return (
+              <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-sm font-semibold text-slate-800">
+                  Influencer Submitted Video
+                </p>
+
+                {youtubeLinks.length > 0 || instagramLinks.length > 0 ? (
+                  <div className="mt-3 space-y-5">
+                    {/* Instagram */}
+
+                    {instagramLinks.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-pink-600 mb-2">
+                          Instagram Links
+                        </h4>
+
+                        {instagramLinks.map((link: string, index: number) => (
+                          <div key={index} className="mb-2">
+                            <p className="text-sm font-medium">
+                              Link {index + 1}
+                            </p>
+
+                            <a
+                              href={link}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="
+                        text-blue-600
+                        underline
+                        break-all
+                        text-sm
+                      "
+                            >
+                              {link}
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Youtube */}
+
+                    {youtubeLinks.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-red-600 mb-2">
+                          YouTube Links
+                        </h4>
+
+                        {youtubeLinks.map((link: string, index: number) => (
+                          <div key={index} className="mb-2">
+                            <p className="text-sm font-medium">
+                              Link {index + 1}
+                            </p>
+
+                            <a
+                              href={link}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="
+                        text-blue-600
+                        underline
+                        break-all
+                        text-sm
+                      "
+                            >
+                              {link}
+                            </a>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
-                )}
-
-              {/* YouTube Links */}
-
-              {Array.isArray(campaign.post_url.youtube) &&
-                campaign.post_url.youtube.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-red-600 mb-2">
-                      YouTube Links
-                    </h4>
-
-                    {campaign.post_url.youtube.map(
-                      (link: string, index: number) => (
-                        <div key={index} className="mb-2">
-                          <p className="text-sm font-medium">
-                            Link {index + 1}
-                          </p>
-
-                          <a
-                            href={link}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600 underline break-all text-sm"
-                          >
-                            {link}
-                          </a>
-                        </div>
-                      ),
-                    )}
-                  </div>
-                )}
-
-              {!campaign.post_url.instagram?.length &&
-                !campaign.post_url.youtube?.length && (
-                  <p className="text-sm text-slate-500">
+                ) : (
+                  <p className="mt-2 text-sm text-slate-500">
                     Not submitted yet by influencer.
                   </p>
                 )}
-            </div>
-          ) : (
-            <p className="mt-2 text-sm text-slate-500">
-              Not submitted yet by influencer.
-            </p>
-          )}
+              </div>
+            );
+          })()}
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
